@@ -5,6 +5,7 @@
 // Includes
 //------------------------------------------------------------------------------
 #include "Core/Containers/Array.h"
+#include "Core/Containers/SharedPtr.h"
 #include "Core/Strings/AString.h"
 
 // Forward Declarations
@@ -29,14 +30,24 @@ class BFFToken;
 class BFFVariable
 {
 public:
-    const AString & GetName() const { return m_Name; }
+    const AString & GetName() const { return *m_Name; }
 
     const AString & GetString() const
     {
         ASSERT( IsString() );
+        return *m_StringValue;
+    }
+    const SharedPtr<AString> & GetStringShared() const
+    {
+        ASSERT( IsString() );
         return m_StringValue;
     }
-    const Array<AString> & GetArrayOfStrings() const
+    const Array<SharedPtr<AString>> & GetArrayOfStrings() const
+    {
+        ASSERT( IsArrayOfStrings() );
+        return *m_ArrayValues;
+    }
+    const SharedPtr<Array<SharedPtr<AString>>> & GetArrayOfStringsShared() const
     {
         ASSERT( IsArrayOfStrings() );
         return m_ArrayValues;
@@ -54,12 +65,12 @@ public:
     const Array<const BFFVariable *> & GetStructMembers() const
     {
         ASSERT( IsStruct() );
-        RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( m_SubVariables );
+        RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( *m_SubVariables );
     }
     const Array<const BFFVariable *> & GetArrayOfStructs() const
     {
         ASSERT( IsArrayOfStructs() );
-        RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( m_SubVariables );
+        RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( *m_SubVariables );
     }
 
     enum VarType : uint8_t
@@ -115,15 +126,15 @@ private:
 
     BFFVariable & operator=( const BFFVariable & other ) = delete;
 
-    void SetValueString( const AString & value );
+    void SetValueString( const SharedPtr<AString> & value );
     void SetValueBool( bool value );
-    void SetValueArrayOfStrings( const Array<AString> & values );
+    void SetValueArrayOfStrings( const SharedPtr<Array<SharedPtr<AString>>> & values );
     void SetValueInt( int i );
-    void SetValueStruct( const Array<const BFFVariable *> & members );
-    void SetValueStruct( Array<BFFVariable *> && members );
-    void SetValueArrayOfStructs( const Array<const BFFVariable *> & values );
+    void SetValueStruct( SharedPtr<const Array<const BFFVariable *>> & members );
+    void SetValueStruct( SharedPtr<Array<BFFVariable *>> && members );
+    void SetValueArrayOfStructs( SharedPtr<const Array<const BFFVariable *>> & values );
 
-    AString m_Name;
+    SharedPtr<AString> m_Name;
     VarType m_Type;
 
     mutable uint8_t m_FreezeCount = 0;
@@ -131,9 +142,9 @@ private:
     //
     bool m_BoolValue = false;
     int32_t m_IntValue = 0;
-    AString m_StringValue;
-    Array<AString> m_ArrayValues;
-    Array<BFFVariable *> m_SubVariables; // Used for struct members of arrays of structs
+    SharedPtr<AString> m_StringValue;
+    SharedPtr<Array<SharedPtr<AString>>> m_ArrayValues;
+    SharedPtr<Array<BFFVariable *>> m_SubVariables; // Used for struct members of arrays of structs
     const BFFToken & m_Token;
 
     static const char * s_TypeNames[ MAX_VAR_TYPES ];
