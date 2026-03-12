@@ -162,7 +162,7 @@ protected:
     bool GetString( const BFFToken * iter, const BFFVariable *& var, const char * name, bool required = false ) const;
     bool GetString( const BFFToken * iter, AString & var, const char * name, bool required = false ) const;
     bool GetStringOrArrayOfStrings( const BFFToken * iter, const BFFVariable *& var, const char * name, bool required ) const;
-    bool GetStrings( const BFFToken * iter, Array<AString> & strings, const char * name, bool required = false ) const;
+    bool GetStrings( const BFFToken * iter, Array<SharedPtr<AString>> & strings, const char * name, bool required = false ) const;
 
     // helper function to make alias for target
     bool ProcessAlias( NodeGraph & nodeGraph, Node * nodeToAlias ) const;

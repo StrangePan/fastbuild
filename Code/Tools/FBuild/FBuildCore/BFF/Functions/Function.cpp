@@ -473,17 +473,17 @@ bool Function::GetNodeList( NodeGraph & nodeGraph,
     if ( var->IsArrayOfStrings() )
     {
         // an array of references
-        const Array<AString> & nodeNames = var->GetArrayOfStrings();
+        const Array<SharedPtr<AString>> & nodeNames = var->GetArrayOfStrings();
         nodes.SetCapacity( nodes.GetSize() + nodeNames.GetSize() );
-        for ( const AString & nodeName : nodeNames )
+        for ( const SharedPtr<AString> & nodeName : nodeNames )
         {
-            if ( nodeName.IsEmpty() ) // Always an error - because an empty node name is invalid
+            if ( nodeName->IsEmpty() ) // Always an error - because an empty node name is invalid
             {
                 Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, propertyName );
                 return false;
             }
 
-            if ( !GetNodeList( nodeGraph, iter, this, propertyName, nodeName, nodes, options ) )
+            if ( !GetNodeList( nodeGraph, iter, this, propertyName, *nodeName, nodes, options ) )
             {
                 // child func will have emitted error
                 return false;
@@ -911,7 +911,7 @@ bool Function::GetNodeList( NodeGraph & nodeGraph,
 
 // GetStrings
 //------------------------------------------------------------------------------
-bool Function::GetStrings( const BFFToken * iter, Array<AString> & strings, const char * name, bool required ) const
+bool Function::GetStrings( const BFFToken * iter, Array<SharedPtr<AString>> & strings, const char * name, bool required ) const
 {
     const BFFVariable * var;
     if ( !GetStringOrArrayOfStrings( iter, var, name, required ) )
@@ -926,12 +926,11 @@ bool Function::GetStrings( const BFFToken * iter, Array<AString> & strings, cons
 
     if ( var->GetType() == BFFVariable::VAR_STRING )
     {
-        strings.Append( var->GetString() );
+        strings.Append( var->GetStringShared() );
     }
     else if ( var->GetType() == BFFVariable::VAR_ARRAY_OF_STRINGS )
     {
-        const Array<AString> & vStrings = var->GetArrayOfStrings();
-        strings.Append( vStrings );
+        strings.Append( var->GetArrayOfStrings() );
     }
     else
     {

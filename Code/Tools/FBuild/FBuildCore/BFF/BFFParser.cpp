@@ -881,24 +881,48 @@ bool BFFParser::StoreVariableString( const AString & name,
         else if ( var->IsArrayOfStrings() || dstIsEmpty )
         {
             // OK - can concat String to ArrayOfStrings or to empty array
-            StackArray<AString> finalValues;
-            finalValues.SetCapacity( var->GetArrayOfStrings().GetSize() + 1 );
+            SharedPtr<Array<SharedPtr<AString>>> finalValues;
             if ( opToken->IsOperator( kBFFVariableConcatenation ) )
             {
+                StackArray<SharedPtr<AString>> stackFinalValues;
+                stackFinalValues.SetCapacity( var->GetArrayOfStrings().GetSize() + 1 );
                 if ( !dstIsEmpty )
                 {
-                    finalValues = var->GetArrayOfStrings();
+                    stackFinalValues = var->GetArrayOfStrings();
                 }
-                finalValues.Append( value );
+                stackFinalValues.Append( value );
+                finalValues.Emplace( Move ( stackFinalValues ) );
             }
             else if ( !dstIsEmpty )
             {
-                for ( const AString & it : var->GetArrayOfStrings() )
+                const Array<SharedPtr<AString>> & originalValues = var->GetArrayOfStrings();
+                const SharedPtr<AString> * firstMatch = nullptr;
+                for ( const SharedPtr<AString> & it : originalValues )
                 {
-                    if ( it != value ) // remove equal strings
+                    if ( (*it) == value )
                     {
-                        finalValues.Append( it );
+                        firstMatch = &it;
+                        break;
                     }
+                }
+                if ( firstMatch )
+                {
+                    StackArray<SharedPtr<AString>> stackFinalValues;
+                    stackFinalValues.SetCapacity( originalValues.GetSize() - 1 );
+                    stackFinalValues.Append( originalValues.Begin(), firstMatch );
+                    for ( const SharedPtr<AString> * it = firstMatch + 1; it != originalValues.End() : it++ )
+                    {
+                        if ( (*it) != value ) // remove equal strings
+                        {
+                            stackFinalValues.Append( it );
+                        }
+                    }
+                    finalValues.Emplace( Move ( stackFinalValues ) );
+                }
+                else
+                {
+                    // If no strings in the array matched, it's OK to just re-use the original array
+                    finalValues = var->GetArrayOfStringsShared();
                 }
             }
 
