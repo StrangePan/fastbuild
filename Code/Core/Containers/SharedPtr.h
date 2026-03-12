@@ -47,6 +47,20 @@ public:
         ASSERT( m_Pointer );
         return m_Pointer;
     }
+    [[nodiscard]] T& operator*()
+    {
+        ASSERT( m_Pointer );
+        return *m_Pointer;
+    }
+    [[nodiscard]] const T& operator*() const
+    {
+        ASSERT( m_Pointer );
+        return *m_Pointer;
+    }
+    [[nodiscard]] operator bool() const
+    {
+        return ( m_Pointer != nullptr );
+    }
 
     template <class... ARGS>
     void Emplace( ARGS &&... args )
