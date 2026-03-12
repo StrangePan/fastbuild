@@ -4,8 +4,10 @@
 
 // Includes
 //------------------------------------------------------------------------------
+#include "Core/Containers/Forward.h"
 #include "Core/Containers/Move.h"
 #include "Core/Env/Assert.h"
+#include "Core/Math/Conversions.h"
 #include "Core/Mem/Mem.h"
 
 // SharedPtr
@@ -15,9 +17,10 @@ class SharedPtr
 {
 public:
     explicit SharedPtr() = default;
-    explicit SharedPtr( T * ptr )
+    template <class... ARGS>
+    explicit SharedPtr( ARGS &&... args )
     {
-        *this = ptr;
+        Emplace( Forward( ARGS, args )... );
     }
     explicit SharedPtr( SharedPtr<T> && other )
     {
@@ -45,19 +48,20 @@ public:
         return m_Pointer;
     }
 
-    void Replace( T * newPtr )
-    {
-        *this = newPtr;
-    }
-    void operator=( T * ptr )
+    template <class... ARGS>
+    void Emplace( ARGS &&... args )
     {
         Clear();
 
-        if ( ptr )
-        {
-            m_ReferenceCount = FNEW( uint32_t( 1 ) );
-            m_Pointer = ptr;
-        }
+        const size_t offset = Math::RoundUp( sizeof( T ), __alignof( uint32_t ) );
+        const size_t size = offset + sizeof( T );
+        void * ptr = ALLOC( size, Math::Max( __alignof( T ), __alignof( uint32_t ) ) );
+
+        m_Pointer = static_cast<T *>( ptr );
+        m_ReferenceCount = static_cast<uint32_t *>( static_cast<void *>( static_cast<uint8_t *>( ptr ) + offset ) );
+
+        INPLACE_NEW( m_Pointer ) T( Forward( ARGS, args )... );
+        INPLACE_NEW( m_ReferenceCount ) uint32_t( 1 );
     }
     void operator=( const SharedPtr<T> & other )
     {
@@ -68,7 +72,7 @@ public:
 
         if ( m_ReferenceCount )
         {
-            *m_ReferenceCount++;
+            (*m_ReferenceCount)++;
         }
     }
     void operator=( SharedPtr<T> && other )
@@ -94,34 +98,15 @@ public:
         {
             ASSERT( m_ReferenceCount != nullptr );
             ASSERT( *m_ReferenceCount > 0 );
-            *m_ReferenceCount--;
+            (*m_ReferenceCount)--;
             if ( *m_ReferenceCount == 0 )
             {
-                FDELETE( m_ReferenceCount );
-                FDELETE( m_Pointer );
+                m_Pointer->~T();
+                FREE( static_cast<void *>( m_Pointer ) );
             }
             m_ReferenceCount = nullptr;
             m_Pointer = nullptr;
         }
-    }
-
-    // clear this ptr, decrement the reference count, but do not delete the object
-    [[nodiscard]] T * ReleaseOwnership()
-    {
-        T * ptr = m_Pointer;
-        if ( m_Pointer )
-        {
-            ASSERT( m_ReferenceCount != nullptr );
-            ASSERT( *m_ReferenceCount > 0 );
-            *m_ReferenceCount--;
-            if ( *m_ReferenceCount == 0 )
-            {
-                FDELETE( m_ReferenceCount );
-            }
-            m_ReferenceCount = nullptr;
-            m_Pointer = nullptr;
-        }
-        return ptr;
     }
 
 private:
