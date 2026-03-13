@@ -45,10 +45,6 @@ public:
                               const BFFToken & token,
                               const SharedPtr<Array<BFFVariable>> & members,
                               BFFStackFrame * frame );
-    static void SetVarStruct( const SharedPtr<AString> & name,
-                              const BFFToken & token,
-                              SharedPtr<Array<BFFVariable>> && members,
-                              BFFStackFrame * frame );
     static void SetVarArrayOfStructs( const SharedPtr<AString> & name,
                                       const BFFToken & token,
                                       const SharedPtr<Array<BFFVariable>> & structs,
@@ -64,11 +60,11 @@ public:
                         BFFStackFrame * frame );
 
     // set from two existing variable
-    static BFFVariable * ConcatVars( const AString & name,
-                                     const BFFVariable * lhs,
-                                     const BFFVariable * rhs,
-                                     BFFStackFrame * frame,
-                                     const BFFToken * operatorIter );
+    static bool ConcatVars( const AString & name,
+                            const BFFVariable * lhs,
+                            const BFFVariable * rhs,
+                            BFFStackFrame * frame,
+                            const BFFToken * operatorIter );
 
     // get a variable (caller passes complete name indicating type (user vs system))
     static const BFFVariable * GetVar( const char * name, BFFStackFrame * frame = nullptr );
