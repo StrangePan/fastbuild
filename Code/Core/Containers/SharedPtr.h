@@ -17,11 +17,6 @@ class SharedPtr
 {
 public:
     explicit SharedPtr() = default;
-    template <class... ARGS>
-    explicit SharedPtr( ARGS &&... args )
-    {
-        Emplace( Forward( ARGS, args )... );
-    }
     explicit SharedPtr( SharedPtr<T> && other )
     {
         *this = Move( other );
@@ -29,6 +24,13 @@ public:
     explicit SharedPtr( const SharedPtr<T> & other )
     {
         *this = other;
+    }
+    template <class... ARGS>
+    static SharedPtr<T> MakeShared( ARGS &&... args )
+    {
+        SharedPtr<T> ptr;
+        ptr.Emplace( Forward( ARGS, args )... );
+        return ptr;
     }
     ~SharedPtr()
     {
