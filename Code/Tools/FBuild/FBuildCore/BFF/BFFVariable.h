@@ -17,6 +17,32 @@ class BFFToken;
 class BFFVariable
 {
 public:
+    enum VarType : uint8_t
+    {
+        VAR_ANY = 0, // used for searching
+        VAR_STRING = 1,
+        VAR_BOOL = 2,
+        VAR_ARRAY_OF_STRINGS = 3,
+        VAR_INT = 4,
+        VAR_STRUCT = 5,
+        VAR_ARRAY_OF_STRUCTS = 6,
+        MAX_VAR_TYPES    // NOTE: Be sure to update s_TypeNames when adding to here
+    };
+
+    explicit BFFVariable( const BFFVariable & other );
+
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, VarType type );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<AString> & value );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, bool value );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<SharedPtr<AString>>> & values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, int32_t i );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<BFFVariable>> & values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, SharedPtr<Array<BFFVariable>> && values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<BFFVariable>> & structs, VarType type ); // type for disambiguation
+    ~BFFVariable();
+
+    BFFVariable & operator=( const BFFVariable & other );
+
     const SharedPtr<AString> & GetName() const { return m_Name; }
 
     const SharedPtr<AString> & GetString() const
@@ -50,18 +76,6 @@ public:
         return m_SubVariables;
     }
 
-    enum VarType : uint8_t
-    {
-        VAR_ANY = 0, // used for searching
-        VAR_STRING = 1,
-        VAR_BOOL = 2,
-        VAR_ARRAY_OF_STRINGS = 3,
-        VAR_INT = 4,
-        VAR_STRUCT = 5,
-        VAR_ARRAY_OF_STRUCTS = 6,
-        MAX_VAR_TYPES    // NOTE: Be sure to update s_TypeNames when adding to here
-    };
-
     VarType GetType() const { return m_Type; }
     static const char * GetTypeName( VarType t ) { return s_TypeNames[ (uint32_t)t ]; }
 
@@ -88,20 +102,6 @@ public:
 
 private:
     friend class BFFStackFrame;
-
-    explicit BFFVariable( const BFFVariable & other );
-
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, VarType type );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<AString> & value );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, bool value );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<SharedPtr<AString>>> & values );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, int32_t i );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const Array<BFFVariable> & values );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, Array<BFFVariable> && values );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const Array<BFFVariable> & structs, VarType type ); // type for disambiguation
-    ~BFFVariable();
-
-    BFFVariable & operator=( const BFFVariable & other ) = delete;
 
     void SetValueString( const SharedPtr<AString> & value );
     void SetValueBool( bool value );

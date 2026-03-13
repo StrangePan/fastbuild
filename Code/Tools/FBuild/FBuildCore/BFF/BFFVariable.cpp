@@ -40,17 +40,7 @@ BFFVariable::BFFVariable( const BFFVariable & other )
     , m_Type( other.m_Type )
     , m_Token( other.m_Token )
 {
-    switch ( m_Type )
-    {
-        case VAR_ANY: ASSERT( false ); break;
-        case VAR_STRING: SetValueString( other.GetString() ); break;
-        case VAR_BOOL: SetValueBool( other.GetBool() ); break;
-        case VAR_ARRAY_OF_STRINGS: SetValueArrayOfStrings( other.GetArrayOfStrings() ); break;
-        case VAR_INT: SetValueInt( other.GetInt() ); break;
-        case VAR_STRUCT: SetValueStruct( other.GetStructMembers() ); break;
-        case VAR_ARRAY_OF_STRUCTS: SetValueArrayOfStructs( other.GetArrayOfStructs() ); break;
-        case MAX_VAR_TYPES: ASSERT( false ); break;
-    }
+    (*this) = other;
 }
 
 // CONSTRUCTOR
@@ -145,6 +135,26 @@ BFFVariable::BFFVariable( const SharedPtr<AString> & name,
 //------------------------------------------------------------------------------
 BFFVariable::~BFFVariable()
 {
+}
+
+// COPY
+//------------------------------------------------------------------------------
+BFFVariable & BFFVariable::operator=( const BFFVariable & other )
+{
+    m_Name = other.m_Name;
+    m_Type = other.m_Type;
+    m_Token = other.m_Token;
+    switch ( m_Type )
+    {
+        case VAR_ANY: ASSERT( false ); break;
+        case VAR_STRING: SetValueString( other.GetString() ); break;
+        case VAR_BOOL: SetValueBool( other.GetBool() ); break;
+        case VAR_ARRAY_OF_STRINGS: SetValueArrayOfStrings( other.GetArrayOfStrings() ); break;
+        case VAR_INT: SetValueInt( other.GetInt() ); break;
+        case VAR_STRUCT: SetValueStruct( other.GetStructMembers() ); break;
+        case VAR_ARRAY_OF_STRUCTS: SetValueArrayOfStructs( other.GetArrayOfStructs() ); break;
+        case MAX_VAR_TYPES: ASSERT( false ); break;
+    }
 }
 
 // SetValueString
@@ -389,12 +399,12 @@ BFFVariable * BFFVariable::ConcatVarsRecurse( const AString & dstName, const BFF
                         FDELETE result;
                         return nullptr; // ConcatVarsRecurse will have emitted an error
                     }
-                    allMembers.Append( *newVar );
+                    allMembers.EmplaceBack( *newVar );
                     FDELETE newVar;
                 }
                 else
                 {
-                    allMembers.Append( *it );
+                    allMembers.EmplaceBack( *it );
                 }
             }
 
@@ -404,7 +414,7 @@ BFFVariable * BFFVariable::ConcatVarsRecurse( const AString & dstName, const BFF
                 const BFFVariable * it2 = GetMemberByName( ( *it )->GetName(), result->GetStructMembers() );
                 if ( nullptr == it2 )
                 {
-                    allMembers.Append( *it2 );
+                    allMembers.EmplaceBack( *it2 );
                 }
             }
 
