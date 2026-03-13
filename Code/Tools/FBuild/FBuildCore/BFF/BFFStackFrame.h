@@ -25,33 +25,33 @@ public:
     void DisconnectStackChain();
 
     // set the value of a variable
-    static void SetVarString( const AString & name,
+    static void SetVarString( const SharedPtr<AString> & name,
                               const BFFToken & token,
-                              const AString & value,
+                              const SharedPtr<AString> & value,
                               BFFStackFrame * frame );
-    static void SetVarArrayOfStrings( const AString & name,
+    static void SetVarArrayOfStrings( const SharedPtr<AString> & name,
                                       const BFFToken & token,
-                                      const Array<AString> & values,
+                                      const SharedPtr<Array<SharedPtr<AString>>> & values,
                                       BFFStackFrame * frame );
-    static void SetVarBool( const AString & name,
+    static void SetVarBool( const SharedPtr<AString> & name,
                             const BFFToken & token,
                             bool value,
                             BFFStackFrame * frame );
-    static void SetVarInt( const AString & name,
+    static void SetVarInt( const SharedPtr<AString> & name,
                            const BFFToken & token,
                            int value,
                            BFFStackFrame * frame );
-    static void SetVarStruct( const AString & name,
+    static void SetVarStruct( const SharedPtr<AString> & name,
                               const BFFToken & token,
-                              const Array<const BFFVariable *> & members,
+                              const SharedPtr<Array<BFFVariable>> & members,
                               BFFStackFrame * frame );
-    static void SetVarStruct( const AString & name,
+    static void SetVarStruct( const SharedPtr<AString> & name,
                               const BFFToken & token,
-                              Array<BFFVariable *> && members,
+                              SharedPtr<Array<BFFVariable>> && members,
                               BFFStackFrame * frame );
-    static void SetVarArrayOfStructs( const AString & name,
+    static void SetVarArrayOfStructs( const SharedPtr<AString> & name,
                                       const BFFToken & token,
-                                      const Array<const BFFVariable *> & structs,
+                                      const SharedPtr<Array<BFFVariable>> & structs,
                                       BFFStackFrame * frame );
 
     // set from an existing variable
@@ -60,7 +60,7 @@ public:
                         BFFStackFrame * frame );
     static void SetVar( const BFFVariable * srcVar,
                         const BFFToken & token,
-                        const AString & dstName,
+                        const SharedPtr<AString> & dstName,
                         BFFStackFrame * frame );
 
     // set from two existing variable
@@ -78,8 +78,8 @@ public:
     static const BFFVariable * GetVarAny( const AString & nameOnly );
 
     // get all variables at this stack level only
-    const Array<const BFFVariable *> & GetLocalVariables() const { RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( m_Variables ); }
-    Array<BFFVariable *> & GetLocalVariables() { return m_Variables; }
+    const Array<BFFVariable> & GetLocalVariables() const { return m_Variables; }
+    Array<BFFVariable> & GetLocalVariables() { return m_Variables; }
 
     // get a variable at this stack level only
     const BFFVariable * GetLocalVar( const AString & name ) const;
@@ -112,7 +112,7 @@ private:
     void CreateOrReplaceVarMutableNoRecurse( BFFVariable * var );
 
     // variables at current scope
-    Array<BFFVariable *> m_Variables;
+    Array<BFFVariable> m_Variables;
 
     // pointer to parent scope
     BFFStackFrame * m_Next;
