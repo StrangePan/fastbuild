@@ -79,6 +79,12 @@ public:
     }
     void operator=( const SharedPtr<T> & other )
     {
+        if ( other.m_Pointer == m_Pointer )
+        {
+            ASSERT( other.m_ReferenceCount == m_ReferenceCount );
+            return;
+        }
+
         Clear();
 
         m_ReferenceCount = other.m_ReferenceCount;
@@ -91,6 +97,12 @@ public:
     }
     void operator=( SharedPtr<T> && other )
     {
+        if ( other.m_Pointer == m_Pointer )
+        {
+            ASSERT( other.m_ReferenceCount == m_ReferenceCount );
+            return;
+        }
+
         Clear();
 
         m_ReferenceCount = other.m_ReferenceCount;
