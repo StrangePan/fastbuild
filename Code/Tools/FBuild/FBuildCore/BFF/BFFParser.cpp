@@ -685,7 +685,7 @@ bool BFFParser::ParseUserFunctionCall( BFFTokenRange & iter, const BFFUserFuncti
     for ( size_t i = 0; i < numArgs; ++i )
     {
         const BFFToken * expectedArg = expectedArgs[ i ];
-        const AString & argName = expectedArg->GetValueString();
+        const SharedPtr<AString> & argName = SharedPtr<AString>::MakeShared( expectedArg->GetValueString() );
         const BFFToken * arg = arguments[ i ];
         if ( arg->IsString() )
         {
@@ -695,7 +695,7 @@ bool BFFParser::ParseUserFunctionCall( BFFTokenRange & iter, const BFFUserFuncti
             {
                 return false;
             }
-            BFFStackFrame::SetVarString( argName, *arg, value, &frame );
+            BFFStackFrame::SetVarString( argName, *arg, SharedPtr<AString>::MakeShared( value ), &frame );
         }
         else if ( arg->IsBoolean() )
         {
@@ -847,8 +847,8 @@ bool BFFParser::StoreVariableString( const AString & name,
     const BFFVariable * var = BFFStackFrame::GetVar( name, frame );
 
     const bool dstIsEmpty = ( var == nullptr ) ||
-                            ( var->IsArrayOfStrings() && var->GetArrayOfStrings().IsEmpty() ) ||
-                            ( var->IsArrayOfStructs() && var->GetArrayOfStructs().IsEmpty() );
+                            ( var->IsArrayOfStrings() && var->GetArrayOfStrings()->IsEmpty() ) ||
+                            ( var->IsArrayOfStructs() && var->GetArrayOfStructs()->IsEmpty() );
 
     // are we concatenating?
     if ( opToken->IsOperator( kBFFVariableConcatenation ) ||
@@ -864,8 +864,15 @@ bool BFFParser::StoreVariableString( const AString & name,
         // make sure types are compatible
         if ( var->IsString() )
         {
+            // use the existing variable's contents and avoid unnecessary copies
+            if ( value.IsEmpty() )
+            {
+                BFFStackFrame::SetVar( var, *opToken, frame );
+                return true;
+            }
+
             // OK - can concat String to String
-            AStackString<1024> finalValue( var->GetString() );
+            AStackString<1024> finalValue( *var->GetString() );
             if ( opToken->IsOperator( kBFFVariableConcatenation ) )
             {
                 finalValue += value;
@@ -875,58 +882,62 @@ bool BFFParser::StoreVariableString( const AString & name,
                 finalValue.Replace( value.Get(), "" );
             }
 
-            BFFStackFrame::SetVarString( name, *opToken, finalValue, frame );
+            BFFStackFrame::SetVarString( var->GetName(), *opToken, SharedPtr<AString>::MakeShared( finalValue ), frame );
             return true;
         }
         else if ( var->IsArrayOfStrings() || dstIsEmpty )
         {
             // OK - can concat String to ArrayOfStrings or to empty array
+            const SharedPtr<Array<SharedPtr<AString>>> & originalValues = var->GetArrayOfStrings();
             SharedPtr<Array<SharedPtr<AString>>> finalValues;
             if ( opToken->IsOperator( kBFFVariableConcatenation ) )
             {
                 StackArray<SharedPtr<AString>> stackFinalValues;
-                stackFinalValues.SetCapacity( var->GetArrayOfStrings().GetSize() + 1 );
+                stackFinalValues.SetCapacity( originalValues->GetSize() + 1 );
                 if ( !dstIsEmpty )
                 {
-                    stackFinalValues = var->GetArrayOfStrings();
+                    stackFinalValues.Append( *originalValues );
                 }
-                stackFinalValues.Append( value );
-                finalValues.Emplace( Move ( stackFinalValues ) );
+                stackFinalValues.EmplaceBack( SharedPtr<AString>::MakeShared( value ) );
+                finalValues.Emplace( stackFinalValues );
             }
             else if ( !dstIsEmpty )
             {
-                const Array<SharedPtr<AString>> & originalValues = var->GetArrayOfStrings();
                 const SharedPtr<AString> * firstMatch = nullptr;
-                for ( const SharedPtr<AString> & it : originalValues )
+                for ( const SharedPtr<AString> * it = originalValues->Begin(); it != originalValues->End(); it++ )
                 {
-                    if ( (*it) == value )
+                    if ( (**it) == value )
                     {
-                        firstMatch = &it;
+                        firstMatch = it;
                         break;
                     }
                 }
                 if ( firstMatch )
                 {
                     StackArray<SharedPtr<AString>> stackFinalValues;
-                    stackFinalValues.SetCapacity( originalValues.GetSize() - 1 );
-                    stackFinalValues.Append( originalValues.Begin(), firstMatch );
-                    for ( const SharedPtr<AString> * it = firstMatch + 1; it != originalValues.End() : it++ )
+                    stackFinalValues.SetCapacity( originalValues->GetSize() - 1 );
+                    stackFinalValues.Append( originalValues->Begin(), firstMatch );
+                    for ( const SharedPtr<AString> * it = firstMatch + 1; it != originalValues->End() ; it++ )
                     {
-                        if ( (*it) != value ) // remove equal strings
+                        if ( (**it) != value ) // remove equal strings
                         {
-                            stackFinalValues.Append( it );
+                            stackFinalValues.EmplaceBack( *it );
                         }
                     }
-                    finalValues.Emplace( Move ( stackFinalValues ) );
+                    finalValues.Emplace( stackFinalValues );
                 }
                 else
                 {
                     // If no strings in the array matched, it's OK to just re-use the original array
-                    finalValues = var->GetArrayOfStringsShared();
+                    finalValues = var->GetArrayOfStrings();
                 }
             }
+            else
+            {
+                finalValues.Emplace();
+            }
 
-            BFFStackFrame::SetVarArrayOfStrings( name, *opToken, finalValues, frame );
+            BFFStackFrame::SetVarArrayOfStrings( var->GetName(), *opToken, finalValues, frame );
             return true;
         }
         else
@@ -941,15 +952,26 @@ bool BFFParser::StoreVariableString( const AString & name,
         if ( ( var == nullptr ) || var->IsString() )
         {
             // OK - assigning to a new variable or to a string
-            BFFStackFrame::SetVarString( name, *opToken, value, frame );
+            SharedPtr<AString> sharedName;
+            if ( var != nullptr )
+            {
+                sharedName = var->GetName();
+            }
+            else
+            {
+                sharedName.Emplace( name );
+            }
+            BFFStackFrame::SetVarString( sharedName, *opToken, SharedPtr<AString>::MakeShared( value ), frame );
             return true;
         }
         else if ( var->IsArrayOfStrings() || dstIsEmpty )
         {
             // OK - store new string as the single element of array
-            StackArray<AString> values;
-            values.Append( value );
-            BFFStackFrame::SetVarArrayOfStrings( name, *opToken, values, frame );
+            SharedPtr<Array<SharedPtr<AString>>> values;
+            values.Emplace();
+            values->SetCapacity( 1 );
+            values->EmplaceBack( value );
+            BFFStackFrame::SetVarArrayOfStrings( var->GetName(), *opToken, values, frame );
             return true;
         }
         else
@@ -973,9 +995,6 @@ bool BFFParser::StoreVariableArray( const AString & name,
             opToken->IsOperator( kBFFVariableConcatenation ) ||
             opToken->IsOperator( kBFFVariableSubtraction ) );
 
-    StackArray<AString> values;
-    StackArray<const BFFVariable *> structValues;
-
     // find existing
     const BFFVariable * var = BFFStackFrame::GetVar( name, frame );
 
@@ -991,17 +1010,7 @@ bool BFFParser::StoreVariableArray( const AString & name,
         }
 
         // make sure existing is an array
-        if ( var->IsArrayOfStrings() )
-        {
-            // get values to start with
-            values = var->GetArrayOfStrings();
-        }
-        else if ( var->IsArrayOfStructs() )
-        {
-            // get values to start with
-            structValues = var->GetArrayOfStructs();
-        }
-        else
+        if ( ! ( var->IsArrayOfStrings() || var->IsArrayOfStructs() ) )
         {
             // TODO:B Improve this error to handle ArrayOfStructs case
             Error::Error_1027_CannotModify( opToken, name, var->GetType(), BFFVariable::VAR_ARRAY_OF_STRINGS );
@@ -1020,11 +1029,14 @@ bool BFFParser::StoreVariableArray( const AString & name,
     }
 
     BFFVariable::VarType varType = var ? var->GetType() : BFFVariable::VAR_ANY;
-    if ( ( varType == BFFVariable::VAR_ARRAY_OF_STRINGS && var->GetArrayOfStrings().IsEmpty() ) ||
-         ( varType == BFFVariable::VAR_ARRAY_OF_STRUCTS && var->GetArrayOfStructs().IsEmpty() ) )
+    if ( ( varType == BFFVariable::VAR_ARRAY_OF_STRINGS && var->GetArrayOfStrings()->IsEmpty() ) ||
+         ( varType == BFFVariable::VAR_ARRAY_OF_STRUCTS && var->GetArrayOfStructs()->IsEmpty() ) )
     {
         varType = BFFVariable::VAR_ANY; // allow type of an empty array to be changed
     }
+
+    StackArray<SharedPtr<AString>> newValues;
+    StackArray<BFFVariable> newStructValues;
 
     // Parse array of variables
     BFFTokenRange iter( tokenRange );
@@ -1066,7 +1078,7 @@ bool BFFParser::StoreVariableArray( const AString & name,
             }
 
             varType = BFFVariable::VAR_ARRAY_OF_STRINGS;
-            values.Append( elementValue );
+            newValues.EmplaceBack( SharedPtr<AString>::MakeShared( elementValue ) );
         }
         else if ( iter->IsVariable() )
         {
@@ -1104,11 +1116,11 @@ bool BFFParser::StoreVariableArray( const AString & name,
                 return false;
             }
 
-            if ( varSrc->IsArrayOfStrings() && varSrc->GetArrayOfStrings().IsEmpty() )
+            if ( varSrc->IsArrayOfStrings() && varSrc->GetArrayOfStrings()->IsEmpty() )
             {
                 // appending empty array, nothing to do
             }
-            else if ( varSrc->IsArrayOfStructs() && varSrc->GetArrayOfStructs().IsEmpty() )
+            else if ( varSrc->IsArrayOfStructs() && varSrc->GetArrayOfStructs()->IsEmpty() )
             {
                 // appending empty array, nothing to do
             }
@@ -1129,11 +1141,11 @@ bool BFFParser::StoreVariableArray( const AString & name,
                 varType = BFFVariable::VAR_ARRAY_OF_STRINGS;
                 if ( varSrc->IsString() )
                 {
-                    values.Append( varSrc->GetString() );
+                    newValues.Append( varSrc->GetString() );
                 }
                 else
                 {
-                    values.Append( varSrc->GetArrayOfStrings() );
+                    newValues.Append( *varSrc->GetArrayOfStrings() );
                 }
             }
             else if ( varSrc->IsStruct() || varSrc->IsArrayOfStructs() )
@@ -1153,11 +1165,11 @@ bool BFFParser::StoreVariableArray( const AString & name,
                 varType = BFFVariable::VAR_ARRAY_OF_STRUCTS;
                 if ( varSrc->IsStruct() )
                 {
-                    structValues.Append( varSrc );
+                    newStructValues.Append( *varSrc );
                 }
                 else
                 {
-                    structValues.Append( varSrc->GetArrayOfStructs() );
+                    newStructValues.Append( *varSrc->GetArrayOfStructs() );
                 }
             }
             else
@@ -1188,26 +1200,78 @@ bool BFFParser::StoreVariableArray( const AString & name,
     }
 
     // should only have one populated array
-    ASSERT( values.IsEmpty() || structValues.IsEmpty() );
+    ASSERT( newValues.IsEmpty() || newStructValues.IsEmpty() );
 
     // if array is empty then try to preserve it's type
     if ( varType == BFFVariable::VAR_ANY )
     {
-        ASSERT( values.IsEmpty() && structValues.IsEmpty() );
+        ASSERT( newValues.IsEmpty() && newStructValues.IsEmpty() );
         varType = var ? var->GetType() : BFFVariable::VAR_ARRAY_OF_STRINGS;
     }
 
     // Register this variable
-    if ( varType == BFFVariable::VAR_ARRAY_OF_STRUCTS )
+    SharedPtr<AString> sharedName;
+    if ( var )
     {
-        // structs
-        BFFStackFrame::SetVarArrayOfStructs( name, *opToken, structValues, frame );
+        sharedName = var->GetName();
     }
     else
     {
-        ASSERT( varType == BFFVariable::VAR_ARRAY_OF_STRINGS );
+        sharedName.Emplace( name );
+    }
+    if ( varType == BFFVariable::VAR_ARRAY_OF_STRUCTS )
+    {
+        // structs
+        if ( var && ( opToken->IsOperator( kBFFVariableConcatenation ) ||
+                      opToken->IsOperator( kBFFVariableSubtraction ) ) )
+        {
+            ASSERT( opToken->IsOperator( kBFFVariableConcatenation ) );
+            if ( newStructValues.IsEmpty() )
+            {
+                BFFStackFrame::SetVarArrayOfStructs( sharedName, *opToken, var->GetArrayOfStructs(), frame );
+            }
+            else
+            {
+                SharedPtr<Array<BFFVariable>> concatenatedValues;
+                concatenatedValues.Emplace();
+                concatenatedValues->SetCapacity( var->GetArrayOfStructs()->GetSize() + newStructValues.GetSize() );
+                concatenatedValues->Append( *var->GetArrayOfStructs() );
+                concatenatedValues->Append( newStructValues );
+                BFFStackFrame::SetVarArrayOfStructs( sharedName, *opToken, concatenatedValues, frame );
+            }
+        }
+        else
+        {
+            BFFStackFrame::SetVarArrayOfStructs( sharedName, *opToken, SharedPtr<Array<BFFVariable>>::MakeShared( newStructValues ), frame );
+        }
+    }
+    else
+    {
         // strings
-        BFFStackFrame::SetVarArrayOfStrings( name, *opToken, values, frame );
+        ASSERT( varType == BFFVariable::VAR_ARRAY_OF_STRINGS );
+
+        if ( var && ( opToken->IsOperator( kBFFVariableConcatenation ) ||
+                      opToken->IsOperator( kBFFVariableSubtraction ) ) )
+        {
+            ASSERT( opToken->IsOperator( kBFFVariableConcatenation ) );
+            if ( newValues.IsEmpty() )
+            {
+                BFFStackFrame::SetVarArrayOfStrings( sharedName, *opToken, var->GetArrayOfStrings(), frame );
+            }
+            else
+            {
+                SharedPtr<Array<SharedPtr<AString>>> concatenatedValues;
+                concatenatedValues.Emplace();
+                concatenatedValues->SetCapacity( var->GetArrayOfStrings()->GetSize() + newValues.GetSize() );
+                concatenatedValues->Append( *var->GetArrayOfStrings() );
+                concatenatedValues->Append( newValues );
+                BFFStackFrame::SetVarArrayOfStrings( sharedName, *opToken, concatenatedValues, frame );
+            }
+        }
+        else
+        {
+            BFFStackFrame::SetVarArrayOfStrings( sharedName, *opToken, SharedPtr<Array<SharedPtr<AString>>>::MakeShared( newValues ), frame );
+        }
     }
 
     return true;
@@ -1254,10 +1318,10 @@ bool BFFParser::StoreVariableStruct( const AString & name,
     }
 
     // get variables defined in the scope
-    Array<BFFVariable *> & structMembers = stackFrame.GetLocalVariables();
+    SharedPtr<Array<BFFVariable>> structMembers = SharedPtr<Array<BFFVariable>>::MakeShared( Move( stackFrame.GetLocalVariables() ) );
 
     // Register this variable
-    BFFStackFrame::SetVarStruct( name, *operatorToken, Move( structMembers ), frame ? frame : stackFrame.GetParent() );
+    BFFStackFrame::SetVarStruct( SharedPtr<AString>::MakeShared( name ), *operatorToken, structMembers, frame ? frame : stackFrame.GetParent() );
 
     return true;
 }
@@ -1267,7 +1331,7 @@ bool BFFParser::StoreVariableStruct( const AString & name,
 bool BFFParser::StoreVariableBool( const AString & name, const BFFToken * token, bool value, BFFStackFrame * frame )
 {
     // Register this variable
-    BFFStackFrame::SetVarBool( name, *token, value, frame );
+    BFFStackFrame::SetVarBool( SharedPtr<AString>::MakeShared( name ), *token, value, frame );
 
     return true;
 }
@@ -1276,7 +1340,7 @@ bool BFFParser::StoreVariableBool( const AString & name, const BFFToken * token,
 //------------------------------------------------------------------------------
 bool BFFParser::StoreVariableInt( const AString & name, const BFFToken * token, int value, BFFStackFrame * frame )
 {
-    BFFStackFrame::SetVarInt( name, *token, value, frame );
+    BFFStackFrame::SetVarInt( SharedPtr<AString>::MakeShared( name ), *token, value, frame );
 
     return true;
 }
@@ -1565,7 +1629,7 @@ bool BFFParser::StoreVariableToVariable( const AString & dstName, const BFFToken
             const Array<const BFFVariable *> & srcMembers = varSrc->GetStructMembers();
             if ( concat )
             {
-                const BFFVariable * const newVar = BFFStackFrame::ConcatVars( dstName, varDst, varSrc, dstFrame, operatorToken );
+                const bool result = BFFStackFrame::ConcatVars( dstName, varDst, varSrc, dstFrame, operatorToken );
                 if ( newVar == nullptr )
                 {
                     return false; // ConcatVars will have emitted an error
