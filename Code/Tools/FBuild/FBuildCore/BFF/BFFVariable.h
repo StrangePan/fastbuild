@@ -12,42 +12,19 @@
 //------------------------------------------------------------------------------
 class BFFToken;
 
-// Helpers
-//------------------------------------------------------------------------------
-// Used to avoid aliasing when const casting (can't use const_cast due to the
-// desired const being part of the template type)
-#define RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( input )       \
-    union                                                   \
-    {                                                       \
-        const Array<BFFVariable *> *          normal;       \
-        const Array<const BFFVariable *> *    constified;   \
-    };                                                      \
-    normal = &input;                                        \
-    return *constified
-
 // BFFVariable
 //------------------------------------------------------------------------------
 class BFFVariable
 {
 public:
-    const AString & GetName() const { return *m_Name; }
+    const SharedPtr<AString> & GetName() const { return m_Name; }
 
-    const AString & GetString() const
-    {
-        ASSERT( IsString() );
-        return *m_StringValue;
-    }
-    const SharedPtr<AString> & GetStringShared() const
+    const SharedPtr<AString> & GetString() const
     {
         ASSERT( IsString() );
         return m_StringValue;
     }
-    const Array<SharedPtr<AString>> & GetArrayOfStrings() const
-    {
-        ASSERT( IsArrayOfStrings() );
-        return *m_ArrayValues;
-    }
-    const SharedPtr<Array<SharedPtr<AString>>> & GetArrayOfStringsShared() const
+    const SharedPtr<Array<SharedPtr<AString>>> & GetArrayOfStrings() const
     {
         ASSERT( IsArrayOfStrings() );
         return m_ArrayValues;
@@ -62,15 +39,15 @@ public:
         ASSERT( IsBool() );
         return m_BoolValue;
     }
-    const Array<const BFFVariable *> & GetStructMembers() const
+    const SharedPtr<Array<BFFVariable>> & GetStructMembers() const
     {
         ASSERT( IsStruct() );
-        RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( *m_SubVariables );
+        return m_SubVariables;
     }
-    const Array<const BFFVariable *> & GetArrayOfStructs() const
+    const SharedPtr<Array<BFFVariable>> & GetArrayOfStructs() const
     {
         ASSERT( IsArrayOfStructs() );
-        RETURN_CONSTIFIED_BFF_VARIABLE_ARRAY( *m_SubVariables );
+        return m_SubVariables;
     }
 
     enum VarType : uint8_t
@@ -105,7 +82,7 @@ public:
 
     BFFVariable * ConcatVarsRecurse( const AString & dstName, const BFFVariable & other, const BFFToken * operatorIter ) const;
 
-    static const BFFVariable ** GetMemberByName( const AString & name, const Array<const BFFVariable *> & members );
+    static const BFFVariable * GetMemberByName( const AString & name, const Array<BFFVariable> & members );
 
     const BFFToken & GetToken() const { return m_Token; }
 
@@ -114,14 +91,14 @@ private:
 
     explicit BFFVariable( const BFFVariable & other );
 
-    explicit BFFVariable( const AString & name, const BFFToken & token, VarType type );
-    explicit BFFVariable( const AString & name, const BFFToken & token, const AString & value );
-    explicit BFFVariable( const AString & name, const BFFToken & token, bool value );
-    explicit BFFVariable( const AString & name, const BFFToken & token, const Array<AString> & values );
-    explicit BFFVariable( const AString & name, const BFFToken & token, int32_t i );
-    explicit BFFVariable( const AString & name, const BFFToken & token, const Array<const BFFVariable *> & values );
-    explicit BFFVariable( const AString & name, const BFFToken & token, Array<BFFVariable *> && values );
-    explicit BFFVariable( const AString & name, const BFFToken & token, const Array<const BFFVariable *> & structs, VarType type ); // type for disambiguation
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, VarType type );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<AString> & value );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, bool value );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<SharedPtr<AString>>> & values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, int32_t i );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const Array<BFFVariable> & values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, Array<BFFVariable> && values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const Array<BFFVariable> & structs, VarType type ); // type for disambiguation
     ~BFFVariable();
 
     BFFVariable & operator=( const BFFVariable & other ) = delete;
@@ -130,9 +107,9 @@ private:
     void SetValueBool( bool value );
     void SetValueArrayOfStrings( const SharedPtr<Array<SharedPtr<AString>>> & values );
     void SetValueInt( int i );
-    void SetValueStruct( SharedPtr<const Array<const BFFVariable *>> & members );
-    void SetValueStruct( SharedPtr<Array<BFFVariable *>> && members );
-    void SetValueArrayOfStructs( SharedPtr<const Array<const BFFVariable *>> & values );
+    void SetValueStruct( const SharedPtr<Array<BFFVariable>> & members );
+    void SetValueStruct( SharedPtr<Array<BFFVariable>> && members );
+    void SetValueArrayOfStructs( const SharedPtr<Array<BFFVariable>> & values );
 
     SharedPtr<AString> m_Name;
     VarType m_Type;
@@ -144,7 +121,7 @@ private:
     int32_t m_IntValue = 0;
     SharedPtr<AString> m_StringValue;
     SharedPtr<Array<SharedPtr<AString>>> m_ArrayValues;
-    SharedPtr<Array<BFFVariable *>> m_SubVariables; // Used for struct members of arrays of structs
+    SharedPtr<Array<BFFVariable>> m_SubVariables; // Used for struct members of arrays of structs
     const BFFToken & m_Token;
 
     static const char * s_TypeNames[ MAX_VAR_TYPES ];

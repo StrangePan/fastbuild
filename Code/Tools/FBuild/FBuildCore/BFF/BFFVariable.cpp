@@ -26,7 +26,7 @@
 
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name, const BFFToken & token, VarType type )
+BFFVariable::BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, VarType type )
     : m_Name( name )
     , m_Type( type )
     , m_Token( token )
@@ -55,9 +55,9 @@ BFFVariable::BFFVariable( const BFFVariable & other )
 
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name,
+BFFVariable::BFFVariable( const SharedPtr<AString> & name,
                           const BFFToken & token,
-                          const AString & value )
+                          const SharedPtr<AString> & value )
     : m_Name( name )
     , m_Type( VAR_STRING )
     , m_StringValue( value )
@@ -67,7 +67,7 @@ BFFVariable::BFFVariable( const AString & name,
 
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name,
+BFFVariable::BFFVariable( const SharedPtr<AString> & name,
                           const BFFToken & token,
                           bool value )
     : m_Name( name )
@@ -79,9 +79,9 @@ BFFVariable::BFFVariable( const AString & name,
 
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name,
+BFFVariable::BFFVariable( const SharedPtr<AString> & name,
                           const BFFToken & token,
-                          const Array<AString> & values )
+                          const SharedPtr<Array<SharedPtr<AString>>> & values )
     : m_Name( name )
     , m_Type( VAR_ARRAY_OF_STRINGS )
     , m_ArrayValues( values )
@@ -91,7 +91,7 @@ BFFVariable::BFFVariable( const AString & name,
 
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name,
+BFFVariable::BFFVariable( const SharedPtr<AString> & name,
                           const BFFToken & token,
                           int32_t i )
     : m_Name( name )
@@ -103,22 +103,21 @@ BFFVariable::BFFVariable( const AString & name,
 
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name,
+BFFVariable::BFFVariable( const SharedPtr<AString> & name,
                           const BFFToken & token,
-                          const Array<const BFFVariable *> & values )
+                          const SharedPtr<Array<BFFVariable>> & values )
     : m_Name( name )
     , m_Type( VAR_STRUCT )
+    , m_SubVariables( values )
     , m_Token( token )
 {
-    m_SubVariables.SetCapacity( values.GetSize() );
-    SetValueStruct( values );
 }
 
 // CONSTRUCTOR (&&)
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name,
+BFFVariable::BFFVariable( const SharedPtr<AString> & name,
                           const BFFToken & token,
-                          Array<BFFVariable *> && values )
+                          SharedPtr<Array<BFFVariable>> && values )
     : m_Name( name )
     , m_Type( VAR_STRUCT )
     , m_SubVariables( Move( values ) )
@@ -128,37 +127,29 @@ BFFVariable::BFFVariable( const AString & name,
 
 // CONSTRUCTOR
 //------------------------------------------------------------------------------
-BFFVariable::BFFVariable( const AString & name,
+BFFVariable::BFFVariable( const SharedPtr<AString> & name,
                           const BFFToken & token,
-                          const Array<const BFFVariable *> & structs,
+                          const SharedPtr<Array<BFFVariable>> & structs,
                           VarType type ) // type for disambiguation
     : m_Name( name )
     , m_Type( VAR_ARRAY_OF_STRUCTS )
+    , m_SubVariables( structs )
     , m_Token( token )
 {
-    m_SubVariables.SetCapacity( structs.GetSize() );
-
     // type for disambiguation only - sanity check it's the right type
     ASSERT( type == VAR_ARRAY_OF_STRUCTS );
     (void)type;
-
-    SetValueArrayOfStructs( structs );
 }
 
 // DESTRUCTOR
 //------------------------------------------------------------------------------
 BFFVariable::~BFFVariable()
 {
-    // clean up sub variables
-    for ( BFFVariable * var : m_SubVariables )
-    {
-        FDELETE var;
-    }
 }
 
 // SetValueString
 //------------------------------------------------------------------------------
-void BFFVariable::SetValueString( const AString & value )
+void BFFVariable::SetValueString( const SharedPtr<AString> & value )
 {
     ASSERT( 0 == m_FreezeCount );
     m_Type = VAR_STRING;
@@ -176,7 +167,7 @@ void BFFVariable::SetValueBool( bool value )
 
 // SetValueArrayOfStrings
 //------------------------------------------------------------------------------
-void BFFVariable::SetValueArrayOfStrings( const Array<AString> & values )
+void BFFVariable::SetValueArrayOfStrings( const SharedPtr<Array<SharedPtr<AString>>> & values )
 {
     ASSERT( 0 == m_FreezeCount );
     m_Type = VAR_ARRAY_OF_STRINGS;
@@ -194,86 +185,40 @@ void BFFVariable::SetValueInt( int i )
 
 // SetValueStruct
 //------------------------------------------------------------------------------
-void BFFVariable::SetValueStruct( const Array<const BFFVariable *> & values )
+void BFFVariable::SetValueStruct( const SharedPtr<Array<BFFVariable>> & values )
 {
     ASSERT( 0 == m_FreezeCount );
-
-    // build list of new members, but don't touch old ones yet to gracefully
-    // handle self-assignment
-    Array<BFFVariable *> newVars;
-    newVars.SetCapacity( values.GetSize() );
-
     m_Type = VAR_STRUCT;
-    for ( const BFFVariable * var : values )
-    {
-        newVars.Append( FNEW( BFFVariable( *var ) ) );
-    }
-
-    // free old members
-    for ( BFFVariable * var : m_SubVariables )
-    {
-        FDELETE var;
-    }
-
-    // swap
-    m_SubVariables.Swap( newVars );
+    m_SubVariables = values;
 }
 
 // SetValueStruct
 //------------------------------------------------------------------------------
-void BFFVariable::SetValueStruct( Array<BFFVariable *> && values )
+void BFFVariable::SetValueStruct( SharedPtr<Array<BFFVariable>> && values )
 {
     ASSERT( 0 == m_FreezeCount );
-
-    // Take a copy of the old pointers
-    Array<BFFVariable *> oldVars;
-    oldVars.Swap( m_SubVariables );
-
-    // Take ownership of new variables
+    m_Type = VAR_STRUCT;
     m_SubVariables = Move( values );
-
-    // Free old variables
-    for ( BFFVariable * var : oldVars )
-    {
-        FDELETE var;
-    }
 }
 
 // SetValueArrayOfStructs
 //------------------------------------------------------------------------------
-void BFFVariable::SetValueArrayOfStructs( const Array<const BFFVariable *> & values )
+void BFFVariable::SetValueArrayOfStructs( const SharedPtr<Array<BFFVariable>> & values )
 {
     ASSERT( 0 == m_FreezeCount );
-
-    // build list of new members, but don't touch old ones yet to gracefully
-    // handle self-assignment
-    Array<BFFVariable *> newVars;
-    newVars.SetCapacity( values.GetSize() );
-
     m_Type = VAR_ARRAY_OF_STRUCTS;
-    for ( const BFFVariable * var : values )
-    {
-        newVars.Append( FNEW( BFFVariable( *var ) ) );
-    }
-
-    // free old members
-    for ( BFFVariable * var : m_SubVariables )
-    {
-        FDELETE var;
-    }
-
-    m_SubVariables.Swap( newVars );
+    m_SubVariables = values;
 }
 
 // GetMemberByName
 //------------------------------------------------------------------------------
-/*static*/ const BFFVariable ** BFFVariable::GetMemberByName( const AString & name, const Array<const BFFVariable *> & members )
+/*static*/ const BFFVariable * BFFVariable::GetMemberByName( const AString & name, const Array<BFFVariable> & members )
 {
     ASSERT( !name.IsEmpty() );
 
-    for ( const BFFVariable ** it = members.Begin(); it != members.End(); ++it )
+    for ( const BFFVariable * it = members.Begin(); it != members.End(); ++it )
     {
-        if ( ( *it )->GetName() == name )
+        if ( it->GetName() == name )
         {
             return it;
         }
