@@ -50,7 +50,7 @@ CSNode::CSNode()
     , m_NumCompilerInputFiles( 0 )
     , m_NumCompilerReferences( 0 )
 {
-    m_CompilerInputPattern.EmplaceBack( "*.cs" );
+    m_CompilerInputPattern->EmplaceBack( "*.cs" );
     m_Type = CS_NODE;
     m_LastBuildTimeMs = 5000; // higher default than a file node
 }
@@ -64,7 +64,7 @@ CSNode::CSNode()
 
     // .Compiler
     CompilerNode * compilerNode( nullptr );
-    if ( !Function::GetCompilerNode( nodeGraph, iter, function, m_Compiler, compilerNode ) )
+    if ( !Function::GetCompilerNode( nodeGraph, iter, function, *m_Compiler, compilerNode ) )
     {
         return false; // GetCompilerNode will have emitted an error
     }
@@ -81,14 +81,14 @@ CSNode::CSNode()
     if ( !Function::GetDirectoryListNodeList( nodeGraph,
                                               iter,
                                               function,
-                                              m_CompilerInputPath,
-                                              m_CompilerInputExcludePath,
-                                              m_CompilerInputExcludedFiles,
-                                              m_CompilerInputExcludePattern,
+                                              *m_CompilerInputPath,
+                                              *m_CompilerInputExcludePath,
+                                              *m_CompilerInputExcludedFiles,
+                                              *m_CompilerInputExcludePattern,
                                               m_CompilerInputPathRecurse,
                                               false, // Don't include read-only status in hash
                                               false, // Don't include directories
-                                              &m_CompilerInputPattern,
+                                              m_CompilerInputPattern.Get(),
                                               "CompilerInputPath",
                                               compilerInputPath ) )
     {
@@ -98,7 +98,7 @@ CSNode::CSNode()
 
     // .CompilerInputFiles
     Dependencies compilerInputFiles;
-    if ( !Function::GetFileNodes( nodeGraph, iter, function, m_CompilerInputFiles, "CompilerInputFiles", compilerInputFiles ) )
+    if ( !Function::GetFileNodes( nodeGraph, iter, function, *m_CompilerInputFiles, "CompilerInputFiles", compilerInputFiles ) )
     {
         return false; // GetFileNode will have emitted an error
     }
@@ -106,14 +106,14 @@ CSNode::CSNode()
 
     // .CompilerReferences
     Dependencies compilerReferences;
-    if ( !Function::GetFileNodes( nodeGraph, iter, function, m_CompilerReferences, ".CompilerReferences", compilerReferences ) )
+    if ( !Function::GetFileNodes( nodeGraph, iter, function, *m_CompilerReferences, ".CompilerReferences", compilerReferences ) )
     {
         return false; // GetNodeList will have emitted an error
     }
     m_NumCompilerReferences = (uint32_t)compilerReferences.GetSize();
 
     // Store dependencies
-    m_StaticDependencies.SetCapacity( 1 + m_CompilerInputPath.GetSize() + m_NumCompilerInputFiles + m_NumCompilerReferences );
+    m_StaticDependencies.SetCapacity( 1 + m_CompilerInputPath->GetSize() + m_NumCompilerInputFiles + m_NumCompilerReferences );
     m_StaticDependencies.Add( compilerNode );
     m_StaticDependencies.Add( compilerInputPath );
     m_StaticDependencies.Add( compilerInputFiles );
@@ -135,7 +135,7 @@ CSNode::~CSNode() = default;
 
     // get the result of the directory lists and depend on those
     const size_t startIndex = 1; // Skip Compiler
-    const size_t endIndex = ( 1 + m_CompilerInputPath.GetSize() );
+    const size_t endIndex = ( 1 + m_CompilerInputPath->GetSize() );
     for ( size_t i = startIndex; i < endIndex; ++i )
     {
         const Node * n = m_StaticDependencies[ i ].GetNode();
@@ -156,7 +156,7 @@ CSNode::~CSNode() = default;
             }
             else if ( sn->IsAFile() == false )
             {
-                FLOG_ERROR( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+                FLOG_ERROR( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
                 return false;
             }
 
@@ -198,7 +198,7 @@ CSNode::~CSNode() = default;
             return BuildResult::eAborted;
         }
 
-        FLOG_ERROR( "Failed to spawn process to build '%s'", GetName().Get() );
+        FLOG_ERROR( "Failed to spawn process to build '%s'", GetName()->Get() );
         return BuildResult::eFailed;
     }
 
@@ -227,7 +227,7 @@ CSNode::~CSNode() = default;
 
     if ( !ok )
     {
-        FLOG_ERROR( "Failed to build Object. Error: %s Target: '%s'", ERROR_STR( result ), GetName().Get() );
+        FLOG_ERROR( "Failed to build Object. Error: %s Target: '%s'", ERROR_STR( result ), GetName()->Get() );
         return BuildResult::eFailed;
     }
 
@@ -277,7 +277,7 @@ bool CSNode::BuildArgs( Args & fullArgs ) const
 {
     // split into tokens
     StackArray<AString> tokens;
-    m_CompilerOptions.Tokenize( tokens );
+    m_CompilerOptions->Tokenize( tokens );
 
     AStackString quote( "\"" );
 
@@ -347,7 +347,7 @@ bool CSNode::BuildArgs( Args & fullArgs ) const
     }
 
     // Handle all the special needs of args
-    if ( fullArgs.Finalize( m_CompilerOptions, GetName(), ArgsResponseFileMode::IF_NEEDED ) == false )
+    if ( fullArgs.Finalize( *m_CompilerOptions, *GetName(), ArgsResponseFileMode::IF_NEEDED ) == false )
     {
         return false; // Finalize will have emitted an error
     }
@@ -362,7 +362,7 @@ void CSNode::GetInputFiles( Args & fullArgs, const AString & pre, const AString 
     bool first = true;
 
     // Add the explicitly listed files
-    const size_t startIndex = ( 1 + m_CompilerInputPath.GetSize() ); // Skip compiler and input paths
+    const size_t startIndex = ( 1 + m_CompilerInputPath->GetSize() ); // Skip compiler and input paths
     const size_t endIndex = ( startIndex + m_NumCompilerInputFiles );
     for ( size_t i = startIndex; i < endIndex; ++i )
     {
@@ -395,7 +395,7 @@ void CSNode::GetInputFiles( Args & fullArgs, const AString & pre, const AString 
 void CSNode::GetExtraRefs( Args & fullArgs, const AString & pre, const AString & post ) const
 {
     bool first = true;
-    const size_t startIndex = ( 1 + m_CompilerInputPath.GetSize() + m_NumCompilerInputFiles ); // Skip compiler, input paths and files
+    const size_t startIndex = ( 1 + m_CompilerInputPath->GetSize() + m_NumCompilerInputFiles ); // Skip compiler, input paths and files
     const size_t endIndex = ( startIndex + m_NumCompilerReferences );
     ASSERT( endIndex == m_StaticDependencies.GetSize() ); // References are last
     for ( size_t i = startIndex; i < endIndex; ++i )

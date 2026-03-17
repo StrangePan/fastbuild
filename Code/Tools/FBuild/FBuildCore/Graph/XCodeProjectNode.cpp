@@ -199,7 +199,7 @@ XCodeProjectNode::~XCodeProjectNode() = default;
                 bool keep = true;
                 for ( const AString & pattern : m_PatternToExclude )
                 {
-                    if ( PathUtils::IsWildcardMatch( pattern.Get(), file.m_Name.Get() ) )
+                    if ( PathUtils::IsWildcardMatch( pattern.Get(), file.m_Name->Get() ) )
                     {
                         keep = false;
                         break;
@@ -220,7 +220,7 @@ XCodeProjectNode::~XCodeProjectNode() = default;
                 const char * ext = n->GetName().Find( ".xcodeproj/" );
                 if ( ext )
                 {
-                    AStackString name( n->GetName().Get(), ext + 10 ); // include .xcodeproj
+                    AStackString name( n->GetName()->Get(), ext + 10 ); // include .xcodeproj
                     g.AddFile( name );
                     continue;
                 }
@@ -257,9 +257,9 @@ XCodeProjectNode::~XCodeProjectNode() = default;
     }
 
     // Get folder containing project.pbxproj
-    const char * projectFolderSlash = m_Name.FindLast( NATIVE_SLASH );
+    const char * projectFolderSlash = m_Name->FindLast( NATIVE_SLASH );
     ASSERT( projectFolderSlash );
-    const AStackString folder( m_Name.Get(), projectFolderSlash );
+    const AStackString folder( m_Name->Get(), projectFolderSlash );
 
     // Generate user-specific xcschememanagement.plist
     {
@@ -267,7 +267,7 @@ XCodeProjectNode::~XCodeProjectNode() = default;
         AStackString userName;
         if ( Env::GetLocalUserName( userName ) == false )
         {
-            FLOG_ERROR( "Failed to determine username for '%s'", m_Name.Get() );
+            FLOG_ERROR( "Failed to determine username for '%s'", m_Name->Get() );
             return BuildResult::eFailed;
         }
 

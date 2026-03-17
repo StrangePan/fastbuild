@@ -60,7 +60,7 @@ LibraryNode::LibraryNode()
 {
     // .Librarian
     Dependencies librarian;
-    if ( !Function::GetFileNode( nodeGraph, iter, function, m_Librarian, "Librarian", librarian ) )
+    if ( !Function::GetFileNode( nodeGraph, iter, function, *m_Librarian, "Librarian", librarian ) )
     {
         return false; // GetFileNode will have emitted an error
     }
@@ -70,12 +70,12 @@ LibraryNode::LibraryNode()
 
     // .LibrarianOptions
     {
-        if ( m_LibrarianOptions.Find( "%1" ) == nullptr )
+        if ( m_LibrarianOptions->Find( "%1" ) == nullptr )
         {
             Error::Error_1106_MissingRequiredToken( iter, function, ".LibrarianOptions", "%1" );
             return false;
         }
-        if ( m_LibrarianOptions.Find( "%2" ) == nullptr )
+        if ( m_LibrarianOptions->Find( "%2" ) == nullptr )
         {
             Error::Error_1106_MissingRequiredToken( iter, function, ".LibrarianOptions", "%2" );
             return false;
@@ -90,7 +90,7 @@ LibraryNode::LibraryNode()
 
     // .LibrarianAdditionalInputs
     Dependencies librarianAdditionalInputs;
-    if ( !Function::GetNodeList( nodeGraph, iter, function, ".LibrarianAdditionalInputs", m_LibrarianAdditionalInputs, librarianAdditionalInputs ) )
+    if ( !Function::GetNodeList( nodeGraph, iter, function, ".LibrarianAdditionalInputs", *m_LibrarianAdditionalInputs, librarianAdditionalInputs ) )
     {
         return false;// GetNodeList will emit error
     }
@@ -101,7 +101,7 @@ LibraryNode::LibraryNode()
     m_StaticDependencies.Add( librarianAdditionalInputs );
     // m_ObjectListInputEndIndex // NOTE: Deliberately not added to m_ObjectListInputEndIndex, since we don't want to try and compile these things
 
-    m_LibrarianFlags = DetermineFlags( m_LibrarianType, m_Librarian, m_LibrarianOptions );
+    m_LibrarianFlags = DetermineFlags( *m_LibrarianType, *m_Librarian, *m_LibrarianOptions );
 
     return true;
 }
@@ -152,7 +152,7 @@ LibraryNode::~LibraryNode()
     if ( FBuild::Get().GetOptions().m_ForceCleanBuild ||
          ( GetFlag( Flag::LIB_FLAG_LIB ) == false ) )
     {
-        if ( DoPreBuildFileDeletion( GetName() ) == false )
+        if ( DoPreBuildFileDeletion( *GetName() ) == false )
         {
             return BuildResult::eFailed; // HandleFileDeletion will have emitted an error
         }
@@ -168,13 +168,13 @@ LibraryNode::~LibraryNode()
     // use the exe launch dir as the working dir
     const char * workingDir = nullptr;
 
-    const char * environment = Node::GetEnvironmentString( m_Environment, m_EnvironmentString );
+    const char * environment = Node::GetEnvironmentString( *m_Environment, m_EnvironmentString );
 
     EmitCompilationMessage( fullArgs );
 
     // spawn the process
     Process p( FBuild::Get().GetAbortBuildPointer() );
-    const bool spawnOK = p.Spawn( m_Librarian.Get(),
+    const bool spawnOK = p.Spawn( m_Librarian->Get(),
                                   fullArgs.GetFinalArgs().Get(),
                                   workingDir,
                                   environment );
@@ -186,7 +186,7 @@ LibraryNode::~LibraryNode()
             return BuildResult::eAborted;
         }
 
-        FLOG_ERROR( "Failed to spawn process for Library creation for '%s'", GetName().Get() );
+        FLOG_ERROR( "Failed to spawn process for Library creation for '%s'", GetName()->Get() );
         return BuildResult::eFailed;
     }
 
@@ -215,7 +215,7 @@ LibraryNode::~LibraryNode()
             job->ErrorPreformatted( memErr.Get() );
         }
 
-        FLOG_ERROR( "Failed to build Library. Error: %s Target: '%s'", ERROR_STR( result ), GetName().Get() );
+        FLOG_ERROR( "Failed to build Library. Error: %s Target: '%s'", ERROR_STR( result ), GetName()->Get() );
         return BuildResult::eFailed;
     }
     else
@@ -224,7 +224,7 @@ LibraryNode::~LibraryNode()
         // (since compilation will fail anyway, and the output will be shown)
         if ( GetFlag( LIB_FLAG_LIB ) && !GetFlag( LIB_FLAG_WARNINGS_AS_ERRORS_MSVC ) )
         {
-            FileNode::HandleWarningsMSVC( job, GetName(), memOut );
+            FileNode::HandleWarningsMSVC( job, *GetName(), memOut );
         }
     }
 
@@ -239,7 +239,7 @@ LibraryNode::~LibraryNode()
 bool LibraryNode::BuildArgs( Args & fullArgs ) const
 {
     StackArray<AString> tokens;
-    m_LibrarianOptions.Tokenize( tokens );
+    m_LibrarianOptions->Tokenize( tokens );
 
     // When merging libs for non-MSVC toolchains, merge the source
     // objects instead of the libs
@@ -257,12 +257,12 @@ bool LibraryNode::BuildArgs( Args & fullArgs ) const
             }
 
             // concatenate files, unquoted
-            StackArray<AString> inputs;
+            StackArray<SharedPtr<AString>> inputs;
             GetInputFiles( objectsInsteadOfLibs, inputs );
-            for ( const AString & input : inputs )
+            for ( const SharedPtr<AString> & input : inputs )
             {
                 fullArgs += pre;
-                fullArgs += input;
+                fullArgs += *input;
                 fullArgs.AddDelimiter();
             }
         }
@@ -273,12 +273,12 @@ bool LibraryNode::BuildArgs( Args & fullArgs ) const
             AStackString post( "\"" );
 
             // concatenate files, quoted
-            StackArray<AString> inputs;
+            StackArray<SharedPtr<AString>> inputs;
             GetInputFiles( objectsInsteadOfLibs, inputs );
-            for ( const AString & input : inputs )
+            for ( const SharedPtr<AString> & input : inputs )
             {
                 fullArgs += pre;
-                fullArgs += input;
+                fullArgs += *input;
                 fullArgs += post;
                 fullArgs.AddDelimiter();
             }
@@ -315,7 +315,7 @@ bool LibraryNode::BuildArgs( Args & fullArgs ) const
     }
 
     // Handle all the special needs of args
-    if ( fullArgs.Finalize( m_Librarian, GetName(), GetResponseFileMode() ) == false )
+    if ( fullArgs.Finalize( *m_Librarian, *GetName(), GetResponseFileMode() ) == false )
     {
         return false; // Finalize will have emitted an error
     }

@@ -42,7 +42,7 @@ void DLLNode::GetImportLibName( AString & importLibName ) const
     }
 
     // for other platforms, use the object directly (e.g. .so or .dylib)
-    importLibName = GetName();
+    importLibName = *GetName();
 
     // with msvc, we need to link the import lib that matches the dll
     if ( GetFlag( LinkerNode::LINK_FLAG_MSVC ) )

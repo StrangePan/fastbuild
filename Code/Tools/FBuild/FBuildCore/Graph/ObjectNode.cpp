@@ -165,7 +165,7 @@ ObjectNode::~ObjectNode() = default;
     // Delete previous file(s) if doing a clean build
     if ( FBuild::Get().GetOptions().m_ForceCleanBuild )
     {
-        if ( DoPreBuildFileDeletion( GetName() ) == false )
+        if ( DoPreBuildFileDeletion( *GetName() ) == false )
         {
             return BuildResult::eFailed; // HandleFileDeletion will have emitted an error
         }
@@ -250,7 +250,7 @@ ObjectNode::~ObjectNode() = default;
         }
         else if ( fn->IsAFile() == false )
         {
-            FLOG_ERROR( "'%s' is not a FileNode (type: %s)", fn->GetName().Get(), fn->GetTypeName() );
+            FLOG_ERROR( "'%s' is not a FileNode (type: %s)", fn->GetName()->Get(), fn->GetTypeName() );
             return false;
         }
 
@@ -327,12 +327,12 @@ ObjectNode::~ObjectNode() = default;
     {
         if ( IsClangCl() )
         {
-            HandleWarningsClangCl( job, GetName(), ch.GetErr() );
-            HandleWarningsClangCl( job, GetName(), ch.GetOut() );
+            HandleWarningsClangCl( job, *GetName(), ch.GetErr() );
+            HandleWarningsClangCl( job, *GetName(), ch.GetOut() );
         }
         else
         {
-            HandleWarningsMSVC( job, GetName(), ch.GetOut() );
+            HandleWarningsMSVC( job, *GetName(), ch.GetOut() );
         }
     }
 
@@ -395,7 +395,7 @@ Node::BuildResult ObjectNode::DoBuildWithPreProcessor( Job * job, bool useDeopti
             {
                 FLOG_OUTPUT( "LightCache cannot be used for '%s'\n"
                              "%s",
-                             GetName().Get(),
+                             GetName()->Get(),
                              lc.GetErrors().Get() );
             }
 
@@ -802,7 +802,7 @@ bool ObjectNode::ProcessIncludesMSCL( const char * output, uint32_t outputSize )
             const bool result = parser.ParseMSCL_Output( output, outputSize );
             if ( result == false )
             {
-                FLOG_ERROR( "Failed to process includes for '%s'", GetName().Get() );
+                FLOG_ERROR( "Failed to process includes for '%s'", GetName()->Get() );
                 return false;
             }
         }
@@ -814,7 +814,7 @@ bool ObjectNode::ProcessIncludesMSCL( const char * output, uint32_t outputSize )
         parser.SwapIncludes( m_Includes );
     }
 
-    FLOG_VERBOSE( "Process Includes:\n - File: %s\n - Time: %u ms\n - Num : %u", m_Name.Get(), uint32_t( t.GetElapsedMS() ), uint32_t( m_Includes.GetSize() ) );
+    FLOG_VERBOSE( "Process Includes:\n - File: %s\n - Time: %u ms\n - Num : %u", m_Name->Get(), uint32_t( t.GetElapsedMS() ), uint32_t( m_Includes.GetSize() ) );
 
     return true;
 }
@@ -857,7 +857,7 @@ bool ObjectNode::ProcessIncludesWithPreProcessor( Job * job )
                                       : parser.ParseGCC_Preprocessed( output, outputSize );
         if ( result == false )
         {
-            FLOG_ERROR( "Failed to process includes for '%s'", GetName().Get() );
+            FLOG_ERROR( "Failed to process includes for '%s'", GetName()->Get() );
             return false;
         }
 
@@ -868,7 +868,7 @@ bool ObjectNode::ProcessIncludesWithPreProcessor( Job * job )
         parser.SwapIncludes( m_Includes );
     }
 
-    FLOG_VERBOSE( "Process Includes:\n - File: %s\n - Time: %u ms\n - Num : %u", m_Name.Get(), uint32_t( t.GetElapsedMS() ), uint32_t( m_Includes.GetSize() ) );
+    FLOG_VERBOSE( "Process Includes:\n - File: %s\n - Time: %u ms\n - Num : %u", m_Name->Get(), uint32_t( t.GetElapsedMS() ), uint32_t( m_Includes.GetSize() ) );
 
     return true;
 }
@@ -1308,8 +1308,8 @@ void ObjectNode::GetGCNOPath( AString & gcnoFileName ) const
     ASSERT( IsUsingGcovCoverage() );
 
     // TODO:B The .gcno path can be manually specified with -fprofile-note=
-    const char * extPos = m_Name.FindLast( '.' ); // Only last extension removed
-    gcnoFileName.Assign( m_Name.Get(), extPos ? extPos : m_Name.GetEnd() );
+    const char * extPos = m_Name->FindLast( '.' ); // Only last extension removed
+    gcnoFileName.Assign( m_Name->Get(), extPos ? extPos : m_Name->GetEnd() );
     gcnoFileName += ".gcno";
 }
 
@@ -1447,7 +1447,7 @@ bool ObjectNode::RetrieveFromCache( Job * job )
             FLOG_WARN( "Cache returned invalid data\n"
                        " - File: '%s'\n"
                        " - Key : %s\n",
-                       m_Name.Get(),
+                       m_Name->Get(),
                        cacheFileName.Get() );
             cache->FreeMemory( cacheData, cacheDataSize );
             return false;
@@ -1496,7 +1496,7 @@ bool ObjectNode::RetrieveFromCache( Job * job )
              FBuild::Get().GetOptions().m_CacheVerbose )
         {
             AStackString output;
-            output.Format( "Obj: %s <CACHE>\n", GetName().Get() );
+            output.Format( "Obj: %s <CACHE>\n", GetName()->Get() );
             if ( FBuild::Get().GetOptions().m_CacheVerbose )
             {
                 output.AppendFormat( " - Cache Hit: %u ms (Retrieve: %u ms - Decompress: %u ms) (Compressed: %zu - Uncompressed: %zu) '%s'\n", uint32_t( t.GetElapsedMS() ), retrieveTime, stopDecompress - startDecompress, cacheDataSize, uncompressedDataSize, cacheFileName.Get() );
@@ -1522,7 +1522,7 @@ bool ObjectNode::RetrieveFromCache( Job * job )
     {
         FLOG_OUTPUT( "Obj: %s\n"
                      " - Cache Miss: %u ms '%s'\n",
-                     GetName().Get(),
+                     GetName()->Get(),
                      uint32_t( t.GetElapsedMS() ),
                      cacheFileName.Get() );
     }
@@ -1556,7 +1556,7 @@ void ObjectNode::WriteToCache_FromDisk( Job * job )
         {
             FLOG_OUTPUT( "Obj: %s\n"
                          " - Cache Store Fail: '%s' (local IO problem)\n",
-                         GetName().Get(),
+                         GetName()->Get(),
                          GetCacheName( job ).Get() );
         }
         return;
@@ -1645,7 +1645,7 @@ void ObjectNode::WriteToCache_FromCompressedData( Job * job,
             AStackString output;
             output.Format( "Obj: %s\n"
                            " - Cache Store: %u ms (Store: %u ms - Compress: %u ms) (Compressed: %" PRIu64 " - Uncompressed: %" PRIu64 ") '%s'\n",
-                           GetName().Get(),
+                           GetName()->Get(),
                            cachingTime,
                            publishTime,
                            compressionTimeMS,
@@ -1668,7 +1668,7 @@ void ObjectNode::WriteToCache_FromCompressedData( Job * job,
         {
             FLOG_OUTPUT( "Obj: %s\n"
                          " - Cache Store Fail: %u ms '%s'\n",
-                         GetName().Get(),
+                         GetName()->Get(),
                          uint32_t( t.GetElapsedMS() ),
                          cacheFileName.Get() );
         }
@@ -1883,7 +1883,7 @@ bool ObjectNode::BuildArgs( const Job * job, Args & fullArgs, Pass pass, bool us
         job->GetToolManifest()->GetRemoteFilePath( 0, remoteCompiler );
     }
     const AString & compiler = job->IsLocal() ? GetCompiler()->GetExecutable() : remoteCompiler;
-    if ( fullArgs.Finalize( compiler, GetName(), GetResponseFileMode() ) == false )
+    if ( fullArgs.Finalize( compiler, *GetName(), GetResponseFileMode() ) == false )
     {
         return false; // Finalize will have emitted an error
     }
@@ -1938,11 +1938,11 @@ Node::BuildResult ObjectNode::BuildPreprocessedOutput( const Args & fullArgs, Jo
             // Use the error text, but if it's empty, use the output
             if ( ch.GetErr().IsEmpty() == false )
             {
-                DumpOutput( job, GetName(), ch.GetErr() );
+                DumpOutput( job, *GetName(), ch.GetErr() );
             }
             else
             {
-                DumpOutput( job, GetName(), ch.GetOut() );
+                DumpOutput( job, *GetName(), ch.GetOut() );
             }
         }
 
@@ -2122,7 +2122,7 @@ bool ObjectNode::WriteTmpFile( Job * job, AString & tmpDirectory, AString & tmpF
     }
     else
     {
-        sourceNameHash = xxHash3::Calc32( sourceFile->GetName().Get(), sourceFile->GetName().GetLength() );
+        sourceNameHash = xxHash3::Calc32( sourceFile->GetName()->Get(), sourceFile->GetName().GetLength() );
     }
 
     FileStream tmpFile;
@@ -2198,7 +2198,7 @@ bool ObjectNode::WriteTmpFile( Job * job, AString & tmpDirectory, AString & tmpF
         if ( c.Decompress( dataToWrite ) == false )
         {
             // Decompression failure would indicate a bug
-            job->Error( "Decompression failed. Target: '%s'", GetName().Get() );
+            job->Error( "Decompression failed. Target: '%s'", GetName()->Get() );
             job->OnSystemError();
             return false;
         }
@@ -2225,7 +2225,7 @@ bool ObjectNode::WriteTmpFile( Job * job, AString & tmpDirectory, AString & tmpF
     tmpDirectory.AppendFormat( "%08X%c", sourceNameHash, NATIVE_SLASH );
     if ( FileIO::DirectoryCreate( tmpDirectory ) == false )
     {
-        job->Error( "Failed to create temp directory. Error: %s TmpDir: '%s' Target: '%s'", LAST_ERROR_STR, tmpDirectory.Get(), GetName().Get() );
+        job->Error( "Failed to create temp directory. Error: %s TmpDir: '%s' Target: '%s'", LAST_ERROR_STR, tmpDirectory.Get(), GetName()->Get() );
         job->OnSystemError();
         return false;
     }
@@ -2238,14 +2238,14 @@ bool ObjectNode::WriteTmpFile( Job * job, AString & tmpDirectory, AString & tmpF
         // Try again
         if ( WorkerThread::CreateTempFile( tmpFileName, tmpFile ) == false )
         {
-            job->Error( "Failed to create temp file. Error: %s TmpFile: '%s' Target: '%s'", LAST_ERROR_STR, tmpFileName.Get(), GetName().Get() );
+            job->Error( "Failed to create temp file. Error: %s TmpFile: '%s' Target: '%s'", LAST_ERROR_STR, tmpFileName.Get(), GetName()->Get() );
             job->OnSystemError();
             return false;
         }
     }
     if ( tmpFile.Write( dataToWrite, dataToWriteSize ) != dataToWriteSize )
     {
-        job->Error( "Failed to write to temp file. Error: %s TmpFile: '%s' Target: '%s'", LAST_ERROR_STR, tmpFileName.Get(), GetName().Get() );
+        job->Error( "Failed to write to temp file. Error: %s TmpFile: '%s' Target: '%s'", LAST_ERROR_STR, tmpFileName.Get(), GetName()->Get() );
         job->OnSystemError();
         return false;
     }
@@ -2317,22 +2317,22 @@ Node::BuildResult ObjectNode::BuildFinalOutput( Job * job, const Args & fullArgs
             {
                 if ( IsWarningsAsErrorsMSVC() == false )
                 {
-                    HandleWarningsMSVC( job, GetName(), ch.GetOut() );
+                    HandleWarningsMSVC( job, *GetName(), ch.GetOut() );
                 }
             }
             else if ( IsClangCl() )
             {
                 if ( IsWarningsAsErrorsMSVC() == false )
                 {
-                    HandleWarningsClangCl( job, GetName(), ch.GetErr() );
-                    HandleWarningsClangCl( job, GetName(), ch.GetOut() );
+                    HandleWarningsClangCl( job, *GetName(), ch.GetErr() );
+                    HandleWarningsClangCl( job, *GetName(), ch.GetOut() );
                 }
             }
             else if ( IsClang() || IsGCC() )
             {
                 if ( IsWarningsAsErrorsClangGCC() == false )
                 {
-                    HandleWarningsClangGCC( job, GetName(), ch.GetOut() );
+                    HandleWarningsClangGCC( job, *GetName(), ch.GetOut() );
                 }
             }
         }
@@ -2345,13 +2345,13 @@ Node::BuildResult ObjectNode::BuildFinalOutput( Job * job, const Args & fullArgs
         {
             if ( IsClang() || IsClangCl() )
             {
-                if ( FileIO::FileExists( GetName().Get() ) == false )
+                if ( FileIO::FileExists( GetName()->Get() ) == false )
                 {
                     FileStream f;
-                    if ( ( f.Open( GetName().Get(), FileStream::WRITE_ONLY ) == false ) ||
+                    if ( ( f.Open( GetName()->Get(), FileStream::WRITE_ONLY ) == false ) ||
                          ( f.WriteBuffer( ch.GetErr().Get(), ch.GetErr().GetLength() ) != ch.GetErr().GetLength() ) )
                     {
-                        FLOG_ERROR( "Error %s writing analysis results: %s", LAST_ERROR_STR, GetName().Get() );
+                        FLOG_ERROR( "Error %s writing analysis results: %s", LAST_ERROR_STR, GetName()->Get() );
                     }
                 }
             }
@@ -2687,7 +2687,7 @@ bool ObjectNode::ShouldUseDeoptimization() const
 
     // does file contain token?
     FileStream fs;
-    if ( fs.Open( GetSourceFile()->GetName().Get(), FileStream::READ_ONLY ) )
+    if ( fs.Open( GetSourceFile()->GetName()->Get(), FileStream::READ_ONLY ) )
     {
         const size_t bytesToRead = Math::Min<size_t>( 1024, (size_t)fs.GetFileSize() );
         char buffer[ 1025 ];

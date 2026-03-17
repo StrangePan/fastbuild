@@ -123,7 +123,7 @@ CompilerInfoNode::~CompilerInfoNode() = default;
                     " - Error : %s\n"
                     " - Target: '%s'\n",
                     LAST_ERROR_STR,
-                    GetName().Get() );
+                    GetName()->Get() );
         return BuildResult::eFailed;
     }
 
@@ -139,7 +139,7 @@ CompilerInfoNode::~CompilerInfoNode() = default;
                     " - Result: %i\n"
                     " - Target: '%s'\n",
                     result,
-                    GetName().Get() );
+                    GetName()->Get() );
         return BuildResult::eFailed;
     }
 
@@ -174,7 +174,7 @@ CompilerInfoNode::~CompilerInfoNode() = default;
                     " - Target: '%s'\n",
                     includesStartStringA,
                     includesStartStringB,
-                    GetName().Get() );
+                    GetName()->Get() );
         return BuildResult::eFailed;
     }
     // Remove stuff before that
@@ -207,7 +207,7 @@ CompilerInfoNode::~CompilerInfoNode() = default;
                         " - Line   : '%s'\n"
                         " - Target : '%s'\n",
                         line.Get(),
-                        GetName().Get() );
+                        GetName()->Get() );
             return BuildResult::eFailed;
         }
     }

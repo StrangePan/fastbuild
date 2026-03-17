@@ -78,15 +78,15 @@ UnityNode::UnityFileAndOrigin::UnityFileAndOrigin() = default;
 
 // CONSTRUCTOR (UnityFileAndOrigin)
 //------------------------------------------------------------------------------
-UnityNode::UnityFileAndOrigin::UnityFileAndOrigin( FileIO::FileInfo * info, DirectoryListNode * dirListOrigin )
+UnityNode::UnityFileAndOrigin::UnityFileAndOrigin( const FileIO::FileInfo * info, DirectoryListNode * dirListOrigin )
     : m_Info( info )
     , m_DirListOrigin( dirListOrigin )
 {
     // Store the last directory position for use during sorting
-    const char * lastSlash = info->m_Name.FindLast( NATIVE_SLASH );
+    const char * lastSlash = info->m_Name->FindLast( NATIVE_SLASH );
     if ( lastSlash )
     {
-        m_LastSlashIndex = (uint32_t)( lastSlash - info->m_Name.Get() );
+        m_LastSlashIndex = (uint32_t)( lastSlash - info->m_Name->Get() );
     }
 }
 
@@ -108,7 +108,7 @@ bool UnityNode::UnityFileAndOrigin::operator<( const UnityFileAndOrigin & other 
         // Both in dirs - sort by subdir
         size_t sortLen = Math::Min( m_LastSlashIndex, other.m_LastSlashIndex );
         sortLen++; // Include trailing slash, so subdirs that are partial matches are handled correctly
-        const int32_t sortOrder = AString::StrNCmpI( GetName().Get(), other.GetName().Get(), sortLen );
+        const int32_t sortOrder = AString::StrNCmpI( GetName()->Get(), other.GetName()->Get(), sortLen );
         if ( sortOrder != 0 )
         {
             return ( sortOrder < 0 );
@@ -137,8 +137,8 @@ bool UnityNode::UnityFileAndOrigin::operator<( const UnityFileAndOrigin & other 
     const size_t filenameLen = GetName().GetLength() - m_LastSlashIndex;
     const size_t otherFilenameLen = other.GetName().GetLength() - other.m_LastSlashIndex;
     const size_t sortLen = Math::Min( filenameLen, otherFilenameLen );
-    const char * a = GetName().Get() + m_LastSlashIndex;
-    const char * b = other.GetName().Get() + other.m_LastSlashIndex;
+    const char * a = GetName()->Get() + m_LastSlashIndex;
+    const char * b = other.GetName()->Get() + other.m_LastSlashIndex;
     const int32_t sortOrder = AString::StrNCmpI( a, b, sortLen );
 
     if ( sortOrder != 0 )
@@ -258,7 +258,7 @@ UnityNode::~UnityNode()
     // It would be good to eliminate this special case in the future.
     if ( m_IsolateWritableFiles && ( m_Files.IsEmpty() == false ) )
     {
-        FLOG_BUILD_REASON( "Need to build '%s' (UnityInputIsolateWritableFiles = true & UnityInputFiles not empty)\n", GetName().Get() );
+        FLOG_BUILD_REASON( "Need to build '%s' (UnityInputIsolateWritableFiles = true & UnityInputFiles not empty)\n", GetName()->Get() );
         return true;
     }
 
@@ -269,7 +269,7 @@ UnityNode::~UnityNode()
     {
         if ( FileIO::FileExists( unityFileName.Get() ) == false )
         {
-            FLOG_BUILD_REASON( "Need to build '%s' (Output '%s' missing)\n", GetName().Get(), unityFileName.Get() );
+            FLOG_BUILD_REASON( "Need to build '%s' (Output '%s' missing)\n", GetName()->Get(), unityFileName.Get() );
             return true;
         }
     }
@@ -279,7 +279,7 @@ UnityNode::~UnityNode()
     const bool wasNoUnity = ( ( m_Stamp & 1 ) == 1 ); // LSB contains nounity flag status
     if ( noUnity != wasNoUnity )
     {
-        FLOG_BUILD_REASON( "Need to build '%s' (-nounity was %s)\n", GetName().Get(), noUnity ? "added" : "removed" );
+        FLOG_BUILD_REASON( "Need to build '%s' (-nounity was %s)\n", GetName()->Get(), noUnity ? "added" : "removed" );
         return true;
     }
 
@@ -427,7 +427,7 @@ UnityNode::~UnityNode()
                 numIsolated++;
                 filesInThisUnity.Top().SetIsolated( true );
 
-                FLOG_VERBOSE( "Isolate file '%s' from unity\n", files[ index ].GetName().Get() );
+                FLOG_VERBOSE( "Isolate file '%s' from unity\n", files[ index ].GetName()->Get() );
             }
 
             // count the file, whether we wrote it or not, to keep unity files stable
@@ -654,7 +654,7 @@ bool UnityNode::GetFiles( Array<UnityFileAndOrigin> & files )
             const FileIO::FileInfo * const filesEnd = dirNode->GetFiles().End();
 
             // filter files in the dir list
-            for ( FileIO::FileInfo * filesIt = dirNode->GetFiles().Begin(); filesIt != filesEnd; ++filesIt )
+            for ( const FileIO::FileInfo * filesIt = dirNode->GetFiles().Begin(); filesIt != filesEnd; ++filesIt )
             {
                 bool keep = true;
 
@@ -710,7 +710,7 @@ bool UnityNode::GetFiles( Array<UnityFileAndOrigin> & files )
             }
             else
             {
-                FLOG_ERROR( "FBuild: Error: Unity missing file: '%s'\n", node->GetName().Get() );
+                FLOG_ERROR( "FBuild: Error: Unity missing file: '%s'\n", node->GetName()->Get() );
                 ok = false;
             }
         }

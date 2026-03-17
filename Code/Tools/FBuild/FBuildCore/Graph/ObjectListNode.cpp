@@ -90,7 +90,7 @@ ObjectListNode::ObjectListNode()
 {
     m_LastBuildTimeMs = 10000;
 
-    m_CompilerInputPattern.EmplaceBack( "*.cpp" );
+    m_CompilerInputPattern->EmplaceBack( "*.cpp" );
 }
 
 // Initialize
@@ -104,14 +104,14 @@ ObjectListNode::ObjectListNode()
     if ( !InitializeConcurrencyGroup( nodeGraph,
                                       iter,
                                       function,
-                                      m_ConcurrencyGroupName,
+                                      *m_ConcurrencyGroupName,
                                       m_ConcurrencyGroupIndex ) )
     {
         return false; // InitializeConcurrencyGroup will have emitted an error
     }
 
     // .Compiler
-    if ( !Function::GetCompilerNode( nodeGraph, iter, function, m_Compiler, m_CompilerNode ) )
+    if ( !Function::GetCompilerNode( nodeGraph, iter, function, *m_Compiler, m_CompilerNode ) )
     {
         return false; // GetCompilerNode will have emitted an error
     }
@@ -124,10 +124,10 @@ ObjectListNode::ObjectListNode()
     }
 
     // .Preprocessor
-    if ( m_Preprocessor.IsEmpty() == false )
+    if ( m_Preprocessor->IsEmpty() == false )
     {
         // get the preprocessor executable
-        if ( Function::GetCompilerNode( nodeGraph, iter, function, m_Preprocessor, m_PreprocessorNode ) == false )
+        if ( Function::GetCompilerNode( nodeGraph, iter, function, *m_Preprocessor, m_PreprocessorNode ) == false )
         {
             return false; // GetCompilerNode will have emitted an error
         }
@@ -137,13 +137,13 @@ ObjectListNode::ObjectListNode()
     // (ObjectListNode doesn't need to depend on this, but we want to check it so that
     //  we can raise errors during parsing instead of during the build when ObjectNode might be created)
     Dependencies compilerForceUsing;
-    if ( !Function::GetFileNodes( nodeGraph, iter, function, m_CompilerForceUsing, ".CompilerForceUsing", compilerForceUsing ) )
+    if ( !Function::GetFileNodes( nodeGraph, iter, function, *m_CompilerForceUsing, ".CompilerForceUsing", compilerForceUsing ) )
     {
         return false; // GetFileNode will have emitted an error
     }
 
     // Check Deoptimized compiler options which are conditionally not optional
-    if ( ( m_DeoptimizeWritableFiles || m_DeoptimizeWritableFilesWithToken ) && m_CompilerOptionsDeoptimized.IsEmpty() )
+    if ( ( m_DeoptimizeWritableFiles || m_DeoptimizeWritableFilesWithToken ) && m_CompilerOptionsDeoptimized->IsEmpty() )
     {
         Error::Error_1101_MissingProperty( iter, function, AStackString( ".CompilerOptionsDeoptimized" ) );
         return false;
@@ -152,31 +152,31 @@ ObjectListNode::ObjectListNode()
     CalculateOwnerObjectListHash();
 
     // Creating a PCH?
-    const bool creatingPCH = ( m_PCHInputFile.IsEmpty() == false );
+    const bool creatingPCH = ( m_PCHInputFile->IsEmpty() == false );
     ObjectNode * precompiledHeader = nullptr;
     if ( creatingPCH )
     {
         // .PCHOptions are required to create PCH
-        if ( m_PCHOutputFile.IsEmpty() || m_PCHOptions.IsEmpty() )
+        if ( m_PCHOutputFile->IsEmpty() || m_PCHOptions->IsEmpty() )
         {
             Error::Error_1300_MissingPCHArgs( iter, function );
             return false;
         }
 
         // Check PCH creation command line options
-        const ObjectNode::CompilerFlags pchFlags = ObjectNode::DetermineFlags( m_CompilerNode, m_PCHOptions, true, false );
+        const ObjectNode::CompilerFlags pchFlags = ObjectNode::DetermineFlags( m_CompilerNode, *m_PCHOptions, true, false );
         if ( pchFlags.IsMSVC() || pchFlags.IsClangCl() )
         {
-            if ( ( (FunctionObjectList *)function )->CheckMSVCPCHFlags_Create( iter, m_PCHOptions, m_PCHOutputFile, GetObjExtension(), m_PCHObjectFileName ) == false )
+            if ( ( (FunctionObjectList *)function )->CheckMSVCPCHFlags_Create( iter, *m_PCHOptions, *m_PCHOutputFile, GetObjExtension(), *m_PCHObjectFileName ) == false )
             {
                 return false; // CheckMSVCPCHFlags_Create will have emitted an error
             }
         }
 
         // PCH can be shared between ObjectLists, but must only be defined once
-        if ( nodeGraph.FindNode( m_PCHOutputFile ) )
+        if ( nodeGraph.FindNode( *m_PCHOutputFile ) )
         {
-            Error::Error_1301_AlreadyDefinedPCH( iter, function, m_PCHOutputFile.Get() );
+            Error::Error_1301_AlreadyDefinedPCH( iter, function, m_PCHOutputFile->Get() );
             return false;
         }
 
@@ -186,8 +186,8 @@ ObjectListNode::ObjectListNode()
                                               function,
                                               pchFlags,
                                               ObjectNode::CompilerFlags(),
-                                              m_PCHOutputFile,
-                                              m_PCHInputFile );
+                                              *m_PCHOutputFile,
+                                              *m_PCHInputFile );
         if ( precompiledHeader == nullptr )
         {
             return false; // CreateObjectNode will have emitted an error
@@ -195,20 +195,20 @@ ObjectListNode::ObjectListNode()
     }
 
     // Are we compiling and files?
-    const bool compilingFiles = ( ( m_CompilerInputPath.IsEmpty() == false ) ||
-                                  ( m_CompilerInputFiles.IsEmpty() == false ) ||
-                                  ( m_CompilerInputUnity.IsEmpty() == false ) ||
-                                  ( m_CompilerInputObjectLists.IsEmpty() == false ) );
+    const bool compilingFiles = ( ( m_CompilerInputPath->IsEmpty() == false ) ||
+                                  ( m_CompilerInputFiles->IsEmpty() == false ) ||
+                                  ( m_CompilerInputUnity->IsEmpty() == false ) ||
+                                  ( m_CompilerInputObjectLists->IsEmpty() == false ) );
     if ( compilingFiles )
     {
         // Using a PCH?
-        const bool usingPCH = ( m_PCHOutputFile.IsEmpty() == false );
+        const bool usingPCH = ( m_PCHOutputFile->IsEmpty() == false );
 
         // Cache flags for compiler and preprocessor
-        m_CompilerFlags = ObjectNode::DetermineFlags( m_CompilerNode, m_CompilerOptions, false, usingPCH );
+        m_CompilerFlags = ObjectNode::DetermineFlags( m_CompilerNode, *m_CompilerOptions, false, usingPCH );
         if ( m_PreprocessorNode )
         {
-            m_PreprocessorFlags = ObjectNode::DetermineFlags( m_PreprocessorNode, m_PreprocessorOptions, false, usingPCH );
+            m_PreprocessorFlags = ObjectNode::DetermineFlags( m_PreprocessorNode, *m_PreprocessorOptions, false, usingPCH );
         }
 
         // Check validity of PCH setup
@@ -217,7 +217,7 @@ ObjectListNode::ObjectListNode()
             // Check for correct PCH usage options
             if ( m_CompilerFlags.IsMSVC() || m_CompilerFlags.IsClangCl() )
             {
-                if ( ( (FunctionObjectList *)function )->CheckMSVCPCHFlags_Use( iter, m_CompilerOptions, m_CompilerFlags ) == false )
+                if ( ( (FunctionObjectList *)function )->CheckMSVCPCHFlags_Use( iter, *m_CompilerOptions, m_CompilerFlags ) == false )
                 {
                     return false; // CheckMSVCPCHFlags_Use will have emitted an error
                 }
@@ -231,13 +231,13 @@ ObjectListNode::ObjectListNode()
             else
             {
                 // If we are not creating it, we must be re-using it from another object list
-                const Node * node = nodeGraph.FindNode( m_PCHOutputFile );
+                const Node * node = nodeGraph.FindNode( *m_PCHOutputFile );
                 if ( ( node == nullptr ) ||
                      ( node->GetType() != Node::OBJECT_NODE ) ||
                      ( node->CastTo<ObjectNode>()->GetCompilerFlags().IsCreatingPCH() == false ) )
                 {
                     // PCH was not defined
-                    Error::Error_1104_TargetNotDefined( iter, function, "PCHOutputFile", m_PCHOutputFile );
+                    Error::Error_1104_TargetNotDefined( iter, function, "PCHOutputFile", *m_PCHOutputFile );
                     return false;
                 }
                 precompiledHeader = node->CastTo<ObjectNode>();
@@ -245,13 +245,13 @@ ObjectListNode::ObjectListNode()
         }
 
         // .CompilerOptions
-        if ( ( (FunctionObjectList *)function )->CheckCompilerOptions( iter, m_CompilerOptions, m_CompilerFlags ) == false )
+        if ( ( (FunctionObjectList *)function )->CheckCompilerOptions( iter, *m_CompilerOptions, m_CompilerFlags ) == false )
         {
             return false; // CheckCompilerOptions will have emitted an error
         }
 
         // .CompilerOutputPath is required when compiling files (not needed if only creating a PCH)
-        if ( m_CompilerOutputPath.IsEmpty() )
+        if ( m_CompilerOutputPath->IsEmpty() )
         {
             Error::Error_1101_MissingProperty( iter, function, AStackString( "CompilerOutputPath" ) );
             return false;
@@ -421,7 +421,7 @@ ObjectListNode::~ObjectListNode() = default;
                 }
                 else if ( n->IsAFile() == false )
                 {
-                    FLOG_ERROR( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+                    FLOG_ERROR( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
                     return false;
                 }
 
@@ -456,7 +456,7 @@ ObjectListNode::~ObjectListNode() = default;
                 }
                 else if ( n->IsAFile() == false )
                 {
-                    FLOG_ERROR( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+                    FLOG_ERROR( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
                     return false;
                 }
 
@@ -477,7 +477,7 @@ ObjectListNode::~ObjectListNode() = default;
                 }
                 else if ( n->IsAFile() == false )
                 {
-                    FLOG_ERROR( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+                    FLOG_ERROR( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
                     return false;
                 }
 
@@ -506,7 +506,7 @@ ObjectListNode::~ObjectListNode() = default;
                 }
                 else if ( n->IsAFile() == false )
                 {
-                    FLOG_ERROR( "ObjectListNode: '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+                    FLOG_ERROR( "ObjectListNode: '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
                     return false;
                 }
 
@@ -566,7 +566,7 @@ ObjectListNode::~ObjectListNode() = default;
     // make sure we have something to build!
     if ( ( m_DynamicDependencies.GetSize() == 0 ) && ( m_CompilerInputAllowNoFiles == false ) )
     {
-        FLOG_ERROR( "No files found to build '%s'", GetName().Get() );
+        FLOG_ERROR( "No files found to build '%s'", GetName()->Get() );
         return false;
     }
 
@@ -798,7 +798,7 @@ bool ObjectListNode::CreateDynamicObjectNode( NodeGraph & nodeGraph,
     }
     else if ( on->GetType() != Node::OBJECT_NODE )
     {
-        FLOG_ERROR( "Node '%s' is not an ObjectNode (type: %s)", on->GetName().Get(), on->GetTypeName() );
+        FLOG_ERROR( "Node '%s' is not an ObjectNode (type: %s)", on->GetName()->Get(), on->GetTypeName() );
         return false;
     }
     else
@@ -818,9 +818,9 @@ bool ObjectListNode::CreateDynamicObjectNode( NodeGraph & nodeGraph,
                         " ObjectList: %s\n",
                         objFile.Get(),
                         inputFileName.Get(),
-                        m_Name.Get(),
-                        other->GetSourceFile()->GetName().Get(),
-                        other->GetOwnerObjectList().GetName().Get() );
+                        m_Name->Get(),
+                        other->GetSourceFile()->GetName()->Get(),
+                        other->GetOwnerObjectList().GetName()->Get() );
             return false;
         }
     }
@@ -948,7 +948,7 @@ bool ObjectListNode::CheckLightCacheArgs( NodeGraph & nodeGraph,
     {
         AStackString ciNodeName;
         ciNodeName.Format( "%s_$Info_%c%c$",
-                           compiler->GetName().Get(),
+                           compiler->GetName()->Get(),
                            flags.IsNoStdInc() ? '1' : '0',
                            flags.IsNoStdIncPP() ? '1' : '0' );
         CompilerInfoNode * ciNode = nullptr;

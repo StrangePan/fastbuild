@@ -59,8 +59,8 @@ protected:
     bool BuildArgs( Args & fullArgs ) const;
     void GetInputFiles( const AString & token, Args & fullArgs ) const;
     void GetInputFiles( Args & fullArgs, uint32_t startIndex, uint32_t endIndex, const AString & pre, const AString & post ) const;
-    void GetInputFiles( Node * n, Array<AString> & outInputs ) const;
-    void GetAssemblyResourceFiles( Array<AString> & outInputs ) const;
+    void GetInputFiles( Node * n, Array<SharedPtr<AString>> & outInputs ) const;
+    void GetAssemblyResourceFiles( Array<SharedPtr<AString>> & outInputs ) const;
     void EmitCompilationMessage( const Args & fullArgs ) const;
     void EmitStampMessage() const;
 
@@ -99,21 +99,21 @@ protected:
                               Dependencies & nodes );
 
     // Reflected
-    AString m_Linker;
-    AString m_LinkerOptions;
-    AString m_LinkerType;
-    Array<AString> m_Libraries;
-    Array<AString> m_Libraries2;
-    Array<AString> m_LinkerAssemblyResources;
+    SharedPtr<AString> m_Linker;
+    SharedPtr<AString> m_LinkerOptions;
+    SharedPtr<AString> m_LinkerType;
+    SharedPtr<Array<SharedPtr<AString>>> m_Libraries;
+    SharedPtr<Array<SharedPtr<AString>>> m_Libraries2;
+    SharedPtr<Array<SharedPtr<AString>>> m_LinkerAssemblyResources;
     bool m_LinkerLinkObjects = false;
     bool m_LinkerAllowResponseFile;
     bool m_LinkerForceResponseFile;
     uint8_t m_ConcurrencyGroupIndex = 0; // Internal; placed here to use padding
-    AString m_LinkerStampExe;
-    AString m_LinkerStampExeArgs;
+    SharedPtr<AString> m_LinkerStampExe;
+    SharedPtr<AString> m_LinkerStampExeArgs;
     Array<Node *> m_PreBuildDependencyNames;
-    Array<AString> m_Environment;
-    AString m_ConcurrencyGroupName;
+    SharedPtr<Array<SharedPtr<AString>>> m_Environment;
+    SharedPtr<AString> m_ConcurrencyGroupName;
 
     // Internal State
     uint32_t m_Libraries2StartIndex = 0;

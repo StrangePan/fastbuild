@@ -241,14 +241,14 @@ Function::~Function() = default;
                 }
 
                 // Ensure string is not empty
-                if ( varSrc->GetString().IsEmpty() )
+                if ( varSrc->GetString()->IsEmpty() )
                 {
                     Error::Error_1003_EmptyStringNotAllowedInHeader( headerArgsIter, this );
                     return false;
                 }
 
                 // Store alias name for use in Commit
-                m_AliasForFunction = varSrc->GetString();
+                m_AliasForFunction = *varSrc->GetString();
                 m_AliasForFunctionSourceToken = headerArgsIter;
                 ++headerArgsIter;
             }
@@ -391,7 +391,7 @@ bool Function::GetString( const BFFToken * iter, const BFFVariable *& var, const
         Error::Error_1050_PropertyMustBeOfType( iter, this, name, v->GetType(), BFFVariable::VAR_STRING );
         return false;
     }
-    if ( required && v->GetString().IsEmpty() )
+    if ( required && v->GetString()->IsEmpty() )
     {
         Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, name );
         return false;
@@ -412,7 +412,7 @@ bool Function::GetString( const BFFToken * iter, AString & var, const char * nam
     }
     if ( stringVar )
     {
-        var = stringVar->GetString();
+        var = *stringVar->GetString();
     }
     return true;
 }
@@ -473,7 +473,7 @@ bool Function::GetNodeList( NodeGraph & nodeGraph,
     if ( var->IsArrayOfStrings() )
     {
         // an array of references
-        const Array<SharedPtr<AString>> & nodeNames = var->GetArrayOfStrings();
+        const Array<SharedPtr<AString>> & nodeNames = *var->GetArrayOfStrings();
         nodes.SetCapacity( nodes.GetSize() + nodeNames.GetSize() );
         for ( const SharedPtr<AString> & nodeName : nodeNames )
         {
@@ -492,13 +492,13 @@ bool Function::GetNodeList( NodeGraph & nodeGraph,
     }
     else if ( var->IsString() )
     {
-        if ( var->GetString().IsEmpty() ) // Always an error - because an empty node name is invalid
+        if ( var->GetString()->IsEmpty() ) // Always an error - because an empty node name is invalid
         {
             Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, propertyName );
             return false;
         }
 
-        if ( !GetNodeList( nodeGraph, iter, this, propertyName, var->GetString(), nodes, options ) )
+        if ( !GetNodeList( nodeGraph, iter, this, propertyName, *var->GetString(), nodes, options ) )
         {
             // child func will have emitted error
             return false;
@@ -926,11 +926,11 @@ bool Function::GetStrings( const BFFToken * iter, Array<SharedPtr<AString>> & st
 
     if ( var->GetType() == BFFVariable::VAR_STRING )
     {
-        strings.Append( var->GetStringShared() );
+        strings.Append( var->GetString() );
     }
     else if ( var->GetType() == BFFVariable::VAR_ARRAY_OF_STRINGS )
     {
-        strings.Append( var->GetArrayOfStrings() );
+        strings.Append( *var->GetArrayOfStrings() );
     }
     else
     {
@@ -1000,38 +1000,38 @@ bool Function::GetNameForNode( NodeGraph & nodeGraph, const BFFToken * iter, con
     }
     if ( variable->IsString() )
     {
-        StackArray<AString> strings;
+        StackArray<SharedPtr<AString>> strings;
         if ( !PopulateStringHelper( nodeGraph, iter, nullptr, ri->HasMetaData<Meta_File>(), nullptr, variable, strings ) )
         {
             return false; // PopulateStringHelper will have emitted an error
         }
 
         // Handle empty strings (always required because names can never be empty)
-        if ( strings.IsEmpty() || strings[ 0 ].IsEmpty() )
+        if ( strings.IsEmpty() || strings[ 0 ]->IsEmpty() )
         {
-            Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName().Get() );
+            Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName()->Get() );
             return false;
         }
 
         if ( strings.GetSize() != 1 )
         {
-            Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), BFFVariable::VAR_ARRAY_OF_STRINGS, BFFVariable::VAR_STRING );
+            Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), BFFVariable::VAR_ARRAY_OF_STRINGS, BFFVariable::VAR_STRING );
             return false;
         }
 
         // Check that name isn't already used
-        if ( const Node * existingNode = nodeGraph.FindNode( strings[ 0 ] ) )
+        if ( const Node * existingNode = nodeGraph.FindNode( *strings[ 0 ] ) )
         {
             const BFFToken * existingToken = nodeGraph.FindNodeSourceToken( existingNode );
-            Error::Error_1100_AlreadyDefined( iter, this, strings[ 0 ], existingToken );
+            Error::Error_1100_AlreadyDefined( iter, this, *strings[ 0 ], existingToken );
             return false;
         }
 
-        name = strings[ 0 ];
+        name = *strings[ 0 ];
         return true;
     }
 
-    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_STRING );
+    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_STRING );
     return false;
 }
 
@@ -1160,11 +1160,11 @@ bool Function::PopulateProperty( NodeGraph & nodeGraph,
 
 // PopulateStringHelper
 //------------------------------------------------------------------------------
-bool Function::PopulateStringHelper( NodeGraph & nodeGraph, const BFFToken * iter, const Meta_Path * pathMD, const Meta_File * fileMD, const Meta_AllowNonFile * allowNonFileMD, const BFFVariable * variable, Array<AString> & outStrings ) const
+bool Function::PopulateStringHelper( NodeGraph & nodeGraph, const BFFToken * iter, const Meta_Path * pathMD, const Meta_File * fileMD, const Meta_AllowNonFile * allowNonFileMD, const BFFVariable * variable, Array<SharedPtr<AString>> & outStrings ) const
 {
     if ( variable->IsArrayOfStrings() )
     {
-        for ( const AString & string : variable->GetArrayOfStrings() )
+        for ( const SharedPtr<AString> & string : *variable->GetArrayOfStrings() )
         {
             if ( !PopulateStringHelper( nodeGraph, iter, pathMD, fileMD, allowNonFileMD, variable, string, outStrings ) )
             {
@@ -1183,7 +1183,7 @@ bool Function::PopulateStringHelper( NodeGraph & nodeGraph, const BFFToken * ite
         return true;
     }
 
-    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_STRING, BFFVariable::VAR_ARRAY_OF_STRINGS );
+    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_STRING, BFFVariable::VAR_ARRAY_OF_STRINGS );
     return false;
 }
 
@@ -1195,11 +1195,11 @@ bool Function::PopulateStringHelper( NodeGraph & nodeGraph,
                                      const Meta_File * fileMD,
                                      const Meta_AllowNonFile * allowNonFileMD,
                                      const BFFVariable * variable,
-                                     const AString & string,
-                                     Array<AString> & outStrings ) const
+                                     const SharedPtr<AString> & string,
+                                     Array<SharedPtr<AString>> & outStrings ) const
 {
     // Return empty string untouched (expansion of aliases or paths makes no sense)
-    if ( string.IsEmpty() )
+    if ( string->IsEmpty() )
     {
         outStrings.Append( string );
         return true; // Calling code must determine if this is an error
@@ -1209,7 +1209,7 @@ bool Function::PopulateStringHelper( NodeGraph & nodeGraph,
     if ( fileMD && ( !fileMD->IsRelative() ) )
     {
         // Is it an Alias?
-        const Node * node = nodeGraph.FindNode( string );
+        const Node * node = nodeGraph.FindNode( *string );
         if ( node )
         {
             if ( node->GetType() == Node::ALIAS_NODE )
@@ -1217,7 +1217,7 @@ bool Function::PopulateStringHelper( NodeGraph & nodeGraph,
                 const AliasNode * aliasNode = node->CastTo<AliasNode>();
                 for ( const Dependency & aliasedNode : aliasNode->GetAliasedNodes() )
                 {
-                    if ( !PopulateStringHelper( nodeGraph, iter, pathMD, fileMD, allowNonFileMD, variable, aliasedNode.GetNode()->GetName(), outStrings ) )
+                    if ( !PopulateStringHelper( nodeGraph, iter, pathMD, fileMD, allowNonFileMD, variable, SharedPtr<AString>( aliasedNode.GetNode()->GetName() ), outStrings ) )
                     {
                         return false; // PopulateStringHelper will have emitted an error
                     }
@@ -1233,7 +1233,7 @@ bool Function::PopulateStringHelper( NodeGraph & nodeGraph,
                      ( allowNonFileMD->GetLimitedType() != node->GetType() ) )
                 {
                     // Error - node is wrong type
-                    Error::Error_1005_UnsupportedNodeType( iter, this, variable->GetName().Get(), node->GetName(), node->GetType() );
+                    Error::Error_1005_UnsupportedNodeType( iter, this, variable->GetName()->Get(), node->GetName(), node->GetType() );
                     return false;
                 }
 
@@ -1244,7 +1244,7 @@ bool Function::PopulateStringHelper( NodeGraph & nodeGraph,
             // Is the passed in thing a file?
             if ( node->IsAFile() == false )
             {
-                Error::Error_1103_NotAFile( iter, this, variable->GetName().Get(), node->GetName(), node->GetType() );
+                Error::Error_1103_NotAFile( iter, this, variable->GetName()->Get(), node->GetName(), node->GetType() );
                 return false;
             }
         }
@@ -1252,12 +1252,12 @@ bool Function::PopulateStringHelper( NodeGraph & nodeGraph,
         // Fall through to normal file handling
     }
 
-    AStackString stringToFix( string );
-    if ( !PopulatePathAndFileHelper( iter, pathMD, fileMD, variable->GetName(), stringToFix ) )
+    AStackString stringToFix( *string );
+    if ( !PopulatePathAndFileHelper( iter, pathMD, fileMD, *variable->GetName(), stringToFix ) )
     {
         return false; // PopulatePathAndFileHelper will have emitted an error
     }
-    outStrings.Append( stringToFix );
+    outStrings.Append( SharedPtr<AString>( stringToFix ) );
     return true;
 }
 
@@ -1318,7 +1318,7 @@ bool Function::PopulatePathAndFileHelper( const BFFToken * iter,
 //------------------------------------------------------------------------------
 bool Function::PopulateArrayOfStrings( NodeGraph & nodeGraph, const BFFToken * iter, void * base, const ReflectedProperty & property, const BFFVariable * variable, bool required ) const
 {
-    StackArray<AString> strings;
+    StackArray<SharedPtr<AString>> strings;
     if ( !PopulateStringHelper( nodeGraph,
                                 iter,
                                 property.HasMetaData<Meta_Path>(),
@@ -1338,9 +1338,9 @@ bool Function::PopulateArrayOfStrings( NodeGraph & nodeGraph, const BFFToken * i
     }
 
     // Arrays must not contain empty strings
-    for ( const AString & string : strings )
+    for ( const SharedPtr<AString> & string : strings )
     {
-        if ( string.IsEmpty() == true )
+        if ( string->IsEmpty() == true )
         {
             Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, property.GetName() ); // TODO:B A specific error for empty string in array?
             return false;
@@ -1355,7 +1355,7 @@ bool Function::PopulateArrayOfStrings( NodeGraph & nodeGraph, const BFFToken * i
 //------------------------------------------------------------------------------
 bool Function::PopulateString( NodeGraph & nodeGraph, const BFFToken * iter, void * base, const ReflectedProperty & property, const BFFVariable * variable, bool required ) const
 {
-    StackArray<AString> strings;
+    StackArray<SharedPtr<AString>> strings;
     if ( !PopulateStringHelper( nodeGraph,
                                 iter,
                                 property.HasMetaData<Meta_Path>(),
@@ -1370,32 +1370,32 @@ bool Function::PopulateString( NodeGraph & nodeGraph, const BFFToken * iter, voi
     if ( variable->IsString() )
     {
         // Handle empty strings
-        if ( strings.IsEmpty() || strings[ 0 ].IsEmpty() )
+        if ( strings.IsEmpty() || strings[ 0 ]->IsEmpty() )
         {
             if ( required )
             {
-                Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName().Get() );
+                Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName()->Get() );
                 return false;
             }
             else
             {
-                property.SetProperty( base, AString::GetEmpty() );
+                property.SetProperty( base, SharedPtr<AString>( AString::GetEmpty() ) );
                 return true;
             }
         }
 
         if ( strings.GetSize() != 1 )
         {
-            Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), BFFVariable::VAR_ARRAY_OF_STRINGS, BFFVariable::VAR_STRING );
+            Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), BFFVariable::VAR_ARRAY_OF_STRINGS, BFFVariable::VAR_STRING );
             return false;
         }
 
         // String to String
-        property.SetProperty( base, Move( strings[ 0 ] ) );
+        property.SetProperty( base, strings[ 0 ] );
         return true;
     }
 
-    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_STRING );
+    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_STRING );
     return false;
 }
 
@@ -1410,7 +1410,7 @@ bool Function::PopulateBool( const BFFToken * iter, void * base, const Reflected
         return true;
     }
 
-    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_BOOL );
+    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_BOOL );
     return false;
 }
 
@@ -1428,7 +1428,7 @@ bool Function::PopulateInt32( const BFFToken * iter, void * base, const Reflecte
         {
             if ( ( value < rangeMD->GetMin() ) || ( value > rangeMD->GetMax() ) )
             {
-                Error::Error_1054_IntegerOutOfRange( iter, this, variable->GetName().Get(), rangeMD->GetMin(), rangeMD->GetMax() );
+                Error::Error_1054_IntegerOutOfRange( iter, this, variable->GetName()->Get(), rangeMD->GetMin(), rangeMD->GetMax() );
                 return false;
             }
         }
@@ -1438,7 +1438,7 @@ bool Function::PopulateInt32( const BFFToken * iter, void * base, const Reflecte
         return true;
     }
 
-    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_INT );
+    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_INT );
     return false;
 }
 
@@ -1456,7 +1456,7 @@ bool Function::PopulateUInt32( const BFFToken * iter, void * base, const Reflect
         {
             if ( ( value < rangeMD->GetMin() ) || ( value > rangeMD->GetMax() ) )
             {
-                Error::Error_1054_IntegerOutOfRange( iter, this, variable->GetName().Get(), rangeMD->GetMin(), rangeMD->GetMax() );
+                Error::Error_1054_IntegerOutOfRange( iter, this, variable->GetName()->Get(), rangeMD->GetMin(), rangeMD->GetMax() );
                 return false;
             }
         }
@@ -1466,7 +1466,7 @@ bool Function::PopulateUInt32( const BFFToken * iter, void * base, const Reflect
         return true;
     }
 
-    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_INT );
+    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_INT );
     return false;
 }
 
@@ -1486,18 +1486,18 @@ bool Function::PopulateArrayOfStructs( NodeGraph & nodeGraph,
     if ( variable->IsArrayOfStructs() )
     {
         // pre-size the destination
-        const Array<const BFFVariable *> & srcStructs = variable->GetArrayOfStructs();
+        const Array<BFFVariable> & srcStructs = *variable->GetArrayOfStructs();
         dstStructs.ResizeArrayOfStruct( base, srcStructs.GetSize() );
 
         // Set the properties of each struct
         size_t index( 0 );
-        for ( const BFFVariable * s : srcStructs )
+        for ( const BFFVariable & s : srcStructs )
         {
             // Calculate the base for this struct in the array
             void * structBase = dstStructs.GetStructInArray( base, index );
 
             const ReflectionInfo * ri = dstStructs.GetStructReflectionInfo();
-            if ( !PopulateArrayOfStructsElement( nodeGraph, iter, structBase, ri, s ) )
+            if ( !PopulateArrayOfStructsElement( nodeGraph, iter, structBase, ri, &s ) )
             {
                 return false; // PopulateArrayOfStructsElement will have emitted an error
             }
@@ -1519,7 +1519,7 @@ bool Function::PopulateArrayOfStructs( NodeGraph & nodeGraph,
         return PopulateArrayOfStructsElement( nodeGraph, iter, structBase, ri, variable ); // Will emit error if needed
     }
 
-    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_STRUCT, BFFVariable::VAR_ARRAY_OF_STRUCTS );
+    Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_STRUCT, BFFVariable::VAR_ARRAY_OF_STRUCTS );
     return false;
 }
 
@@ -1580,7 +1580,7 @@ bool Function::PopulateCustom( NodeGraph & nodeGraph,
             // Property supports a single item, but an Array was provided
             Error::Error_1050_PropertyMustBeOfType( iter,
                                                     this,
-                                                    variable->GetName().Get(),
+                                                    variable->GetName()->Get(),
                                                     BFFVariable::VAR_ARRAY_OF_STRINGS,
                                                     BFFVariable::VAR_STRING );
             return false;
@@ -1617,12 +1617,12 @@ bool Function::PopulateArrayOfStructsElement( NodeGraph & nodeGraph,
             propertyName += property.GetName();
 
             // Try to find property in BFF
-            const BFFVariable * const * found = BFFVariable::GetMemberByName( propertyName, srcVariable->GetStructMembers() );
+            const BFFVariable * const found = BFFVariable::GetMemberByName( propertyName, *srcVariable->GetStructMembers() );
             const BFFVariable * var = nullptr;
             if ( found )
             {
                 // Use variable if found
-                var = *found;
+                var = found;
             }
             else
             {

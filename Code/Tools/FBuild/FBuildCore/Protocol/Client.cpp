@@ -199,7 +199,7 @@ uint32_t Client::GetNumConnections() const
         {
             FLOG_MONITOR( "FINISH_JOB TIMEOUT %s \"%s\" \n",
                           m_Worker->m_Address.Get(),
-                          job->GetNode()->GetName().Get() );
+                          job->GetNode()->GetName()->Get() );
             JobQueue::Get().ReturnUnfinishedDistributableJob( job );
         }
         m_Jobs.Clear();
@@ -609,9 +609,9 @@ void ClientToWorkerConnection::Process( const Protocol::MsgRequestJob * )
     // output to signify remote start
     if ( FBuild::Get().GetOptions().m_ShowCommandSummary )
     {
-        FLOG_OUTPUT( "-> Obj: %s <REMOTE: %s>\n", job->GetNode()->GetName().Get(), m_Worker->m_Address.Get() );
+        FLOG_OUTPUT( "-> Obj: %s <REMOTE: %s>\n", job->GetNode()->GetName()->Get(), m_Worker->m_Address.Get() );
     }
-    FLOG_MONITOR( "START_JOB %s \"%s\" \n", m_Worker->m_Address.Get(), job->GetNode()->GetName().Get() );
+    FLOG_MONITOR( "START_JOB %s \"%s\" \n", m_Worker->m_Address.Get(), job->GetNode()->GetName()->Get() );
 
     // Determine compression level we'd like the Server to use for returning the results
     int16_t resultCompressionLevel = -1; // Default compression level
@@ -741,7 +741,7 @@ void ClientToWorkerConnection::ProcessJobResultCommon( bool isCompressed,
     AStackString<8192> failureOutput;
     if ( result == false )
     {
-        failureOutput.Format( "PROBLEM: %s\n", node->GetName().Get() );
+        failureOutput.Format( "PROBLEM: %s\n", node->GetName()->Get() );
 
         // When invoked from MSBuild (directly or from Visual Studio) and
         // using -distverbose we might output a remote error string for a
@@ -780,7 +780,7 @@ void ClientToWorkerConnection::ProcessJobResultCommon( bool isCompressed,
                    " - Details           :\n"
                    "%s",
                    m_Worker->m_Address.Get(),
-                   node->GetName().Get(),
+                   node->GetName()->Get(),
                    jobSystemErrorCount,
                    SYSTEM_ERROR_ATTEMPT_COUNT,
                    failureOutput.Get() );
@@ -833,7 +833,7 @@ void ClientToWorkerConnection::ProcessJobResultCommon( bool isCompressed,
                                            start,
                                            receivedResultEndTime,
                                            resultStr,
-                                           node->GetName().Get() );
+                                           node->GetName()->Get() );
     }
 
     // Handle verbose logging
@@ -872,7 +872,7 @@ void ClientToWorkerConnection::ProcessJobResultCommon( bool isCompressed,
         }
         DIST_INFO( "Got Result: %s - %s%s\n",
                    m_Worker->m_Address.Get(),
-                   node->GetName().Get(),
+                   node->GetName()->Get(),
                    resultStr );
     }
 
@@ -884,7 +884,7 @@ void ClientToWorkerConnection::ProcessJobResultCommon( bool isCompressed,
         FLOG_MONITOR( "FINISH_JOB %s %s \"%s\" \"%s\"\n",
                       result ? "SUCCESS" : "ERROR",
                       m_Worker->m_Address.Get(),
-                      node->GetName().Get(),
+                      node->GetName()->Get(),
                       msgBuffer.Get() );
     }
 

@@ -31,14 +31,14 @@ public:
 
     explicit BFFVariable( const BFFVariable & other );
 
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, VarType type );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<AString> & value );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, bool value );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<SharedPtr<AString>>> & values );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, int32_t i );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<BFFVariable>> & values );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, SharedPtr<Array<BFFVariable>> && values );
-    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken & token, const SharedPtr<Array<BFFVariable>> & structs, VarType type ); // type for disambiguation
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, VarType type );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, const SharedPtr<AString> & value );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, bool value );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, const SharedPtr<Array<SharedPtr<AString>>> & values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, int32_t i );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, const SharedPtr<Array<BFFVariable>> & values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, SharedPtr<Array<BFFVariable>> && values );
+    explicit BFFVariable( const SharedPtr<AString> & name, const BFFToken * token, const SharedPtr<Array<BFFVariable>> & structs, VarType type ); // type for disambiguation
     ~BFFVariable();
 
     BFFVariable & operator=( const BFFVariable & other );
@@ -98,7 +98,7 @@ public:
 
     static const BFFVariable * GetMemberByName( const AString & name, const Array<BFFVariable> & members );
 
-    const BFFToken & GetToken() const { return m_Token; }
+    const BFFToken & GetToken() const { return *m_Token; }
 
 private:
     friend class BFFStackFrame;
@@ -122,7 +122,7 @@ private:
     SharedPtr<AString> m_StringValue;
     SharedPtr<Array<SharedPtr<AString>>> m_ArrayValues;
     SharedPtr<Array<BFFVariable>> m_SubVariables; // Used for struct members of arrays of structs
-    const BFFToken & m_Token;
+    const BFFToken * m_Token;
 
     static const char * s_TypeNames[ MAX_VAR_TYPES ];
 };

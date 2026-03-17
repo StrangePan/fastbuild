@@ -13204,7 +13204,7 @@ void Function::Error( const BFFIterator & iter, const char * fmtString, ... ) co
 	vsnprintf_s( buffer, BUFFER_SIZE, ((size_t)-1), fmtString, args );
 	( args = (va_list)0 );
 
-	iter.EmitParseError( "%s(): %s", GetName().Get(), buffer );
+	iter.EmitParseError( "%s(): %s", GetName()->Get(), buffer );
 }
 
 
@@ -13364,7 +13364,7 @@ bool Function::GetNodeListRecurse( const BFFIterator & iter, const char * name, 
 	}
 
 	
-	Error( iter, "Value '%s' in '%s' is of unsupported type: %s", name, n->GetName().Get(), n->GetTypeName() );
+	Error( iter, "Value '%s' in '%s' is of unsupported type: %s", name, n->GetName()->Get(), n->GetTypeName() );
 	return false;
 }
 
@@ -13841,7 +13841,7 @@ FunctionCSAssembly::FunctionCSAssembly()
 		}
 		else if ( staticDep->GetType() != Node::DIRECTORY_LIST_NODE )
 		{
-			Error( funcStartIter, "Node '%s' is not a directory listing (type: %s)", staticDep->GetName().Get(), staticDep->GetTypeName() );
+			Error( funcStartIter, "Node '%s' is not a directory listing (type: %s)", staticDep->GetName()->Get(), staticDep->GetTypeName() );
 			return false;
 		}
 
@@ -14121,7 +14121,7 @@ bool FunctionExecutable::DependOnNode( const BFFIterator & iter, Node * node, Ar
 	}
 
 	
-	Error( iter, "Cannot depend on '%s' (type: %s)", node->GetName().Get(), node->GetTypeName() );
+	Error( iter, "Cannot depend on '%s' (type: %s)", node->GetName()->Get(), node->GetTypeName() );
 	return false;
 }
 
@@ -14685,7 +14685,7 @@ FunctionLibrary::FunctionLibrary()
 			
 			if ( pchInputNode->IsAFile() == false )
 			{
-				Error( funcStartIter, "'.PCHInputFile' '%s' is not a file (type: %s)", pchInputNode->GetName().Get(), pchInputNode->GetTypeName() );
+				Error( funcStartIter, "'.PCHInputFile' '%s' is not a file (type: %s)", pchInputNode->GetName()->Get(), pchInputNode->GetTypeName() );
 				return false;
 			}
 		}
@@ -14697,7 +14697,7 @@ FunctionLibrary::FunctionLibrary()
 
 		if ( ng.FindNode( pchOutputFile->GetValue() ) )
 		{
-			Error( funcStartIter, "PrecompiledHeader '%s' has already been defined", pchOutputFile->GetName().Get() );
+			Error( funcStartIter, "PrecompiledHeader '%s' has already been defined", pchOutputFile->GetName()->Get() );
 			return false;
 		}
 
@@ -14770,7 +14770,7 @@ FunctionLibrary::FunctionLibrary()
 		}
 		else if ( staticDep->GetType() != Node::DIRECTORY_LIST_NODE )
 		{
-			Error( funcStartIter, "Node '%s' is not a directory listing (type: %s)", staticDep->GetName().Get(), staticDep->GetTypeName() );
+			Error( funcStartIter, "Node '%s' is not a directory listing (type: %s)", staticDep->GetName()->Get(), staticDep->GetTypeName() );
 			return false;
 		}
 
@@ -14791,7 +14791,7 @@ FunctionLibrary::FunctionLibrary()
 			}
 			else if ( staticDep->IsAFile() == false )
 			{
-				Error( funcStartIter, "'.CompilerInputFiles' '%s' is not a FileNode (type: %s)", staticDep->GetName().Get(), staticDep->GetTypeName() );
+				Error( funcStartIter, "'.CompilerInputFiles' '%s' is not a FileNode (type: %s)", staticDep->GetName()->Get(), staticDep->GetTypeName() );
 				return false;
 			}
 			staticDeps.Append( staticDep );
@@ -14810,7 +14810,7 @@ FunctionLibrary::FunctionLibrary()
 				}
 				else if ( staticDep->IsAFile() == false )
 				{
-					Error( funcStartIter, "'.CompilerInputFiles' '%s' is not a FileNode (type: %s)", staticDep->GetName().Get(), staticDep->GetTypeName() );
+					Error( funcStartIter, "'.CompilerInputFiles' '%s' is not a FileNode (type: %s)", staticDep->GetName()->Get(), staticDep->GetTypeName() );
 					return false;
 				}
 				staticDeps.Append( staticDep );
@@ -15262,7 +15262,7 @@ FunctionUnity::FunctionUnity()
 	}
 	else if ( dirNode->GetType() != Node::DIRECTORY_LIST_NODE )
 	{
-		Error( funcStartIter, "Node '%s' is not a directory listing (type: %s)", dirNode->GetName().Get(), dirNode->GetTypeName() );
+		Error( funcStartIter, "Node '%s' is not a directory listing (type: %s)", dirNode->GetName()->Get(), dirNode->GetTypeName() );
 		return false;
 	}
 
@@ -16726,7 +16726,7 @@ const BFFVariable * BFFStackFrame::GetVariableRecurse( const AString & nameOnly,
 				 ( type == ( *i )->GetType() ) )
 			{
 				
-				if ( nameOnly == ( ( *i )->GetName().Get() + 1 ) )
+				if ( nameOnly == ( ( *i )->GetName()->Get() + 1 ) )
 				{
 					return *i;
 				}
@@ -17008,7 +17008,7 @@ CopyNode::~CopyNode()
  Node::BuildResult CopyNode::DoBuild( Job *  )
 {
 	
-	if ( FileIO::FileCopy( m_SourceFile->GetName().Get(), m_Name.Get() ) == false )
+	if ( FileIO::FileCopy( m_SourceFile->GetName()->Get(), m_Name.Get() ) == false )
 	{
 		return NODE_RESULT_FAILED; 
 	}
@@ -17308,7 +17308,7 @@ CSNode::~CSNode()
 				}
 				else if ( sn->IsAFile() == false )
 				{
-					do { FLog::Error( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+					do { FLog::Error( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 					return false;
 				}
 
@@ -17317,7 +17317,7 @@ CSNode::~CSNode()
 			continue;
 		}
 
-		do { FLog::Error( "'%s' is not a supported node type (type: %s)", n->GetName().Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "'%s' is not a supported node type (type: %s)", n->GetName()->Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 
@@ -17354,7 +17354,7 @@ CSNode::~CSNode()
 		{
 			additionalLinkage += ',';
 		}
-		additionalLinkage += m_ExtraRefs[ i ]->GetName().Get();
+		additionalLinkage += m_ExtraRefs[ i ]->GetName()->Get();
 	}
 	fullArgs.Replace( "%3", additionalLinkage.Get() );
 
@@ -17370,7 +17370,7 @@ CSNode::~CSNode()
 	if ( p.Spawn( m_CompilerPath.Get(), fullArgs.Get(),
 				  workingDir, environment ) == false )
 	{
-		do { FLog::Error( "Failed to spawn process to build '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process to build '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -17396,7 +17396,7 @@ CSNode::~CSNode()
 
 	if ( !FileIO::FileExists( m_Name.Get() ) )
 	{
-		do { FLog::Error( "Object missing despite success for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Object missing despite success for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -17406,7 +17406,7 @@ CSNode::~CSNode()
 	return NODE_RESULT_OK;
 
 failed:
-	do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+	do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 
 	return NODE_RESULT_FAILED;
 }
@@ -17791,14 +17791,14 @@ ExecNode::~ExecNode()
 
 	
 	Process p;
-	bool spawnOK = p.Spawn( m_Executable->GetName().Get(),
+	bool spawnOK = p.Spawn( m_Executable->GetName()->Get(),
 							m_Arguments.Get(),
 							workingDir,
 							FBuild::Get().GetEnvironmentString() );
 
 	if ( !spawnOK )
 	{
-		do { FLog::Error( "Failed to spawn process for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -17822,7 +17822,7 @@ ExecNode::~ExecNode()
 	
 	if ( result != 0 )
 	{
-		do { FLog::Error( "Execution failed (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Execution failed (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -187480,7 +187480,7 @@ LibraryNode::~LibraryNode()
 				}
 				else if ( n->IsAFile() == false )
 				{
-					do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+					do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 					return false;
 				}
 
@@ -187522,7 +187522,7 @@ LibraryNode::~LibraryNode()
 				}
 				else if ( n->IsAFile() == false )
 				{
-					do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+					do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 					return false;
 				}
 
@@ -187545,7 +187545,7 @@ LibraryNode::~LibraryNode()
 	
 	if ( m_DynamicDependencies.GetSize() == 0 )
 	{
-		do { FLog::Error( "No files found to build '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "No files found to build '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 	return true;
@@ -187609,7 +187609,7 @@ LibraryNode::~LibraryNode()
  Node::BuildResult LibraryNode::DoBuild( Job *  )
 {
 	
-	do { FLog::Build( "Lib: %s\n", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+	do { FLog::Build( "Lib: %s\n", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 
 	
 	AStackString< 4 * (1024) > fullArgs;
@@ -187643,7 +187643,7 @@ LibraryNode::~LibraryNode()
 
 	if ( !spawnOK )
 	{
-		do { FLog::Error( "Failed to spawn process for Library creation for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process for Library creation for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -187667,7 +187667,7 @@ LibraryNode::~LibraryNode()
 	
 	if ( result != 0 )
 	{
-		do { FLog::Error( "Failed to build Library (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to build Library (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -187758,7 +187758,7 @@ bool LibraryNode::CreateDynamicObjectNode( Node * inputFile )
 	}
 	else if ( on->GetType() != Node::OBJECT_NODE )
 	{
-		do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName().Get(), on->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName()->Get(), on->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 	m_DynamicDependencies.Append( on );
@@ -187881,7 +187881,7 @@ LinkerNode::~LinkerNode()
  Node::BuildResult LinkerNode::DoBuild( Job *  )
 {
 	
-	do { FLog::Build( "Exe: %s\n", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+	do { FLog::Build( "Exe: %s\n", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 
 	
 	AStackString< 4 * (1024) > fullArgs;
@@ -187915,7 +187915,7 @@ LinkerNode::~LinkerNode()
 
 	if ( !spawnOK )
 	{
-		do { FLog::Error( "Failed to spawn process for Linker creation for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process for Linker creation for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -187939,7 +187939,7 @@ LinkerNode::~LinkerNode()
 	
 	if ( result != 0 )
 	{
-		do { FLog::Error( "Failed to build Linker (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to build Linker (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -189603,7 +189603,7 @@ ObjectNode::~ObjectNode()
 			}
 			else if ( fn->IsAFile() == false )
 			{
-				do { FLog::Error( "'%s' is not a FileNode (type: %s)", fn->GetName().Get(), fn->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+				do { FLog::Error( "'%s' is not a FileNode (type: %s)", fn->GetName()->Get(), fn->GetTypeName() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 				return false;
 			}
 			m_DynamicDependencies.Append( fn );
@@ -189660,7 +189660,7 @@ ObjectNode::~ObjectNode()
 	FileNode * sourceFile = m_StaticDependencies[ 1 ]->CastTo< FileNode >();
 
 	
-	fullArgs.Replace( "%1", sourceFile->GetName().Get() );
+	fullArgs.Replace( "%1", sourceFile->GetName()->Get() );
 	fullArgs.Replace( "%2", m_Name.Get() );
 
 	EmitCompilationMessage( fullArgs );
@@ -189673,12 +189673,12 @@ ObjectNode::~ObjectNode()
 
 	
 	Process p;
-	if ( false == p.Spawn( compiler->GetName().Get(), 
+	if ( false == p.Spawn( compiler->GetName()->Get(),
 						   fullArgs.Get(),
 						   nullptr, 
 						   FBuild::Get().GetEnvironmentString() ) )
 	{
-		do { FLog::Error( "Failed to spawn process to build '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process to build '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -189701,7 +189701,7 @@ ObjectNode::~ObjectNode()
 	if ( result != 0 )
 	{
 		DumpOutput( memOut.Get(), memOutSize );
-		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -189803,7 +189803,7 @@ Node::BuildResult ObjectNode::DoBuildWithPreProcessor2( Job * job )
 
 		
 		Node * sourceFile = m_StaticDependencies[ 1 ];
-		fullArgs.Replace( sourceFile->GetName().Get(), tmpFileName.Get() );
+		fullArgs.Replace( sourceFile->GetName()->Get(), tmpFileName.Get() );
 
 		
 		if ( GetFlag( FLAG_USING_PCH ) )
@@ -189847,7 +189847,7 @@ Node::BuildResult ObjectNode::DoBuildWithPreProcessor2( Job * job )
 
 	
 	FileNode * sourceFile = m_StaticDependencies[ 1 ]->CastTo< FileNode >();
-	fullArgs.Replace( "%1", sourceFile->GetName().Get() );
+	fullArgs.Replace( "%1", sourceFile->GetName()->Get() );
 	fullArgs.Replace( "%2", m_Name.Get() );
 
 	EmitCompilationMessage( fullArgs );
@@ -189856,12 +189856,12 @@ Node::BuildResult ObjectNode::DoBuildWithPreProcessor2( Job * job )
 
 	
 	Process p;
-	if ( false == p.Spawn( compiler->GetName().Get(), 
+	if ( false == p.Spawn( compiler->GetName()->Get(),
 						   fullArgs.Get(),
 						   nullptr, 
 						   FBuild::Get().GetEnvironmentString() ) )
 	{
-		do { FLog::Error( "Failed to spawn process to build '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process to build '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -189886,7 +189886,7 @@ Node::BuildResult ObjectNode::DoBuildWithPreProcessor2( Job * job )
 	{
 		
 		DumpOutput( memOut.Get(), memOutSize );
-		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -190003,7 +190003,7 @@ bool ObjectNode::ProcessIncludesMSCL( const char * output, uint32_t outputSize, 
 							   : parser.ParseMSCL_Output( output, outputSize );
 	if ( result == false )
 	{
-		do { FLog::Error( "Failed to process includes for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to process includes for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 
@@ -190030,7 +190030,7 @@ bool ObjectNode::ProcessIncludesGCC( const char * output, uint32_t outputSize )
 	bool result = parser.ParseGCC_Preprocessed( output, outputSize );
 	if ( result == false )
 	{
-		do { FLog::Error( "Failed to process includes for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to process includes for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 
@@ -190061,7 +190061,7 @@ bool ObjectNode::ProcessIncludesWithPreProcessor( Job * job )
 									   : parser.ParseGCC_Preprocessed( output, outputSize );
 	if ( result == false )
 	{
-		do { FLog::Error( "Failed to process includes for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to process includes for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 
@@ -190301,7 +190301,7 @@ void ObjectNode::BuildFullArgs( AString & fullArgs, bool preProcess ) const
 	Node * sourceFile = m_StaticDependencies[ 1 ];
 
 	
-	fullArgs.Replace( "%1", sourceFile->GetName().Get() );
+	fullArgs.Replace( "%1", sourceFile->GetName()->Get() );
 	fullArgs.Replace( "%2", m_Name.Get() );
 }
 
@@ -190316,12 +190316,12 @@ bool ObjectNode::BuildPreprocessedOutput( const AString & fullArgs, Job * job ) 
 
 	
 	Process p;
-	if ( false == p.Spawn( compiler->GetName().Get(), 
+	if ( false == p.Spawn( compiler->GetName()->Get(),
 						   fullArgs.Get(),
 						   nullptr, 
 						   FBuild::Get().GetEnvironmentString() ) )
 	{
-		do { FLog::Error( "Failed to spawn process to build '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process to build '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 
@@ -190338,7 +190338,7 @@ bool ObjectNode::BuildPreprocessedOutput( const AString & fullArgs, Job * job ) 
 	if ( result != 0 )
 	{
 		DumpOutput( memErr.Get(), memErrSize );
-		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 
@@ -190369,7 +190369,7 @@ bool ObjectNode::WriteTmpFile( Job * job, AString & tmpFileName ) const
 			( tmpFile.Write( job->GetData(), job->GetDataSize() ) == false ) )
 	{
 		int error = GetLastError();
-		do { FLog::Error( "Failed to write to temp '%s' file to build '%s' (error %u)", tmpFileName.Get(), GetName().Get(), error ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to write to temp '%s' file to build '%s' (error %u)", tmpFileName.Get(), GetName()->Get(), error ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 	tmpFile.Close();
@@ -190395,12 +190395,12 @@ bool ObjectNode::BuildFinalOutput( Job * job, const AString & fullArgs ) const
 
 	
 	Process p;
-	if ( false == p.Spawn( compiler->GetName().Get(), 
+	if ( false == p.Spawn( compiler->GetName()->Get(),
 						   fullArgs.Get(),
 						   nullptr, 
 						   FBuild::IsValid() ? FBuild::Get().GetEnvironmentString() : nullptr ) )
 	{
-		do { FLog::Error( "Failed to spawn process to build '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process to build '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return false;
 	}
 
@@ -190422,7 +190422,7 @@ bool ObjectNode::BuildFinalOutput( Job * job, const AString & fullArgs ) const
 	if ( result != 0 )
 	{
 		DumpOutput( memOut.Get(), memOutSize );
-		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 
 		
 		if ( job->IsLocal() == false )
@@ -190521,21 +190521,21 @@ TestNode::~TestNode()
 
  Node::BuildResult TestNode::DoBuild( Job *  )
 {
-	do { FLog::Build( "Running Test: %s\n", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+	do { FLog::Build( "Running Test: %s\n", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 
 	
 	const char * workingDir = m_WorkingDir.IsEmpty() ? nullptr : m_WorkingDir.Get();
 
 	
 	Process p;
-	bool spawnOK = p.Spawn( m_Executable->GetName().Get(),
+	bool spawnOK = p.Spawn( m_Executable->GetName()->Get(),
 							m_Arguments.Get(),
 							workingDir,
 							FBuild::Get().GetEnvironmentString() );
 
 	if ( !spawnOK )
 	{
-		do { FLog::Error( "Failed to spawn process for '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to spawn process for '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -190558,15 +190558,15 @@ TestNode::~TestNode()
 
 	
 	FileStream fs;
-	if ( fs.Open( GetName().Get(), FileStream::WRITE_ONLY ) == false )
+	if ( fs.Open( GetName()->Get(), FileStream::WRITE_ONLY ) == false )
 	{
-		do { FLog::Error( "Failed to open test output file '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to open test output file '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 	if ( ( memOut.Get() && ( fs.Write( memOut.Get(), memOutSize ) == false ) ) ||
 		 ( memErr.Get() && ( fs.Write( memErr.Get(), memErrSize ) == false ) ) )
 	{
-		do { FLog::Error( "Failed to write test output file '%s'", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Failed to write test output file '%s'", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 	fs.Close();
@@ -190574,7 +190574,7 @@ TestNode::~TestNode()
 	
 	if ( result != 0 )
 	{
-		do { FLog::Error( "Test failed (error %i) '%s'", result, GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { FLog::Error( "Test failed (error %i) '%s'", result, GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 		return NODE_RESULT_FAILED;
 	}
 
@@ -190790,7 +190790,7 @@ UnityNode::~UnityNode()
 		{
 			if ( hasOutputMessage == false )
 			{
-				do { FLog::Build( "Uni: %s\n", GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+				do { FLog::Build( "Uni: %s\n", GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 				hasOutputMessage = true;
 			}
 
@@ -191086,7 +191086,7 @@ void FBuildStats::OutputSummary() const
 		for ( uint32_t i=0; i<m_MostExpensiveNodes.GetSize(); ++i )
 		{
 			const Node * n = m_MostExpensiveNodes[ i ];
-			Tracing::OutputFormat( "%2.2fs\t%s\n", ( (float)n->GetLastBuildTime() / 1000.0f ), n->GetName().Get() );
+			Tracing::OutputFormat( "%2.2fs\t%s\n", ( (float)n->GetLastBuildTime() / 1000.0f ), n->GetName()->Get() );
 		}
 		Tracing::OutputFormat( "\n" );
 	}
@@ -198406,7 +198406,7 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success )
 		
 		node->SetLastBuildTime( timeTakenMS );
 		node->SetStatFlag( Node::STATS_BUILT );
-		do { if ( FLog::ShowInfo() ) { FLog::Info( "-Build: %u ms\t%s", timeTakenMS, node->GetName().Get() ); } __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+		do { if ( FLog::ShowInfo() ) { FLog::Info( "-Build: %u ms\t%s", timeTakenMS, node->GetName()->Get() ); } __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 	}
 
 	if ( result == Node::NODE_RESULT_NEED_SECOND_BUILD_PASS )
@@ -198424,13 +198424,13 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success )
 			else
 			{
 				
-				if ( FileIO::FileExists( node->GetName().Get() ) )
+				if ( FileIO::FileExists( node->GetName()->Get() ) )
 				{
 					
-					if ( FileIO::FileDelete( node->GetName().Get() ) == false )
+					if ( FileIO::FileDelete( node->GetName()->Get() ) == false )
 					{
 						
-						do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+						do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 					}
 				}
 			}
@@ -198441,9 +198441,9 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success )
 			do { __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 
 			
-			if ( !FileIO::FileExists( node->GetName().Get() ) )
+			if ( !FileIO::FileExists( node->GetName()->Get() ) )
 			{
-				do { FLog::Error( "File missing despite success for '%s'", node->GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+				do { FLog::Error( "File missing despite success for '%s'", node->GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 				result = Node::NODE_RESULT_FAILED;
 			}
 		}
@@ -198735,13 +198735,13 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 	if ( result == Node::NODE_RESULT_FAILED )
 	{
 		
-		if ( FileIO::FileExists( node->GetName().Get() ) )
+		if ( FileIO::FileExists( node->GetName()->Get() ) )
 		{
 			
-			if ( FileIO::FileDelete( node->GetName().Get() ) == false )
+			if ( FileIO::FileDelete( node->GetName()->Get() ) == false )
 			{
 				
-				do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+				do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 			}
 		}
 	}
@@ -198752,9 +198752,9 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 
 		
 		FileStream fs;
-		if ( fs.Open( node->GetName().Get() ) == false )
+		if ( fs.Open( node->GetName()->Get() ) == false )
 		{
-			do { FLog::Error( "File missing despite success for '%s'", node->GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+			do { FLog::Error( "File missing despite success for '%s'", node->GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 			result = Node::NODE_RESULT_FAILED;
 		}
 		else
@@ -198763,7 +198763,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 			AutoPtr< char > mem( new char[ size ] );
 			if ( fs.Read( mem.Get(), size ) == false )
 			{
-				do { FLog::Error( "File read error for '%s'", node->GetName().Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+				do { FLog::Error( "File read error for '%s'", node->GetName()->Get() ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 				result = Node::NODE_RESULT_FAILED;
 			}
 			else
@@ -201895,7 +201895,7 @@ bool FBuild::Build( Node * nodeToBuild )
 	float seconds = timeTaken;
 	const char * msgString = buildOK ? "Build complete for '%s' in %um %05.2fs\n" 
 									 : "Build FAILED for '%s' in %um %05.2fs\n";
-	do { FLog::Build( msgString, nodeToBuild->GetName().Get(), minutes, seconds ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
+	do { FLog::Build( msgString, nodeToBuild->GetName()->Get(), minutes, seconds ); __pragma(warning(push)) __pragma(warning(disable:4127)) } while ( false ); __pragma(warning(pop));
 	return buildOK;
 }
 

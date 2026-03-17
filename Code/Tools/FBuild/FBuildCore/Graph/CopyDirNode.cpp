@@ -133,7 +133,7 @@ CopyDirNode::~CopyDirNode() = default;
             }
             else if ( n->GetType() != Node::COPY_FILE_NODE )
             {
-                FLOG_ERROR( "Node '%s' is not a CopyFileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+                FLOG_ERROR( "Node '%s' is not a CopyFileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
                 return false;
             }
             else
@@ -146,7 +146,7 @@ CopyDirNode::~CopyDirNode() = default;
                                 " File B: %s\n"
                                 " Both copy to: %s\n",
                                 srcFile.Get(),
-                                cn->GetSourceNode()->GetName().Get(),
+                                cn->GetSourceNode()->GetName()->Get(),
                                 dstFile.Get() );
                     return false;
                 }

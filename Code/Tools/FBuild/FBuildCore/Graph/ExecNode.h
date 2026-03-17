@@ -38,23 +38,23 @@ private:
     void EmitCompilationMessage( const AString & args ) const;
 
     // Exposed Properties
-    AString m_ExecExecutable;
-    Array<AString> m_ExecInput;
-    Array<AString> m_ExecInputPath;
-    Array<AString> m_ExecInputPattern;
-    Array<AString> m_ExecInputExcludePath;
-    Array<AString> m_ExecInputExcludedFiles;
-    Array<AString> m_ExecInputExcludePattern;
-    AString m_ExecArguments;
-    AString m_ExecWorkingDir;
+    SharedPtr<AString> m_ExecExecutable;
+    SharedPtr<Array<SharedPtr<AString>>> m_ExecInput;
+    SharedPtr<Array<SharedPtr<AString>>> m_ExecInputPath;
+    SharedPtr<Array<SharedPtr<AString>>> m_ExecInputPattern;
+    SharedPtr<Array<SharedPtr<AString>>> m_ExecInputExcludePath;
+    SharedPtr<Array<SharedPtr<AString>>> m_ExecInputExcludedFiles;
+    SharedPtr<Array<SharedPtr<AString>>> m_ExecInputExcludePattern;
+    SharedPtr<AString> m_ExecArguments;
+    SharedPtr<AString> m_ExecWorkingDir;
     int32_t m_ExecReturnCode;
     bool m_ExecAlwaysShowOutput;
     bool m_ExecUseStdOutAsOutput;
     bool m_ExecAlways;
     bool m_ExecInputPathRecurse;
     Array<Node *> m_PreBuildDependencyNames;
-    Array<AString> m_Environment;
-    AString m_ConcurrencyGroupName;
+    SharedPtr<Array<SharedPtr<AString>>> m_Environment;
+    SharedPtr<AString> m_ConcurrencyGroupName;
 
     // Internal State
     uint32_t m_NumExecInputFiles;

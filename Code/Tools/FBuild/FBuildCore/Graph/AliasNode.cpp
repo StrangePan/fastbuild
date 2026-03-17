@@ -53,7 +53,7 @@ AliasNode::~AliasNode() = default;
             if ( n->GetStamp() == 0 )
             {
                 // ... the build should fail
-                FLOG_ERROR( "Alias: %s\nFailed due to missing file: %s\n", GetName().Get(), n->GetName().Get() );
+                FLOG_ERROR( "Alias: %s\nFailed due to missing file: %s\n", GetName()->Get(), n->GetName()->Get() );
                 return BuildResult::eFailed;
             }
         }

@@ -60,7 +60,7 @@ ExecNode::ExecNode()
 {
     m_Type = EXEC_NODE;
 
-    m_ExecInputPattern.EmplaceBack( "*.*" );
+    m_ExecInputPattern->EmplaceBack( "*.*" );
 }
 
 // Initialize
@@ -74,7 +74,7 @@ ExecNode::ExecNode()
     if ( !InitializeConcurrencyGroup( nodeGraph,
                                       iter,
                                       function,
-                                      m_ConcurrencyGroupName,
+                                      *m_ConcurrencyGroupName,
                                       m_ConcurrencyGroupIndex ) )
     {
         return false; // InitializeConcurrencyGroup will have emitted an error
@@ -82,7 +82,7 @@ ExecNode::ExecNode()
 
     // .ExecExecutable
     Dependencies executable;
-    if ( !Function::GetFileNode( nodeGraph, iter, function, m_ExecExecutable, "ExecExecutable", executable ) )
+    if ( !Function::GetFileNode( nodeGraph, iter, function, *m_ExecExecutable, "ExecExecutable", executable ) )
     {
         return false; // GetFileNode will have emitted an error
     }
@@ -90,7 +90,7 @@ ExecNode::ExecNode()
 
     // .ExecInput
     Dependencies execInputFiles;
-    if ( !Function::GetFileNodes( nodeGraph, iter, function, m_ExecInput, "ExecInput", execInputFiles ) )
+    if ( !Function::GetFileNodes( nodeGraph, iter, function, *m_ExecInput, "ExecInput", execInputFiles ) )
     {
         return false; // GetFileNodes will have emitted an error
     }
@@ -101,14 +101,14 @@ ExecNode::ExecNode()
     if ( !Function::GetDirectoryListNodeList( nodeGraph,
                                               iter,
                                               function,
-                                              m_ExecInputPath,
-                                              m_ExecInputExcludePath,
-                                              m_ExecInputExcludedFiles,
-                                              m_ExecInputExcludePattern,
+                                              *m_ExecInputPath,
+                                              *m_ExecInputExcludePath,
+                                              *m_ExecInputExcludedFiles,
+                                              *m_ExecInputExcludePattern,
                                               m_ExecInputPathRecurse,
                                               false, // Don't include read-only status in hash
                                               false, // Don't include directories
-                                              &m_ExecInputPattern,
+                                              m_ExecInputPattern.Get(),
                                               "ExecInputPath",
                                               execInputPaths ) )
     {
@@ -141,7 +141,7 @@ ExecNode::~ExecNode()
 
     // get the result of the directory lists and depend on those
     const size_t startIndex = 1 + m_NumExecInputFiles; // Skip Compiler + ExecInputFiles
-    const size_t endIndex = ( 1 + m_NumExecInputFiles + m_ExecInputPath.GetSize() );
+    const size_t endIndex = ( 1 + m_NumExecInputFiles + m_ExecInputPath->GetSize() );
     for ( size_t i = startIndex; i < endIndex; ++i )
     {
         const Node * n = m_StaticDependencies[ i ].GetNode();
@@ -162,7 +162,7 @@ ExecNode::~ExecNode()
             }
             else if ( sn->IsAFile() == false )
             {
-                FLOG_ERROR( "Exec() .ExecInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+                FLOG_ERROR( "Exec() .ExecInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
                 return false;
             }
 
@@ -179,7 +179,7 @@ ExecNode::~ExecNode()
 {
     if ( m_ExecAlways )
     {
-        FLOG_BUILD_REASON( "Need to build '%s' (ExecAlways = true)\n", GetName().Get() );
+        FLOG_BUILD_REASON( "Need to build '%s' (ExecAlways = true)\n", GetName()->Get() );
         return true;
     }
     return Node::DetermineNeedToBuildStatic();
@@ -190,19 +190,19 @@ ExecNode::~ExecNode()
 /*virtual*/ Node::BuildResult ExecNode::DoBuild( Job * job )
 {
     // If the workingDir is empty, use the current dir for the process
-    const char * workingDir = m_ExecWorkingDir.IsEmpty() ? nullptr : m_ExecWorkingDir.Get();
+    const char * workingDir = m_ExecWorkingDir->IsEmpty() ? nullptr : m_ExecWorkingDir->Get();
 
     // Format compiler args string
     AStackString<4 * KILOBYTE> fullArgs;
     GetFullArgs( fullArgs );
 
-    const char * environment = Node::GetEnvironmentString( m_Environment, m_EnvironmentString );
+    const char * environment = Node::GetEnvironmentString( *m_Environment, m_EnvironmentString );
 
     EmitCompilationMessage( fullArgs );
 
     // spawn the process
     Process p( FBuild::Get().GetAbortBuildPointer() );
-    const bool spawnOK = p.Spawn( GetExecutable()->GetName().Get(),
+    const bool spawnOK = p.Spawn( GetExecutable()->GetName()->Get(),
                                   fullArgs.Get(),
                                   workingDir,
                                   environment );
@@ -214,7 +214,7 @@ ExecNode::~ExecNode()
             return BuildResult::eAborted;
         }
 
-        FLOG_ERROR( "Failed to spawn process for '%s'", GetName().Get() );
+        FLOG_ERROR( "Failed to spawn process for '%s'", GetName()->Get() );
         return BuildResult::eFailed;
     }
 
@@ -243,14 +243,14 @@ ExecNode::~ExecNode()
     // did the executable fail?
     if ( buildFailed )
     {
-        FLOG_ERROR( "Execution failed. Error: %s Target: '%s'", ERROR_STR( result ), GetName().Get() );
+        FLOG_ERROR( "Execution failed. Error: %s Target: '%s'", ERROR_STR( result ), GetName()->Get() );
         return BuildResult::eFailed;
     }
 
     if ( m_ExecUseStdOutAsOutput == true )
     {
         FileStream f;
-        f.Open( m_Name.Get(), FileStream::WRITE_ONLY );
+        f.Open( m_Name->Get(), FileStream::WRITE_ONLY );
         if ( memOut.IsEmpty() == false )
         {
             f.WriteBuffer( memOut.Get(), memOut.GetLength() );
@@ -289,9 +289,9 @@ void ExecNode::EmitCompilationMessage( const AString & args ) const
     {
         AStackString<1024> verboseOutput;
         verboseOutput.Format( "%s %s\nWorkingDir: %s\nExpectedReturnCode: %i\n",
-                              GetExecutable()->GetName().Get(),
+                              GetExecutable()->GetName()->Get(),
                               args.Get(),
-                              m_ExecWorkingDir.Get(),
+                              m_ExecWorkingDir->Get(),
                               m_ExecReturnCode );
         output += verboseOutput;
     }
@@ -309,7 +309,7 @@ void ExecNode::GetFullArgs( AString & fullArgs ) const
 {
     // split into tokens
     StackArray<AString> tokens;
-    m_ExecArguments.Tokenize( tokens );
+    m_ExecArguments->Tokenize( tokens );
 
     AStackString quote( "\"" );
 
@@ -342,14 +342,14 @@ void ExecNode::GetFullArgs( AString & fullArgs ) const
             {
                 fullArgs += AStackString( token.Get(), token.GetEnd() - 2 );
             }
-            fullArgs += GetName().Get();
+            fullArgs += GetName()->Get();
         }
         else if ( token.EndsWith( "\"%2\"" ) )
         {
             // handle /Option:"%2" -> /Option:"A"
             AStackString pre( token.Get(), token.GetEnd() - 3 ); // 3 instead of 4 to include quote
             fullArgs += pre;
-            fullArgs += GetName().Get();
+            fullArgs += GetName()->Get();
             fullArgs += '"'; // post
         }
         else

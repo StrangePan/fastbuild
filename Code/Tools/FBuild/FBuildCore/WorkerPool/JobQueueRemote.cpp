@@ -307,7 +307,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, Node::BuildResult result 
 
     if ( job->IsLocal() )
     {
-        FLOG_MONITOR( "START_JOB local \"%s\" \n", job->GetNode()->GetName().Get() );
+        FLOG_MONITOR( "START_JOB local \"%s\" \n", job->GetNode()->GetName()->Get() );
     }
 
     // remote tasks must output to a tmp file
@@ -406,7 +406,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, Node::BuildResult result 
     if ( job->IsLocal() == false )
     {
         // Cleanup obj file
-        FileIO::FileDelete( node->GetName().Get() );
+        FileIO::FileDelete( node->GetName()->Get() );
 
         // Cleanup PDB file
         if ( node->IsUsingPDB() )
@@ -427,7 +427,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, Node::BuildResult result 
 
         FLOG_MONITOR( "FINISH_JOB %s local \"%s\" \"%s\"\n",
                       ( result == Node::BuildResult::eFailed ) ? "ERROR" : "SUCCESS",
-                      job->GetNode()->GetName().Get(),
+                      job->GetNode()->GetName()->Get(),
                       msgBuffer.Get() );
     }
 

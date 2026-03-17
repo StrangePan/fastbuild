@@ -31,8 +31,8 @@ private:
 
     friend class FunctionCopy;
     friend class CopyDirNode; // TODO: Remove
-    AString m_Source;
-    AString m_Dest;
+    SharedPtr<AString> m_Source;
+    SharedPtr<AString> m_Dest;
     Array<Node *> m_PreBuildDependencyNames;
 };
 

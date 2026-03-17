@@ -4,6 +4,7 @@
 
 // Includes
 //------------------------------------------------------------------------------
+#include "Core/Containers/SharedPtr.h"
 #include "Core/Env/Types.h"
 #include "Core/Reflection/MetaData/MetaDataInterface.h"
 #include "Core/Reflection/PropertyType.h"
@@ -109,8 +110,8 @@ public:
         void SetProperty( void * object, const valueType & value ) const; \
         void SetProperty( void * object, valueType && value ) const;
 
-    GETSET_PROPERTY_REF( AString )
-    GETSET_PROPERTY_REF( Array<AString> )
+    GETSET_PROPERTY_REF( SharedPtr<AString> )
+    GETSET_PROPERTY_REF( Array<SharedPtr<AString>> )
 
 #undef GETSET_PROPERTY
 #undef GETSET_PROPERTY_REF

@@ -37,21 +37,21 @@ public:
 
     const char * GetObjExtension() const;
 
-    void GetInputFiles( bool objectsInsteadOfLibs, Array<AString> & outInputs ) const;
-    void GetInputFiles( Array<AString> & files ) const;
+    void GetInputFiles( bool objectsInsteadOfLibs, Array<SharedPtr<AString>> & outInputs ) const;
+    void GetInputFiles( Array<SharedPtr<AString>> & files ) const;
 
-    const AString & GetCompilerOutputPath() const { return m_CompilerOutputPath; }
-    const AString & GetCompilerOptions() const { return m_CompilerOptions; }
-    const AString & GetCompilerOptionsDeoptimized() const { return m_CompilerOptionsDeoptimized; }
-    const AString & GetCompilerOptionsPCH() const { return m_PCHOptions; }
-    const AString & GetPreprocessorOptions() const { return m_PreprocessorOptions; }
-    const Array<AString> & GetCompilerForceUsing() const { return m_CompilerForceUsing; }
+    const AString & GetCompilerOutputPath() const { return *m_CompilerOutputPath; }
+    const AString & GetCompilerOptions() const { return *m_CompilerOptions; }
+    const AString & GetCompilerOptionsDeoptimized() const { return *m_CompilerOptionsDeoptimized; }
+    const AString & GetCompilerOptionsPCH() const { return *m_PCHOptions; }
+    const AString & GetPreprocessorOptions() const { return *m_PreprocessorOptions; }
+    const Array<SharedPtr<AString>> & GetCompilerForceUsing() const { return *m_CompilerForceUsing; }
     CompilerNode * GetCompiler() const { return m_CompilerNode; }
     CompilerNode * GetPreprocessor() const { return m_PreprocessorNode; }
     bool GetDeoptimizeWritableFiles() const { return m_DeoptimizeWritableFiles; }
     bool GetDeoptimizeWritableFilesWithToken() const { return m_DeoptimizeWritableFilesWithToken; }
-    const AString & GetPrecompiledHeaderName() const { return m_PrecompiledHeaderName; }
-    const AString & GetPCHObjectFileName() const { return m_PCHObjectFileName; }
+    const AString & GetPrecompiledHeaderName() const { return *m_PrecompiledHeaderName; }
+    const AString & GetPCHObjectFileName() const { return *m_PCHObjectFileName; }
 
     [[nodiscard]] bool IsCachingAllowed() const { return m_AllowCaching; }
     [[nodiscard]] bool IsDistributionAllowed() const { return m_AllowDistribution; }
@@ -90,22 +90,22 @@ protected:
                                             CompilerInfoNode *& outCompilerInfoDependency ) const;
 
     // Exposed Properties
-    AString m_Compiler;
-    AString m_CompilerOptions;
-    AString m_CompilerOptionsDeoptimized;
-    AString m_CompilerOutputPath;
-    AString m_CompilerOutputPrefix;
-    AString m_CompilerOutputExtension;
-    Array<AString> m_CompilerInputPath;
-    Array<AString> m_CompilerInputPattern;
-    Array<AString> m_CompilerInputExcludePath;
-    Array<AString> m_CompilerInputExcludedFiles;
-    Array<AString> m_CompilerInputExcludePattern;
-    Array<AString> m_CompilerInputFiles;
-    Array<AString> m_CompilerInputUnity;
-    AString m_CompilerInputFilesRoot;
-    Array<AString> m_CompilerInputObjectLists;
-    Array<AString> m_CompilerForceUsing;
+    SharedPtr<AString> m_Compiler;
+    SharedPtr<AString> m_CompilerOptions;
+    SharedPtr<AString> m_CompilerOptionsDeoptimized;
+    SharedPtr<AString> m_CompilerOutputPath;
+    SharedPtr<AString> m_CompilerOutputPrefix;
+    SharedPtr<AString> m_CompilerOutputExtension;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputPath;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputPattern;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputExcludePath;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputExcludedFiles;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputExcludePattern;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputFiles;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputUnity;
+    SharedPtr<AString> m_CompilerInputFilesRoot;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputObjectLists;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerForceUsing;
     bool m_CompilerInputAllowNoFiles = false;
     bool m_CompilerInputPathRecurse = true;
     bool m_CompilerOutputKeepBaseExtension = false;
@@ -114,26 +114,26 @@ protected:
     bool m_AllowDistribution = true;
     bool m_AllowCaching = true;
     uint8_t m_ConcurrencyGroupIndex = 0; // Internal; placed here to use padding
-    AString m_PCHInputFile;
-    AString m_PCHOutputFile;
-    AString m_PCHOptions;
-    AString m_Preprocessor;
-    AString m_PreprocessorOptions;
+    SharedPtr<AString> m_PCHInputFile;
+    SharedPtr<AString> m_PCHOutputFile;
+    SharedPtr<AString> m_PCHOptions;
+    SharedPtr<AString> m_Preprocessor;
+    SharedPtr<AString> m_PreprocessorOptions;
     Array<Node *> m_PreBuildDependencyNames;
-    AString m_ConcurrencyGroupName;
+    SharedPtr<AString> m_ConcurrencyGroupName;
 
     // Internal State
     CompilerNode * m_CompilerNode = nullptr;
     CompilerNode * m_PreprocessorNode = nullptr;
     CompilerInfoNode * m_CompilerInfoNode = nullptr;
-    AString m_PrecompiledHeaderName;
+    SharedPtr<AString> m_PrecompiledHeaderName;
 #if defined( __WINDOWS__ )
-    AString m_PrecompiledHeaderCPPFile;
+    SharedPtr<AString> m_PrecompiledHeaderCPPFile;
 #endif
-    AString m_PCHObjectFileName;
-    AString m_ExtraPDBPath;
-    AString m_ExtraASMPath;
-    AString m_ExtraSourceDependenciesPath;
+    SharedPtr<AString> m_PCHObjectFileName;
+    SharedPtr<AString> m_ExtraPDBPath;
+    SharedPtr<AString> m_ExtraASMPath;
+    SharedPtr<AString> m_ExtraSourceDependenciesPath;
     uint32_t m_ObjectListInputStartIndex = 0;
     uint32_t m_ObjectListInputEndIndex = 0;
     uint32_t m_OwnerObjectListHash = 0;

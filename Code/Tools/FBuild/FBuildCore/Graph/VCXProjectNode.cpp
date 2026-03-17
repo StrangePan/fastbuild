@@ -212,9 +212,9 @@ VCXProjectNode::VCXProjectNode()
     if ( m_ProjectGuid.IsEmpty() )
     {
         AStackString relativePath;
-        if ( m_Name.BeginsWith( FBuild::Get().GetWorkingDir() ) )
+        if ( m_Name->BeginsWith( FBuild::Get().GetWorkingDir() ) )
         {
-            relativePath = m_Name.Get() + FBuild::Get().GetWorkingDir().GetLength() + 1;
+            relativePath = m_Name->Get() + FBuild::Get().GetWorkingDir().GetLength() + 1;
         }
         else
         {

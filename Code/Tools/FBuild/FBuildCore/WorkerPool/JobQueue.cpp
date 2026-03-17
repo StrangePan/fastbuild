@@ -971,7 +971,7 @@ void JobQueue::FinishedProcessingJob( Job * job, Node::BuildResult result, bool 
                 // does not represent how long it takes to create this resource)
                 node->SetLastBuildTime( timeTakenMS );
                 node->SetStatFlag( Node::STATS_BUILT );
-                FLOG_VERBOSE( "-Build: %u ms\t%s", timeTakenMS, node->GetName().Get() );
+                FLOG_VERBOSE( "-Build: %u ms\t%s", timeTakenMS, node->GetName()->Get() );
             }
 
             // Check that the file is on disk as expected
@@ -981,9 +981,9 @@ void JobQueue::FinishedProcessingJob( Job * job, Node::BuildResult result, bool 
                 if ( node->GetType() != Node::FILE_NODE )
                 {
                     // ... ensure file exists (to detect builder logic problems)
-                    if ( !FileIO::FileExists( node->GetName().Get() ) )
+                    if ( !FileIO::FileExists( node->GetName()->Get() ) )
                     {
-                        FLOG_ERROR( "File missing despite success for '%s'", node->GetName().Get() );
+                        FLOG_ERROR( "File missing despite success for '%s'", node->GetName()->Get() );
                         result = Node::BuildResult::eFailed;
                     }
                 }

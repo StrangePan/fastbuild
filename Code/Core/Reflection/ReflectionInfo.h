@@ -5,6 +5,7 @@
 // Includes
 //------------------------------------------------------------------------------
 #include "Core/Containers/Array.h"
+#include "Core/Containers/SharedPtr.h"
 #include "Core/Env/Types.h"
 #include "Core/Reflection/PropertyType.h"
 #include "Core/Reflection/ReflectionIter.h"
@@ -57,13 +58,13 @@ public:
     GETSET_PROPERTY( int32_t, int32_t )
     GETSET_PROPERTY( int64_t, int64_t )
     GETSET_PROPERTY( bool, bool )
-    GETSET_PROPERTY( AString, const AString & )
+    GETSET_PROPERTY( SharedPtr<AString>, const SharedPtr<AString> & )
 
 #define GETSET_PROPERTY_ARRAY( valueType ) \
         bool GetProperty( void * object, const char * name, Array<valueType> * value ) const; \
         bool SetProperty( void * object, const char * name, const Array<valueType> & value ) const;
 
-    GETSET_PROPERTY_ARRAY( AString )
+    GETSET_PROPERTY_ARRAY( SharedPtr<AString> )
 
 #undef GETSET_PROPERTY
 #undef GETSET_PROPERTY_ARRAY

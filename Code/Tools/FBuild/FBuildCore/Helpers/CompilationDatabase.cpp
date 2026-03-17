@@ -136,7 +136,7 @@ void CompilationDatabase::HandleObjectListNode( ObjectListNode * node )
         else
         {
             // For other nodes, fallback to the name of the node
-            ctx.m_CompilerEscaped = compilerNode->GetName();
+            ctx.m_CompilerEscaped = *compilerNode->GetName();
         }
     }
 

@@ -28,9 +28,9 @@ private:
     void EmitOutputMessage() const;
 
     friend class FunctionListDependencies;
-    AString m_Source;
-    AString m_Dest;
-    Array<AString> m_Patterns;
+    SharedPtr<AString> m_Source;
+    SharedPtr<AString> m_Dest;
+    SharedPtr<Array<SharedPtr<AString>>> m_Patterns;
     Array<Node *> m_PreBuildDependencyNames;
 };
 

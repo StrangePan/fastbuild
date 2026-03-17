@@ -59,7 +59,7 @@ TextFileNode::~TextFileNode() = default;
 {
     if ( m_TextFileAlways )
     {
-        FLOG_VERBOSE( "Need to build '%s' (TextFileAlways = true)", GetName().Get() );
+        FLOG_VERBOSE( "Need to build '%s' (TextFileAlways = true)", GetName()->Get() );
         return true;
     }
     return Node::DetermineNeedToBuildStatic();
@@ -86,9 +86,9 @@ TextFileNode::~TextFileNode() = default;
     }
 
     FileStream stream;
-    if ( !stream.Open( GetName().Get(), FileStream::WRITE_ONLY ) )
+    if ( !stream.Open( GetName()->Get(), FileStream::WRITE_ONLY ) )
     {
-        FLOG_ERROR( "Could not open '%s' for writing", GetName().Get() );
+        FLOG_ERROR( "Could not open '%s' for writing", GetName()->Get() );
         return BuildResult::eFailed;
     }
     const uint64_t nWritten = stream.WriteBuffer( textFileContents.Get(), textFileContents.GetLength() );
@@ -96,7 +96,7 @@ TextFileNode::~TextFileNode() = default;
 
     if ( nWritten != textFileContents.GetLength() )
     {
-        FLOG_ERROR( "Failed to write all to '%s'", GetName().Get() );
+        FLOG_ERROR( "Failed to write all to '%s'", GetName()->Get() );
         return BuildResult::eFailed;
     }
 

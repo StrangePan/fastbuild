@@ -4,6 +4,7 @@
 
 // Includes
 //------------------------------------------------------------------------------
+#include "Core/Containers/SharedPtr.h"
 #include "Core/Env/Assert.h"
 #include "Core/Env/Types.h"
 
@@ -36,7 +37,7 @@ public:
     static bool GetLocalUserName( AString & outUserName );
 
     static uint32_t GetLastErr();
-    static const char * AllocEnvironmentString( const Array<AString> & environment );
+    static const char * AllocEnvironmentString( const Array<SharedPtr<AString>> & environment );
     static void ShowMsgBox( const char * title, const char * msg );
 };
 

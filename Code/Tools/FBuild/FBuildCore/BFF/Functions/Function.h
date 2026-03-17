@@ -44,7 +44,7 @@ public:
     virtual ~Function();
 
     // info about a function
-    const AString & GetName() const { return m_Name; }
+    const SharedPtr<AString> & GetName() const { return m_Name; }
 
     // access to functions
     static const Function * Find( const AString & name );
@@ -83,14 +83,14 @@ public:
     static bool GetDirectoryListNodeList( NodeGraph & nodeGraph,
                                           const BFFToken * iter,
                                           const Function * function,
-                                          const Array<AString> & paths,
-                                          const Array<AString> & excludePaths,
-                                          const Array<AString> & filesToExclude,
-                                          const Array<AString> & excludePatterns,
+                                          const Array<SharedPtr<AString>> & paths,
+                                          const Array<SharedPtr<AString>> & excludePaths,
+                                          const Array<SharedPtr<AString>> & filesToExclude,
+                                          const Array<SharedPtr<AString>> & excludePatterns,
                                           bool recurse,
                                           bool includeReadOnlyStatusInHash,
                                           bool includeDirs,
-                                          const Array<AString> * patterns,
+                                          const Array<SharedPtr<AString>> * patterns,
                                           const char * inputVarName,
                                           Dependencies & nodes );
     static bool GetFileNode( NodeGraph & nodeGraph,
@@ -102,27 +102,27 @@ public:
     static bool GetFileNodes( NodeGraph & nodeGraph,
                               const BFFToken * iter,
                               const Function * function,
-                              const Array<AString> & files,
+                              const Array<SharedPtr<AString>> & files,
                               const char * inputVarName,
                               Dependencies & nodes );
     static bool GetObjectListNodes( NodeGraph & nodeGraph,
                                     const BFFToken * iter,
                                     const Function * function,
-                                    const Array<AString> & objectLists,
+                                    const Array<SharedPtr<AString>> & objectLists,
                                     const char * inputVarName,
                                     Dependencies & nodes );
     static bool GetNodeList( NodeGraph & nodeGraph,
                              const BFFToken * iter,
                              const Function * function,
                              const char * propertyName,
-                             const Array<AString> & nodeNames,
+                             const Array<SharedPtr<AString>> & nodeNames,
                              Dependencies & nodes,
                              const GetNodeListOptions & options = GetNodeListOptions() );
     static bool GetNodeList( NodeGraph & nodeGraph,
                              const BFFToken * iter,
                              const Function * function,
                              const char * propertyName,
-                             const AString & nodeName,
+                             const SharedPtr<AString> & nodeName,
                              Dependencies & nodes,
                              const GetNodeListOptions & options = GetNodeListOptions() );
 
@@ -142,7 +142,7 @@ protected:
                                      Dependencies & nodes,
                                      const GetNodeListOptions & options );
 
-    AString m_Name;
+    SharedPtr<AString> m_Name;
     mutable bool m_Seen; // track for unique enforcement
 
     // for functions that support a simple alias parameter, the base class can
@@ -182,8 +182,8 @@ protected:
     bool PopulateArrayOfStructsElement( NodeGraph & nodeGraph, const BFFToken * iter, void * structBase, const ReflectionInfo * structRI, const BFFVariable * srcVariable ) const;
     bool PopulateCustom( NodeGraph & nodeGraph, const BFFToken * iter, void * base, const ReflectedProperty & property, const BFFVariable * variable ) const;
 
-    bool PopulateStringHelper( NodeGraph & nodeGraph, const BFFToken * iter, const Meta_Path * pathMD, const Meta_File * fileMD, const Meta_AllowNonFile * allowNonFileMD, const BFFVariable * variable, Array<AString> & outStrings ) const;
-    bool PopulateStringHelper( NodeGraph & nodeGraph, const BFFToken * iter, const Meta_Path * pathMD, const Meta_File * fileMD, const Meta_AllowNonFile * allowNonFileMD, const BFFVariable * variable, const AString & string, Array<AString> & outStrings ) const;
+    bool PopulateStringHelper( NodeGraph & nodeGraph, const BFFToken * iter, const Meta_Path * pathMD, const Meta_File * fileMD, const Meta_AllowNonFile * allowNonFileMD, const BFFVariable * variable, Array<SharedPtr<AString>> & outStrings ) const;
+    bool PopulateStringHelper( NodeGraph & nodeGraph, const BFFToken * iter, const Meta_Path * pathMD, const Meta_File * fileMD, const Meta_AllowNonFile * allowNonFileMD, const BFFVariable * variable, const SharedPtr<AString> & string, Array<SharedPtr<AString>> & outStrings ) const;
     bool PopulatePathAndFileHelper( const BFFToken * iter, const Meta_Path * pathMD, const Meta_File * fileMD, const AString & variableName, AString & valueToFix ) const;
 };
 

@@ -16,7 +16,6 @@ template <class T>
 class SharedPtr
 {
 public:
-    explicit SharedPtr() = default;
     explicit SharedPtr( SharedPtr<T> && other )
     {
         *this = Move( other );
@@ -26,11 +25,9 @@ public:
         *this = other;
     }
     template <class... ARGS>
-    static SharedPtr<T> MakeShared( ARGS &&... args )
+    explicit SharedPtr( ARGS &&... args )
     {
-        SharedPtr<T> ptr;
-        ptr.Emplace( Forward( ARGS, args )... );
-        return ptr;
+        this->Emplace( Forward( ARGS, args )... );
     }
     ~SharedPtr()
     {
@@ -119,6 +116,7 @@ public:
         return ( m_ReferenceCount ? *m_ReferenceCount : 0 );
     }
 
+private:
     // clear this ptr, decrement the reference count, and potentially delete the object
     void Clear()
     {
@@ -137,7 +135,6 @@ public:
         }
     }
 
-private:
     T * m_Pointer = nullptr;
     uint32_t * m_ReferenceCount = nullptr;
 };

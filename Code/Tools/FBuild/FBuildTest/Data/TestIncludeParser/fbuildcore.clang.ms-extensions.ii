@@ -45399,7 +45399,7 @@ bool Function::GetNameForNode( const BFFIterator & iter, const ReflectionInfo * 
 
   if ( variable->GetString().IsEmpty() )
   {
-   Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName().Get() );
+   Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName()->Get() );
    return false;
   }
 
@@ -45428,7 +45428,7 @@ bool Function::GetNameForNode( const BFFIterator & iter, const ReflectionInfo * 
   return true;
  }
 
- Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_STRING );
+ Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_STRING );
  return false;
 }
 
@@ -45617,7 +45617,7 @@ bool Function::PopulateArrayOfStrings( const BFFIterator & iter, Node * node, co
 
   if ( variable->GetString().IsEmpty() )
   {
-   Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName().Get() );
+   Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName()->Get() );
    return false;
   }
 
@@ -45641,7 +45641,7 @@ bool Function::PopulateArrayOfStrings( const BFFIterator & iter, Node * node, co
   return true;
  }
 
- Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_STRING, BFFVariable::VAR_ARRAY_OF_STRINGS );
+ Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_STRING, BFFVariable::VAR_ARRAY_OF_STRINGS );
  return false;
 }
 
@@ -45654,7 +45654,7 @@ bool Function::PopulateString( const BFFIterator & iter, Node * node, const Refl
 
   if ( variable->GetString().IsEmpty() )
   {
-   Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName().Get() );
+   Error::Error_1004_EmptyStringPropertyNotAllowed( iter, this, variable->GetName()->Get() );
    return false;
   }
 
@@ -45676,7 +45676,7 @@ bool Function::PopulateString( const BFFIterator & iter, Node * node, const Refl
   return true;
  }
 
- Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_STRING );
+ Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_STRING );
  return false;
 }
 
@@ -45691,7 +45691,7 @@ bool Function::PopulateBool( const BFFIterator & iter, Node * node, const Reflec
   return true;
  }
 
- Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_BOOL );
+ Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_BOOL );
  return false;
 }
 
@@ -45709,7 +45709,7 @@ bool Function::PopulateUInt32( const BFFIterator & iter, Node * node, const Refl
   {
    if ( ( value < rangeMD->GetMin() ) || ( value > rangeMD->GetMax() ) )
    {
-    Error::Error_1054_IntegerOutOfRange( iter, this, variable->GetName().Get(), rangeMD->GetMin(), rangeMD->GetMax() );
+    Error::Error_1054_IntegerOutOfRange( iter, this, variable->GetName()->Get(), rangeMD->GetMin(), rangeMD->GetMax() );
     return false;
    }
   }
@@ -45719,7 +45719,7 @@ bool Function::PopulateUInt32( const BFFIterator & iter, Node * node, const Refl
   return true;
  }
 
- Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName().Get(), variable->GetType(), BFFVariable::VAR_INT );
+ Error::Error_1050_PropertyMustBeOfType( iter, this, variable->GetName()->Get(), variable->GetType(), BFFVariable::VAR_INT );
  return false;
 }
 #line 6 "C:\\Users\\Franta\\p4\\tmp\\Unity\\Tools\\FBuild\\FBuildCore\\Unity1.cpp"
@@ -52350,7 +52350,7 @@ const BFFVariable * BFFStackFrame::GetVariableRecurse( const AString & nameOnly,
      ( type == ( *i )->GetType() ) )
    {
 
-    if ( nameOnly == ( ( *i )->GetName().Get() + 1 ) )
+    if ( nameOnly == ( ( *i )->GetName()->Get() + 1 ) )
     {
      return *i;
     }
@@ -53231,7 +53231,7 @@ AliasNode::~AliasNode()
    if ( n->GetStamp() == 0 )
    {
 
-    do { FLog::Error( "Alias: %s\nFailed due to missing file: %s\n", GetName().Get(), n->GetName().Get() );
+    do { FLog::Error( "Alias: %s\nFailed due to missing file: %s\n", GetName()->Get(), n->GetName()->Get() );
 #line 57 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\AliasNode.cpp"
 #pragma warning(push)
 #line 57 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\AliasNode.cpp"
@@ -53506,7 +53506,7 @@ CopyDirNode::~CopyDirNode()
    }
    else if ( n->GetType() != Node::COPY_NODE )
    {
-    do { FLog::Error( "Node '%s' is not a CopyNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+    do { FLog::Error( "Node '%s' is not a CopyNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 101 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyDirNode.cpp"
 #pragma warning(push)
 #line 101 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyDirNode.cpp"
@@ -53524,7 +53524,7 @@ CopyDirNode::~CopyDirNode()
     CopyNode * cn = n->CastTo< CopyNode >();
     if ( srcFileNode != cn->GetSourceNode() )
     {
-     do { FLog::Error( "Conflicting objects found during CopyDir:\n" " File A: %s\n" " File B: %s\n" " Both copy to: %s\n", srcFile.Get(), cn->GetSourceNode()->GetName().Get(), dstFile.Get() );
+     do { FLog::Error( "Conflicting objects found during CopyDir:\n" " File A: %s\n" " File B: %s\n" " Both copy to: %s\n", srcFile.Get(), cn->GetSourceNode()->GetName()->Get(), dstFile.Get() );
 #line 109 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyDirNode.cpp"
 #pragma warning(push)
 #line 109 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyDirNode.cpp"
@@ -53661,9 +53661,9 @@ CopyNode::~CopyNode()
  EmitCopyMessage();
 
 
- if ( FileIO::FileCopy( m_SourceFile->GetName().Get(), m_Name.Get() ) == false )
+ if ( FileIO::FileCopy( m_SourceFile->GetName()->Get(), m_Name.Get() ) == false )
  {
-  do { FLog::Error( "Copy failed (error %i) '%s'", Env::GetLastErr(), GetName().Get() );
+  do { FLog::Error( "Copy failed (error %i) '%s'", Env::GetLastErr(), GetName()->Get() );
 #line 50 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyNode.cpp"
 #pragma warning(push)
 #line 50 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyNode.cpp"
@@ -53679,7 +53679,7 @@ CopyNode::~CopyNode()
 
  if ( FileIO::SetReadOnly( m_Name.Get(), false ) == false )
  {
-  do { FLog::Error( "Copy read-only flag set failed (error %i) '%s'", Env::GetLastErr(), GetName().Get() );
+  do { FLog::Error( "Copy read-only flag set failed (error %i) '%s'", Env::GetLastErr(), GetName()->Get() );
 #line 56 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyNode.cpp"
 #pragma warning(push)
 #line 56 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyNode.cpp"
@@ -53712,7 +53712,7 @@ CopyNode::~CopyNode()
 ;
  if ( FileIO::SetFileLastWriteTime( m_Name, m_Stamp ) == false )
  {
-  do { FLog::Error( "Copy set last write time failed (error %i) '%s'", Env::GetLastErr(), GetName().Get() );
+  do { FLog::Error( "Copy set last write time failed (error %i) '%s'", Env::GetLastErr(), GetName()->Get() );
 #line 69 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyNode.cpp"
 #pragma warning(push)
 #line 69 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CopyNode.cpp"
@@ -54014,7 +54014,7 @@ CSNode::~CSNode()
     }
     else if ( sn->IsAFile() == false )
     {
-     do { FLog::Error( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+     do { FLog::Error( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 95 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
 #pragma warning(push)
 #line 95 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
@@ -54033,7 +54033,7 @@ CSNode::~CSNode()
    continue;
   }
 
-  do { FLog::Error( "'%s' is not a supported node type (type: %s)", n->GetName().Get(), n->GetTypeName() );
+  do { FLog::Error( "'%s' is not a supported node type (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 104 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
 #pragma warning(push)
 #line 104 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
@@ -54081,7 +54081,7 @@ CSNode::~CSNode()
  if ( p.Spawn( m_CompilerPath.Get(), responseFileArgs.Get(),
       workingDir, environment ) == false )
  {
-  do { FLog::Error( "Failed to spawn process to build '%s'", GetName().Get() );
+  do { FLog::Error( "Failed to spawn process to build '%s'", GetName()->Get() );
 #line 142 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
 #pragma warning(push)
 #line 142 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
@@ -54127,7 +54127,7 @@ CSNode::~CSNode()
 
  if ( !FileIO::FileExists( m_Name.Get() ) )
  {
-  do { FLog::Error( "Object missing despite success for '%s'", GetName().Get() );
+  do { FLog::Error( "Object missing despite success for '%s'", GetName()->Get() );
 #line 168 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
 #pragma warning(push)
 #line 168 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
@@ -54147,7 +54147,7 @@ CSNode::~CSNode()
  return NODE_RESULT_OK;
 
 failed:
- do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName().Get() );
+ do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName()->Get() );
 #line 178 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
 #pragma warning(push)
 #line 178 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\CSNode.cpp"
@@ -54777,7 +54777,7 @@ void DLLNode::GetImportLibName( AString & importLibName ) const
 
  const char * lastDot = GetName().FindLast( '.' );
  lastDot = lastDot ? lastDot : GetName().GetEnd();
- importLibName.Assign( GetName().Get(), lastDot );
+ importLibName.Assign( GetName()->Get(), lastDot );
 
 
  importLibName += ".lib";
@@ -54888,21 +54888,21 @@ ExecNode::~ExecNode()
  const char * workingDir = m_WorkingDir.IsEmpty() ? (0) : m_WorkingDir.Get();
 
  AStackString<> fullArgs( m_Arguments );
- fullArgs.Replace( "%1", m_SourceFile->GetName().Get() );
- fullArgs.Replace( "%2", GetName().Get() );
+ fullArgs.Replace( "%1", m_SourceFile->GetName()->Get() );
+ fullArgs.Replace( "%2", GetName()->Get() );
 
  EmitCompilationMessage( fullArgs );
 
 
  Process p;
- bool spawnOK = p.Spawn( m_Executable->GetName().Get(),
+ bool spawnOK = p.Spawn( m_Executable->GetName()->Get(),
        fullArgs.Get(),
        workingDir,
        FBuild::Get().GetEnvironmentString() );
 
  if ( !spawnOK )
  {
-  do { FLog::Error( "Failed to spawn process for '%s'", GetName().Get() );
+  do { FLog::Error( "Failed to spawn process for '%s'", GetName()->Get() );
 #line 74 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ExecNode.cpp"
 #pragma warning(push)
 #line 74 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ExecNode.cpp"
@@ -54944,7 +54944,7 @@ ExecNode::~ExecNode()
   Node::DumpOutput( job, memOut.Get(), memOutSize );
   Node::DumpOutput( job, memErr.Get(), memErrSize );
 
-  do { FLog::Error( "Execution failed (error %i) '%s'", result, GetName().Get() );
+  do { FLog::Error( "Execution failed (error %i) '%s'", result, GetName()->Get() );
 #line 96 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ExecNode.cpp"
 #pragma warning(push)
 #line 96 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ExecNode.cpp"
@@ -55072,7 +55072,7 @@ void ExecNode::EmitCompilationMessage( const AString & args ) const
  {
   AStackString< 1024 > verboseOutput;
   verboseOutput.Format( "%s %s\nWorkingDir: %s\nExpectedReturnCode: %i\n",
-         m_Executable->GetName().Get(),
+         m_Executable->GetName()->Get(),
          args.Get(),
          m_WorkingDir.Get(),
          m_ExpectedReturnCode );
@@ -55345,7 +55345,7 @@ LibraryNode::~LibraryNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 121 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 121 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -55399,7 +55399,7 @@ LibraryNode::~LibraryNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 165 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 165 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -55433,7 +55433,7 @@ LibraryNode::~LibraryNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 189 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 189 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -55482,7 +55482,7 @@ LibraryNode::~LibraryNode()
 
  if ( m_DynamicDependencies.GetSize() == 0 )
  {
-  do { FLog::Error( "No files found to build '%s'", GetName().Get() );
+  do { FLog::Error( "No files found to build '%s'", GetName()->Get() );
 #line 225 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 225 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -55504,9 +55504,9 @@ LibraryNode::~LibraryNode()
             Node::BuildResult LibraryNode::DoBuild( Job * )
 {
 
- if ( FileIO::FileExists( GetName().Get() ) )
+ if ( FileIO::FileExists( GetName()->Get() ) )
  {
-  FileIO::FileDelete( GetName().Get() );
+  FileIO::FileDelete( GetName()->Get() );
  }
 
 
@@ -55555,7 +55555,7 @@ LibraryNode::~LibraryNode()
 
  if ( !spawnOK )
  {
-  do { FLog::Error( "Failed to spawn process for Library creation for '%s'", GetName().Get() );
+  do { FLog::Error( "Failed to spawn process for Library creation for '%s'", GetName()->Get() );
 #line 288 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 288 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -55619,7 +55619,7 @@ LibraryNode::~LibraryNode()
 
  if ( result != 0 )
  {
-  do { FLog::Error( "Failed to build Library (error %i) '%s'", result, GetName().Get() );
+  do { FLog::Error( "Failed to build Library (error %i) '%s'", result, GetName()->Get() );
 #line 312 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 312 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -55826,7 +55826,7 @@ bool LibraryNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode, b
  }
  else if ( on->GetType() != Node::OBJECT_NODE )
  {
-  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName().Get(), on->GetTypeName() );
+  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName()->Get(), on->GetTypeName() );
 #line 499 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 499 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -55844,7 +55844,7 @@ bool LibraryNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode, b
   ObjectNode * other = on->CastTo< ObjectNode >();
   if ( inputFile != other->GetSourceFile() )
   {
-   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName().Get(), other->GetSourceFile()->GetName().Get(), objFile.Get() );
+   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName()->Get(), other->GetSourceFile()->GetName()->Get(), objFile.Get() );
 #line 507 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
 #pragma warning(push)
 #line 507 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LibraryNode.cpp"
@@ -56091,7 +56091,7 @@ LinkerNode::~LinkerNode()
 
   if ( !spawnOK )
   {
-   do { FLog::Error( "Failed to spawn process '%s' for %s creation for '%s'", m_Linker.Get(), GetDLLOrExe(), GetName().Get() );
+   do { FLog::Error( "Failed to spawn process '%s' for %s creation for '%s'", m_Linker.Get(), GetDLLOrExe(), GetName()->Get() );
 #line 131 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
 #pragma warning(push)
 #line 131 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
@@ -56132,7 +56132,7 @@ LinkerNode::~LinkerNode()
 
    if ( GetFlag( LINK_FLAG_MSVC ) && ( result == 1000 ) && ( attempt == 1 ) )
    {
-    do { FLog::Warning( "FBuild: Warning: Linker crashed (LNK1000), retrying '%s'", GetName().Get() );
+    do { FLog::Warning( "FBuild: Warning: Linker crashed (LNK1000), retrying '%s'", GetName()->Get() );
 #line 152 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
 #pragma warning(push)
 #line 152 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
@@ -56170,7 +56170,7 @@ LinkerNode::~LinkerNode()
 ; }
 
 
-   do { FLog::Error( "Failed to build %s (error %i) '%s'", GetDLLOrExe(), result, GetName().Get() );
+   do { FLog::Error( "Failed to build %s (error %i) '%s'", GetDLLOrExe(), result, GetName()->Get() );
 #line 160 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
 #pragma warning(push)
 #line 160 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
@@ -56195,13 +56195,13 @@ LinkerNode::~LinkerNode()
   EmitStampMessage();
 
   Process stampProcess;
-  bool spawnOk = stampProcess.Spawn( m_LinkerStampExe->GetName().Get(),
+  bool spawnOk = stampProcess.Spawn( m_LinkerStampExe->GetName()->Get(),
              m_LinkerStampExeArgs.Get(),
              (0),
              (0) );
   if ( spawnOk == false )
   {
-   do { FLog::Error( "Failed to spawn process '%s' for '%s' stamping of '%s'", m_LinkerStampExe->GetName().Get(), GetDLLOrExe(), GetName().Get() );
+   do { FLog::Error( "Failed to spawn process '%s' for '%s' stamping of '%s'", m_LinkerStampExe->GetName()->Get(), GetDLLOrExe(), GetName()->Get() );
 #line 181 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
 #pragma warning(push)
 #line 181 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
@@ -56261,7 +56261,7 @@ LinkerNode::~LinkerNode()
 #pragma warning(pop)
 #line 200 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
 ; }
-   do { FLog::Error( "Failed to stamp %s '%s' (error %i - '%s')", GetDLLOrExe(), GetName().Get(), result, m_LinkerStampExe->GetName().Get() );
+   do { FLog::Error( "Failed to stamp %s '%s' (error %i - '%s')", GetDLLOrExe(), GetName()->Get(), result, m_LinkerStampExe->GetName()->Get() );
 #line 201 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
 #pragma warning(push)
 #line 201 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\LinkerNode.cpp"
@@ -56323,16 +56323,16 @@ void LinkerNode::DoPreLinkCleanup() const
  if ( deleteFiles )
  {
 
-  FileIO::FileDelete( GetName().Get() );
+  FileIO::FileDelete( GetName()->Get() );
 
 
   const char * lastDot = GetName().FindLast( '.' );
-  AStackString<> ilkName( GetName().Get(), lastDot ? lastDot : GetName().GetEnd() );
+  AStackString<> ilkName( GetName()->Get(), lastDot ? lastDot : GetName().GetEnd() );
   ilkName += ".ilk";
   FileIO::FileDelete( ilkName.Get() );
 
 
-  AStackString<> pdbName( GetName().Get(), lastDot ? lastDot : GetName().GetEnd() );
+  AStackString<> pdbName( GetName()->Get(), lastDot ? lastDot : GetName().GetEnd() );
   pdbName += ".pdb";
   FileIO::FileDelete( pdbName.Get() );
  }
@@ -56937,7 +56937,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
 
   if ( GetType() != Node::FILE_NODE )
   {
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (first time)", GetName().Get() ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (first time)", GetName()->Get() ); }
 #line 131 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 131 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -56959,7 +56959,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( lastWriteTime == 0 )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (missing)", GetName().Get() ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (missing)", GetName()->Get() ); }
 #line 143 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 143 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -56977,7 +56977,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   {
 
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (externally modified - stamp = %llu, disk = %llu)", GetName().Get(), m_Stamp, lastWriteTime ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (externally modified - stamp = %llu, disk = %llu)", GetName()->Get(), m_Stamp, lastWriteTime ); }
 #line 151 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 151 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -57039,7 +57039,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( n->GetStamp() == 0 )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName().Get(), n->GetName().Get() ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName()->Get(), n->GetName()->Get() ); }
 #line 193 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 193 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -57056,7 +57056,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( n->GetStamp() > m_Stamp )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName().Get(), n->GetName().Get(), m_Stamp, n->GetStamp() ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName()->Get(), n->GetName()->Get(), m_Stamp, n->GetStamp() ); }
 #line 200 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 200 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -57102,7 +57102,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( n->GetStamp() == 0 )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName().Get(), n->GetName().Get() ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName()->Get(), n->GetName()->Get() ); }
 #line 226 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 226 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -57119,7 +57119,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( n->GetStamp() > m_Stamp )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName().Get(), n->GetName().Get(), m_Stamp, n->GetStamp() ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName()->Get(), n->GetName()->Get(), m_Stamp, n->GetStamp() ); }
 #line 233 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 233 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -57136,7 +57136,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
 
 
 
- do { if ( FLog::ShowInfo() ) { FLog::Info( "Up-To-Date '%s'", GetName().Get() ); }
+ do { if ( FLog::ShowInfo() ) { FLog::Info( "Up-To-Date '%s'", GetName()->Get() ); }
 #line 240 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
 #pragma warning(push)
 #line 240 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\Node.cpp"
@@ -60352,7 +60352,7 @@ ObjectListNode::~ObjectListNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 116 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
 #pragma warning(push)
 #line 116 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
@@ -60406,7 +60406,7 @@ ObjectListNode::~ObjectListNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 160 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
 #pragma warning(push)
 #line 160 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
@@ -60440,7 +60440,7 @@ ObjectListNode::~ObjectListNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() );
+     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() );
 #line 184 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
 #pragma warning(push)
 #line 184 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
@@ -60483,7 +60483,7 @@ ObjectListNode::~ObjectListNode()
 
  if ( m_DynamicDependencies.GetSize() == 0 )
  {
-  do { FLog::Error( "No files found to build '%s'", GetName().Get() );
+  do { FLog::Error( "No files found to build '%s'", GetName()->Get() );
 #line 207 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
 #pragma warning(push)
 #line 207 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
@@ -60607,7 +60607,7 @@ bool ObjectListNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode
  }
  else if ( on->GetType() != Node::OBJECT_NODE )
  {
-  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName().Get(), on->GetTypeName() );
+  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName()->Get(), on->GetTypeName() );
 #line 321 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
 #pragma warning(push)
 #line 321 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
@@ -60625,7 +60625,7 @@ bool ObjectListNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode
   ObjectNode * other = on->CastTo< ObjectNode >();
   if ( inputFile != other->GetSourceFile() )
   {
-   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName().Get(), other->GetSourceFile()->GetName().Get(), objFile.Get() );
+   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName()->Get(), other->GetSourceFile()->GetName()->Get(), objFile.Get() );
 #line 329 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
 #pragma warning(push)
 #line 329 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectListNode.cpp"
@@ -60917,11 +60917,11 @@ ObjectNode::~ObjectNode()
             Node::BuildResult ObjectNode::DoBuild( Job * job )
 {
 
- if ( FileIO::FileExists( GetName().Get() ) )
+ if ( FileIO::FileExists( GetName()->Get() ) )
  {
-  if ( FileIO::FileDelete( GetName().Get() ) == false )
+  if ( FileIO::FileDelete( GetName()->Get() ) == false )
   {
-   do { FLog::Error( "Failed to delete file before build '%s'", GetName().Get() );
+   do { FLog::Error( "Failed to delete file before build '%s'", GetName()->Get() );
 #line 128 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
 #pragma warning(push)
 #line 128 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
@@ -60943,7 +60943,7 @@ ObjectNode::~ObjectNode()
   {
    if ( FileIO::FileDelete( pchObj.Get() ) == false )
    {
-    do { FLog::Error( "Failed to delete file before build '%s'", GetName().Get() );
+    do { FLog::Error( "Failed to delete file before build '%s'", GetName()->Get() );
 #line 140 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
 #pragma warning(push)
 #line 140 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
@@ -61022,7 +61022,7 @@ ObjectNode::~ObjectNode()
   }
   else if ( fn->IsAFile() == false )
   {
-   do { FLog::Error( "'%s' is not a FileNode (type: %s)", fn->GetName().Get(), fn->GetTypeName() );
+   do { FLog::Error( "'%s' is not a FileNode (type: %s)", fn->GetName()->Get(), fn->GetTypeName() );
 #line 199 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
 #pragma warning(push)
 #line 199 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
@@ -61195,7 +61195,7 @@ Node::BuildResult ObjectNode::DoBuildWithPreProcessor2( Job * job, bool useDeopt
 
 
   Node * sourceFile = GetSourceFile();
-  fullArgs.Replace( sourceFile->GetName().Get(), tmpFileName.Get() );
+  fullArgs.Replace( sourceFile->GetName()->Get(), tmpFileName.Get() );
  }
  else
  {
@@ -61282,7 +61282,7 @@ bool ObjectNode::ProcessIncludesMSCL( const char * output, uint32_t outputSize )
   bool result = parser.ParseMSCL_Output( output, outputSize );
   if ( result == false )
   {
-   do { FLog::Error( "Failed to process includes for '%s'", GetName().Get() );
+   do { FLog::Error( "Failed to process includes for '%s'", GetName()->Get() );
 #line 429 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
 #pragma warning(push)
 #line 429 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
@@ -61346,7 +61346,7 @@ bool ObjectNode::ProcessIncludesWithPreProcessor( Job * job )
         : parser.ParseGCC_Preprocessed( output, outputSize );
   if ( result == false )
   {
-   do { FLog::Error( "Failed to process includes for '%s'", GetName().Get() );
+   do { FLog::Error( "Failed to process includes for '%s'", GetName()->Get() );
 #line 463 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
 #pragma warning(push)
 #line 463 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
@@ -61936,7 +61936,7 @@ bool ObjectNode::RetrieveFromCache( Job * job )
 #pragma warning(pop)
 #line 906 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
 ;
-   do { FLog::Build( "Obj: %s <CACHE>\n", GetName().Get() );
+   do { FLog::Build( "Obj: %s <CACHE>\n", GetName()->Get() );
 #line 907 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
 #pragma warning(push)
 #line 907 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\ObjectNode.cpp"
@@ -62442,13 +62442,13 @@ bool ObjectNode::WriteTmpFile( Job * job, AString & tmpFileName ) const
  WorkerThread::CreateTempFilePath( fileName.Get(), tmpFileName );
  if ( WorkerThread::CreateTempFile( tmpFileName, tmpFile ) == false )
  {
-  job->Error( "Failed to create temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName().Get(), Env::GetLastErr );
+  job->Error( "Failed to create temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName()->Get(), Env::GetLastErr );
   job->OnSystemError();
   return NODE_RESULT_FAILED;
  }
  if ( tmpFile.Write( dataToWrite, dataToWriteSize ) != dataToWriteSize )
  {
-  job->Error( "Failed to write to temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName().Get(), Env::GetLastErr );
+  job->Error( "Failed to write to temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName()->Get(), Env::GetLastErr );
   job->OnSystemError();
   return NODE_RESULT_FAILED;
  }
@@ -62744,7 +62744,7 @@ bool ObjectNode::ShouldUseDeoptimization() const
 
 
  FileStream fs;
- if ( fs.Open( GetSourceFile()->GetName().Get(), FileStream::READ_ONLY ) )
+ if ( fs.Open( GetSourceFile()->GetName()->Get(), FileStream::READ_ONLY ) )
  {
   const size_t bytesToRead = Math::Min< size_t >( 1024, (size_t)fs.GetFileSize() );
   char buffer[ 1025 ];
@@ -62832,14 +62832,14 @@ TestNode::~TestNode()
 
 
  Process p;
- bool spawnOK = p.Spawn( m_Executable->GetName().Get(),
+ bool spawnOK = p.Spawn( m_Executable->GetName()->Get(),
        m_Arguments.Get(),
        workingDir,
        FBuild::Get().GetEnvironmentString() );
 
  if ( !spawnOK )
  {
-  do { FLog::Error( "Failed to spawn process for '%s'", GetName().Get() );
+  do { FLog::Error( "Failed to spawn process for '%s'", GetName()->Get() );
 #line 60 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
 #pragma warning(push)
 #line 60 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
@@ -62882,9 +62882,9 @@ TestNode::~TestNode()
 
 
  FileStream fs;
- if ( fs.Open( GetName().Get(), FileStream::WRITE_ONLY ) == false )
+ if ( fs.Open( GetName()->Get(), FileStream::WRITE_ONLY ) == false )
  {
-  do { FLog::Error( "Failed to open test output file '%s'", GetName().Get() );
+  do { FLog::Error( "Failed to open test output file '%s'", GetName()->Get() );
 #line 85 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
 #pragma warning(push)
 #line 85 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
@@ -62900,7 +62900,7 @@ TestNode::~TestNode()
  if ( ( memOut.Get() && ( fs.Write( memOut.Get(), memOutSize ) != memOutSize ) ) ||
    ( memErr.Get() && ( fs.Write( memErr.Get(), memErrSize ) != memErrSize ) ) )
  {
-  do { FLog::Error( "Failed to write test output file '%s'", GetName().Get() );
+  do { FLog::Error( "Failed to write test output file '%s'", GetName()->Get() );
 #line 91 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
 #pragma warning(push)
 #line 91 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
@@ -62918,7 +62918,7 @@ TestNode::~TestNode()
 
  if ( result != 0 )
  {
-  do { FLog::Error( "Test failed (error %i) '%s'", result, GetName().Get() );
+  do { FLog::Error( "Test failed (error %i) '%s'", result, GetName()->Get() );
 #line 99 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
 #pragma warning(push)
 #line 99 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\TestNode.cpp"
@@ -63324,7 +63324,7 @@ UnityNode::~UnityNode()
   {
    if ( hasOutputMessage == false )
    {
-    do { FLog::Build( "Uni: %s\n", GetName().Get() );
+    do { FLog::Build( "Uni: %s\n", GetName()->Get() );
 #line 282 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\UnityNode.cpp"
 #pragma warning(push)
 #line 282 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Graph\\UnityNode.cpp"
@@ -64783,7 +64783,7 @@ void FBuildStats::OutputSummary() const
   for ( size_t i=0; i<itemsToDisplay; ++i )
   {
    const Node * n = m_NodesByTime[ i ];
-   Tracing::OutputFormat( "%-9.3f %s\n", ( (float)n->GetProcessingTime() / 1000.0f ), n->GetName().Get() );
+   Tracing::OutputFormat( "%-9.3f %s\n", ( (float)n->GetProcessingTime() / 1000.0f ), n->GetName()->Get() );
   }
   Tracing::OutputFormat( "\n" );
  }
@@ -65374,7 +65374,7 @@ void Report::DoCacheStats( const FBuildStats & stats )
   for ( LibraryStats ** it = m_LibraryStats.Begin(); it != end; ++it )
   {
    const LibraryStats & ls = *( *it );
-   const char * libraryName = ls.library->GetName().Get();
+   const char * libraryName = ls.library->GetName()->Get();
 
 
    const uint32_t items = ls.objectCount;
@@ -65526,7 +65526,7 @@ void Report::DoCPUTimeByItem( const FBuildStats & stats )
   const Node * node = *it;
   float time = ( (float)node->GetProcessingTime() * 0.001f );
   const char * type = node->GetTypeName();
-  const char * name = node->GetName().Get();
+  const char * name = node->GetName()->Get();
 
 
   if ( numOutput == 10 )
@@ -65609,7 +65609,7 @@ void Report::DoCPUTimeByLibrary()
 #line 629 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Helpers\\Report.cpp"
 ; break;
   }
-  const char * name = ls.library->GetName().Get();
+  const char * name = ls.library->GetName()->Get();
   Write( ( numOutput == 10 ) ? "<tr></tr><tr><td style=\"width:80px;\">%2.3fs</td><td style=\"width:50px;\">%2.1f</td><td style=\"width:70px;\">%u</td><td style=\"width:50px;\">%s</td><td>%s</td></tr>\n"
            : "<tr><td>%2.3fs</td><td>%2.1f</td><td>%u</td><td>%s</td><td>%s</td></tr>\n",
           time, perc, objCount, type, name );
@@ -65654,7 +65654,7 @@ void Report::DoIncludes()
   incStatsMap.Flatten( incStats );
   incStats.SortDeref();
 
-  Write( "<h3>%s</h3>\n", library->GetName().Get() );
+  Write( "<h3>%s</h3>\n", library->GetName()->Get() );
   numLibsOutput++;
 
   if ( incStats.GetSize() == 0 )
@@ -65674,7 +65674,7 @@ void Report::DoIncludes()
   for ( size_t i=0; i<numIncludes; ++i )
   {
    const IncludeStats & s = *incStats[ i ];
-   const char * fileName = s.node->GetName().Get();
+   const char * fileName = s.node->GetName()->Get();
    const uint32_t included = s.count;
    const bool inPCH = s.inPCH;
 
@@ -70362,7 +70362,7 @@ void Client::Process( const ConnectionInfo * connection, const Protocol::MsgRequ
 
  AStackString<> address;
  TCPConnectionPool::GetAddressAsString( connection->GetRemoteAddress(), address );
- do { FLog::Build( "-> Obj: %s <REMOTE: %s>\n", job->GetNode()->GetName().Get(), address.Get() );
+ do { FLog::Build( "-> Obj: %s <REMOTE: %s>\n", job->GetNode()->GetName()->Get(), address.Get() );
 #line 430 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Protocol\\Client.cpp"
 #pragma warning(push)
 #line 430 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Protocol\\Client.cpp"
@@ -70601,7 +70601,7 @@ void Client::Process( const ConnectionInfo * connection, const Protocol::MsgJobR
 
    const size_t workerIndex = ( ss - m_ServerList.Begin() );
    const AString & workerName = m_WorkerList[ workerIndex ];
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Remote System Failure!\n" " - Deny listed Worker: %s\n" " - Node		         : %s\n" " - Job Error Count   : %u / %u\n", workerName.Get(), job->GetNode()->GetName().Get(), job->GetSystemErrorCount(), ( 3 ) ); }
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Remote System Failure!\n" " - Deny listed Worker: %s\n" " - Node		         : %s\n" " - Job Error Count   : %u / %u\n", workerName.Get(), job->GetNode()->GetName()->Get(), job->GetSystemErrorCount(), ( 3 ) ); }
 #line 579 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Protocol\\Client.cpp"
 #pragma warning(push)
 #line 579 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Protocol\\Client.cpp"
@@ -73015,7 +73015,7 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success, bool wasARemoteJo
 
   node->SetLastBuildTime( timeTakenMS );
   node->SetStatFlag( Node::STATS_BUILT );
-  do { if ( FLog::ShowInfo() ) { FLog::Info( "-Build: %u ms\t%s", timeTakenMS, node->GetName().Get() ); }
+  do { if ( FLog::ShowInfo() ) { FLog::Info( "-Build: %u ms\t%s", timeTakenMS, node->GetName()->Get() ); }
 #line 515 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueue.cpp"
 #pragma warning(push)
 #line 515 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueue.cpp"
@@ -73043,13 +73043,13 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success, bool wasARemoteJo
    else
    {
 
-    if ( FileIO::FileExists( node->GetName().Get() ) )
+    if ( FileIO::FileExists( node->GetName()->Get() ) )
     {
 
-     if ( FileIO::FileDelete( node->GetName().Get() ) == false )
+     if ( FileIO::FileDelete( node->GetName()->Get() ) == false )
      {
 
-      do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName().Get() );
+      do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName()->Get() );
 #line 539 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueue.cpp"
 #pragma warning(push)
 #line 539 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueue.cpp"
@@ -73083,9 +73083,9 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success, bool wasARemoteJo
    if ( node->GetType() != Node::FILE_NODE )
    {
 
-    if ( !FileIO::FileExists( node->GetName().Get() ) )
+    if ( !FileIO::FileExists( node->GetName()->Get() ) )
     {
-     do { FLog::Error( "File missing despite success for '%s'", node->GetName().Get() );
+     do { FLog::Error( "File missing despite success for '%s'", node->GetName()->Get() );
 #line 555 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueue.cpp"
 #pragma warning(push)
 #line 555 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueue.cpp"
@@ -73405,13 +73405,13 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
  if ( result == Node::NODE_RESULT_FAILED )
  {
 
-  if ( FileIO::FileExists( node->GetName().Get() ) )
+  if ( FileIO::FileExists( node->GetName()->Get() ) )
   {
 
-   if ( FileIO::FileDelete( node->GetName().Get() ) == false )
+   if ( FileIO::FileDelete( node->GetName()->Get() ) == false )
    {
 
-    do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName().Get() );
+    do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName()->Get() );
 #line 305 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
 #pragma warning(push)
 #line 305 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
@@ -73455,7 +73455,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
  if ( job->IsLocal() == false )
  {
 
-  FileIO::FileDelete( node->GetName().Get() );
+  FileIO::FileDelete( node->GetName()->Get() );
 
 
   if ( node->IsUsingPDB() )
@@ -73481,9 +73481,9 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 
 
  FileStream fs;
- if ( fs.Open( node->GetName().Get() ) == false )
+ if ( fs.Open( node->GetName()->Get() ) == false )
  {
-  do { FLog::Error( "File missing despite success: '%s'", node->GetName().Get() );
+  do { FLog::Error( "File missing despite success: '%s'", node->GetName()->Get() );
 #line 357 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
 #pragma warning(push)
 #line 357 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
@@ -73541,7 +73541,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 
  if ( fs.Read( mem.Get() + sizeof( uint32_t ), size ) != size )
  {
-  do { FLog::Error( "File read error for '%s'", node->GetName().Get() );
+  do { FLog::Error( "File read error for '%s'", node->GetName()->Get() );
 #line 395 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
 #pragma warning(push)
 #line 395 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
@@ -73563,7 +73563,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 
   if ( fs2.Read( mem.Get() + sizeof( uint32_t ) + size + sizeof( uint32_t ), size2 ) != size2 )
   {
-   do { FLog::Error( "File read error for '%s'", node->GetName().Get() );
+   do { FLog::Error( "File read error for '%s'", node->GetName()->Get() );
 #line 407 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
 #pragma warning(push)
 #line 407 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\WorkerPool\\JobQueueRemote.cpp"
@@ -74794,7 +74794,7 @@ void Error::FormatError( const BFFIterator & iter,
  NodeGraph::CleanPath( fileName, fullPath );
 
 
- Tracing::OutputFormat( "%s(%u,%u): FASTBuild Error #%04u - %s%s%s\n", fullPath.Get(), line, column, errNum, function ? function->GetName().Get() : "", function ? "() - " : "", buffer.Get() );
+ Tracing::OutputFormat( "%s(%u,%u): FASTBuild Error #%04u - %s%s%s\n", fullPath.Get(), line, column, errNum, function ? function->GetName()->Get() : "", function ? "() - " : "", buffer.Get() );
 #line 574 "C:\\Users\\Franta\\p4\\Code\\Tools\\FBuild\\FBuildCore\\Error.cpp"
  BFFIterator lineEnd( iter );
  while ( !lineEnd.IsAtEnd() )

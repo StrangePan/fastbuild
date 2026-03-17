@@ -148,7 +148,7 @@ BFFVariable & BFFVariable::operator=( const BFFVariable & other )
     {
         case VAR_ANY: ASSERT( false ); break;
         case VAR_STRING: SetValueString( other.GetString() ); break;
-        case VAR_BOOL: SetValueBool( other.GetBool() ); break;
+        case VAR_BOOL: SetValueBool( other.GetBool() ); break;`
         case VAR_ARRAY_OF_STRINGS: SetValueArrayOfStrings( other.GetArrayOfStrings() ); break;
         case VAR_INT: SetValueInt( other.GetInt() ); break;
         case VAR_STRUCT: SetValueStruct( other.GetStructMembers() ); break;
@@ -244,7 +244,7 @@ BFFVariable * BFFVariable::ConcatVarsRecurse( const AString & dstName, const BFF
     const BFFVariable * const varDst = this;
     const BFFVariable * const varSrc = &other;
 
-    const SharedPtr<AString> dstNameShared = ( (*varDst->GetName()) == dstName ) ? varDst->GetName() : SharedPtr<AString>::MakeShared( dstName );
+    const SharedPtr<AString> dstNameShared = ( (*varDst->GetName()) == dstName ) ? varDst->GetName() : SharedPtr<AString>( dstName );
 
     const VarType dstType = m_Type;
     const VarType srcType = other.m_Type;

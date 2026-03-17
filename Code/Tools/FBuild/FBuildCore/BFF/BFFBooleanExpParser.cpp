@@ -114,9 +114,9 @@ namespace
     //--------------------------------------------------------------------------
     struct ArrayOfString
     {
-        typedef Array<AString> Type;
-        typedef const Array<AString> & ReturnType;
-        typedef Array<AString> & OutParamType;
+        typedef Array<SharedPtr<AString>> Type;
+        typedef const Array<SharedPtr<AString>> & ReturnType;
+        typedef Array<SharedPtr<AString>> & OutParamType;
         static const BFFVariable::VarType VarType = BFFVariable::VarType::VAR_ARRAY_OF_STRINGS;
     };
 
@@ -205,7 +205,7 @@ namespace
     ArrayOfString::ReturnType Get<ArrayOfString, BFFToken>( const BFFToken & /*token*/ )
     {
         ASSERT( false ); // It should not be here, or something went wrong.
-        static Array<AString> s_Empty;
+        static Array<SharedPtr<AString>> s_Empty;
         return s_Empty;
     }
 
@@ -227,14 +227,14 @@ namespace
     String::ReturnType Get<String, BFFVariable>( const BFFVariable & var )
     {
         ASSERT( var.IsString() );
-        return var.GetString();
+        return *var.GetString();
     }
 
     template <>
     ArrayOfString::ReturnType Get<ArrayOfString, BFFVariable>( const BFFVariable & var )
     {
         ASSERT( var.IsArrayOfStrings() );
-        return var.GetArrayOfStrings();
+        return *var.GetArrayOfStrings();
     }
 
     // Operand
@@ -314,7 +314,7 @@ namespace
             {
                 if ( m_Var != nullptr )
                 {
-                    Error::Error_1050_PropertyMustBeOfType( &m_Token, m_Function, m_Var->GetName().Get(), m_Var->GetType(), T::VarType );
+                    Error::Error_1050_PropertyMustBeOfType( &m_Token, m_Function, m_Var->GetName()->Get(), m_Var->GetType(), T::VarType );
                 }
                 else
                 {
@@ -625,7 +625,7 @@ namespace
             return false;
         }
 
-        const Array<AString> & rhsArray = rhs.GetValue();
+        const Array<SharedPtr<AString>> & rhsArray = rhs.GetValue();
 
         const AString & lhsValue = lhs.GetValue();
         bool conditionSuccess = ( rhsArray.Find( lhsValue ) != nullptr );
@@ -675,13 +675,13 @@ namespace
 
         bool conditionSuccess = false;
 
-        const Array<AString> & lhsArray = lhs.GetValue();
-        const Array<AString> & rhsArray = rhs.GetValue();
+        const Array<SharedPtr<AString>> & lhsArray = lhs.GetValue();
+        const Array<SharedPtr<AString>> & rhsArray = rhs.GetValue();
 
         // Is any string in array?
-        for ( const AString & testStr : lhsArray )
+        for ( const SharedPtr<AString> & testStr : lhsArray )
         {
-            if ( rhsArray.Find( testStr ) )
+            if ( rhsArray.FindDeref( *testStr ) )
             {
                 conditionSuccess = true;
                 break;

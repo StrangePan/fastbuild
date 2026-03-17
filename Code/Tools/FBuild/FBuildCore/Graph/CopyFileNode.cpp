@@ -59,28 +59,28 @@ CopyFileNode::~CopyFileNode() = default;
     EmitCopyMessage();
 
     // copy the file
-    if ( FileIO::FileCopy( GetSourceNode()->GetName().Get(), m_Name.Get() ) == false )
+    if ( FileIO::FileCopy( GetSourceNode()->GetName()->Get(), m_Name->Get() ) == false )
     {
-        FLOG_ERROR( "Copy failed. Error: %s Target: '%s'", LAST_ERROR_STR, GetName().Get() );
+        FLOG_ERROR( "Copy failed. Error: %s Target: '%s'", LAST_ERROR_STR, GetName()->Get() );
         return BuildResult::eFailed; // copy failed
     }
 
-    if ( FileIO::SetReadOnly( m_Name.Get(), false ) == false )
+    if ( FileIO::SetReadOnly( m_Name->Get(), false ) == false )
     {
-        FLOG_ERROR( "Copy read-only flag set failed. Error: %s Target: '%s'", LAST_ERROR_STR, GetName().Get() );
+        FLOG_ERROR( "Copy read-only flag set failed. Error: %s Target: '%s'", LAST_ERROR_STR, GetName()->Get() );
         return BuildResult::eFailed; // failed to remove read-only
     }
 
     // Ensure the dst file's "last modified" time is equal to or newer than the source
-    const uint64_t srcStamp = FileIO::GetFileLastWriteTime( GetSourceNode()->GetName() );
-    uint64_t dstStamp = FileIO::GetFileLastWriteTime( m_Name );
+    const uint64_t srcStamp = FileIO::GetFileLastWriteTime( *GetSourceNode()->GetName() );
+    uint64_t dstStamp = FileIO::GetFileLastWriteTime( *m_Name );
     ASSERT( srcStamp && dstStamp );
     if ( dstStamp < srcStamp )
     {
         // File system copy didn't transfer the "last modified" time, so set it explicitly
-        if ( FileIO::SetFileLastWriteTime( m_Name, srcStamp ) == false )
+        if ( FileIO::SetFileLastWriteTime( *m_Name, srcStamp ) == false )
         {
-            FLOG_ERROR( "Copy set last write time failed. Error: %s Target: '%s'", LAST_ERROR_STR, GetName().Get() );
+            FLOG_ERROR( "Copy set last write time failed. Error: %s Target: '%s'", LAST_ERROR_STR, GetName()->Get() );
             m_Stamp = 0;
             return BuildResult::eFailed; // failed to set the time
         }

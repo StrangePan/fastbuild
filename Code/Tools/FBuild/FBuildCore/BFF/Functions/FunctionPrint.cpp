@@ -139,18 +139,18 @@ FunctionPrint::FunctionPrint()
         {
             AStackString value( var.GetString() );
             value.Replace( "'", "^'" ); // escape single quotes
-            FLOG_OUTPUT( "%s = '%s'\n", var.GetName().Get(), value.Get() );
+            FLOG_OUTPUT( "%s = '%s'\n", var.GetName()->Get(), value.Get() );
             break;
         }
         case BFFVariable::VAR_BOOL:
         {
-            FLOG_OUTPUT( "%s = %s\n", var.GetName().Get(), var.GetBool() ? BFF_KEYWORD_TRUE : BFF_KEYWORD_FALSE );
+            FLOG_OUTPUT( "%s = %s\n", var.GetName()->Get(), var.GetBool() ? BFF_KEYWORD_TRUE : BFF_KEYWORD_FALSE );
             break;
         }
         case BFFVariable::VAR_ARRAY_OF_STRINGS:
         {
             const Array<AString> & strings = var.GetArrayOfStrings();
-            FLOG_OUTPUT( "%s = // ArrayOfStrings, size: %u\n%s{\n", var.GetName().Get(), (uint32_t)strings.GetSize(), indentStr.Get() );
+            FLOG_OUTPUT( "%s = // ArrayOfStrings, size: %u\n%s{\n", var.GetName()->Get(), (uint32_t)strings.GetSize(), indentStr.Get() );
             for ( const AString & string : strings )
             {
                 AStackString value( string );
@@ -162,12 +162,12 @@ FunctionPrint::FunctionPrint()
         }
         case BFFVariable::VAR_INT:
         {
-            FLOG_OUTPUT( "%s = %i\n", var.GetName().Get(), var.GetInt() );
+            FLOG_OUTPUT( "%s = %i\n", var.GetName()->Get(), var.GetInt() );
             break;
         }
         case BFFVariable::VAR_STRUCT:
         {
-            FLOG_OUTPUT( "%s = // Struct\n%s[\n", var.GetName().Get(), indentStr.Get() );
+            FLOG_OUTPUT( "%s = // Struct\n%s[\n", var.GetName()->Get(), indentStr.Get() );
             for ( const BFFVariable * subVar : var.GetStructMembers() )
             {
                 PrintVarRecurse( *subVar, indent );
@@ -178,7 +178,7 @@ FunctionPrint::FunctionPrint()
         case BFFVariable::VAR_ARRAY_OF_STRUCTS:
         {
             const Array<const BFFVariable *> & structs = var.GetArrayOfStructs();
-            FLOG_OUTPUT( "%s = // ArrayOfStructs, size: %u\n%s{\n", var.GetName().Get(), (uint32_t)structs.GetSize(), indentStr.Get() );
+            FLOG_OUTPUT( "%s = // ArrayOfStructs, size: %u\n%s{\n", var.GetName()->Get(), (uint32_t)structs.GetSize(), indentStr.Get() );
             for ( const BFFVariable * subVar : structs )
             {
                 PrintVarRecurse( *subVar, indent );

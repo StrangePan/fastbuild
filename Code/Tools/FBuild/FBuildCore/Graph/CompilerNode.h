@@ -60,7 +60,7 @@ public:
     };
     CompilerFamily GetCompilerFamily() const { return static_cast<CompilerFamily>( m_CompilerFamilyEnum ); }
 
-    const AString & GetExecutable() const { return m_StaticDependencies[ 0 ].GetNode()->GetName(); }
+    const AString & GetExecutable() const { return *m_StaticDependencies[ 0 ].GetNode()->GetName(); }
     const char * GetEnvironmentString() const;
     const AString & GetSourceMapping() const { return m_SourceMapping; }
 

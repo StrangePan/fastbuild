@@ -33,7 +33,7 @@ REFLECT_END( ListDependenciesNode )
 
 // FilterFileDependencies
 //------------------------------------------------------------------------------
-static void FilterFileDependencies( Array<const AString *> * dependencyList, const Array<AString> & patterns, const Dependencies & dependencies )
+static void FilterFileDependencies( Array<const AString *> * dependencyList, const Array<SharedPtr<AString>> & patterns, const Dependencies & dependencies )
 {
     dependencyList->SetCapacity( dependencyList->GetSize() + dependencies.GetSize() );
 
@@ -55,9 +55,9 @@ static void FilterFileDependencies( Array<const AString *> * dependencyList, con
 
             if ( patterns.GetSize() > 0 )
             {
-                for ( const AString & pattern : patterns )
+                for ( const SharedPtr<AString> & pattern : patterns )
                 {
-                    if ( PathUtils::IsWildcardMatch( pattern.Get(), depNode->GetName().Get() ) )
+                    if ( PathUtils::IsWildcardMatch( pattern->Get(), depNode->GetName()->Get() ) )
                     {
                         dependencyList->Append( &depNode->GetName() );
                         break;
@@ -135,8 +135,8 @@ ListDependenciesNode::~ListDependenciesNode() = default;
         {
             if ( !dep.IsWeak() )
             {
-                FilterFileDependencies( &dependencyList, m_Patterns, dep.GetNode()->GetStaticDependencies() );
-                FilterFileDependencies( &dependencyList, m_Patterns, dep.GetNode()->GetDynamicDependencies() );
+                FilterFileDependencies( &dependencyList, *m_Patterns, dep.GetNode()->GetStaticDependencies() );
+                FilterFileDependencies( &dependencyList, *m_Patterns, dep.GetNode()->GetDynamicDependencies() );
             }
         }
 
@@ -144,8 +144,8 @@ ListDependenciesNode::~ListDependenciesNode() = default;
         {
             if ( !dep.IsWeak() )
             {
-                FilterFileDependencies( &dependencyList, m_Patterns, dep.GetNode()->GetStaticDependencies() );
-                FilterFileDependencies( &dependencyList, m_Patterns, dep.GetNode()->GetDynamicDependencies() );
+                FilterFileDependencies( &dependencyList, *m_Patterns, dep.GetNode()->GetStaticDependencies() );
+                FilterFileDependencies( &dependencyList, *m_Patterns, dep.GetNode()->GetDynamicDependencies() );
             }
         }
     }
@@ -176,9 +176,9 @@ ListDependenciesNode::~ListDependenciesNode() = default;
 
     // Dump to text file
     FileStream stream;
-    if ( !stream.Open( m_Name.Get(), FileStream::WRITE_ONLY ) )
+    if ( !stream.Open( m_Name->Get(), FileStream::WRITE_ONLY ) )
     {
-        FLOG_ERROR( "Could not open '%s' for write. Error: %s", GetName().Get(), LAST_ERROR_STR );
+        FLOG_ERROR( "Could not open '%s' for write. Error: %s", GetName()->Get(), LAST_ERROR_STR );
         return BuildResult::eFailed;
     }
 
@@ -187,7 +187,7 @@ ListDependenciesNode::~ListDependenciesNode() = default;
 
     if ( nWritten != fileContents.GetLength() )
     {
-        FLOG_ERROR( "Failed to write to '%s'. Error: %s", GetName().Get(), LAST_ERROR_STR );
+        FLOG_ERROR( "Failed to write to '%s'. Error: %s", GetName()->Get(), LAST_ERROR_STR );
         return BuildResult::eFailed;
     }
 
@@ -202,7 +202,7 @@ void ListDependenciesNode::EmitOutputMessage() const
 {
     if ( FBuild::Get().GetOptions().m_ShowCommandSummary )
     {
-        FLOG_OUTPUT( "DepList: '%s' -> '%s'\n", m_Source.Get(), GetName().Get() );
+        FLOG_OUTPUT( "DepList: '%s' -> '%s'\n", m_Source->Get(), GetName()->Get() );
     }
 }
 

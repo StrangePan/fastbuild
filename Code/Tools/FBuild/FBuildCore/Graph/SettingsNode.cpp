@@ -298,7 +298,7 @@ bool SettingsNode::InitializeConcurrencyGroups( const BFFToken * iter,
                       " - Limit: %u\n"
                       " - MiB  : %u\n"
                       " - Final: %u\n",
-                      group.GetName().Get(),
+                      group.GetName()->Get(),
                       group.GetJobBasedLimit(),
                       group.GetMemoryBasedLimit(),
                       group.GetLimit() );

@@ -79,7 +79,7 @@ LinkerNode::LinkerNode()
     if ( !InitializeConcurrencyGroup( nodeGraph,
                                       iter,
                                       function,
-                                      m_ConcurrencyGroupName,
+                                      *m_ConcurrencyGroupName,
                                       m_ConcurrencyGroupIndex ) )
     {
         return false; // InitializeConcurrencyGroup will have emitted an error
@@ -87,29 +87,29 @@ LinkerNode::LinkerNode()
 
     // .Linker
     Dependencies linkerExe;
-    if ( !Function::GetFileNode( nodeGraph, iter, function, m_Linker, ".Linker", linkerExe ) )
+    if ( !Function::GetFileNode( nodeGraph, iter, function, *m_Linker, ".Linker", linkerExe ) )
     {
         return false; // GetFileNode will have emitted an error
     }
     ASSERT( linkerExe.GetSize() == 1 );
 
-    m_Flags = DetermineFlags( m_LinkerType, m_Linker, m_LinkerOptions );
+    m_Flags = DetermineFlags( *m_LinkerType, *m_Linker, *m_LinkerOptions );
 
     // Check for Import Library override
     if ( ( m_Flags & LinkerNode::LINK_FLAG_MSVC ) != 0 )
     {
-        GetImportLibName( m_LinkerOptions, m_ImportLibName );
+        GetImportLibName( *m_LinkerOptions, m_ImportLibName );
     }
 
     // Check input/output args for Linker
     {
-        const bool hasInputToken = ( m_LinkerOptions.Find( "%1" ) || m_LinkerOptions.Find( "\"%1\"" ) );
+        const bool hasInputToken = ( m_LinkerOptions->Find( "%1" ) || m_LinkerOptions->Find( "\"%1\"" ) );
         if ( hasInputToken == false )
         {
             Error::Error_1106_MissingRequiredToken( iter, function, ".LinkerOptions", "%1" );
             return false;
         }
-        const bool hasOutputToken = ( m_LinkerOptions.Find( "%2" ) || m_LinkerOptions.Find( "\"%2\"" ) );
+        const bool hasOutputToken = ( m_LinkerOptions->Find( "%2" ) || m_LinkerOptions->Find( "\"%2\"" ) );
         if ( hasOutputToken == false )
         {
             Error::Error_1106_MissingRequiredToken( iter, function, ".LinkerOptions", "%2" );
@@ -119,17 +119,17 @@ LinkerNode::LinkerNode()
 
     // Standard library dependencies
     Dependencies libraries( 64 );
-    for ( const AString & library : m_Libraries )
+    for ( const SharedPtr<AString> & library : *m_Libraries )
     {
-        if ( DependOnNode( nodeGraph, iter, function, library, libraries ) == false )
+        if ( DependOnNode( nodeGraph, iter, function, *library, libraries ) == false )
         {
             return false; // DependOnNode will have emitted an error
         }
     }
     Dependencies libraries2( 64 );
-    for ( const AString & library : m_Libraries2 )
+    for ( const SharedPtr<AString> & library : *m_Libraries2 )
     {
-        if ( DependOnNode( nodeGraph, iter, function, library, libraries2 ) == false )
+        if ( DependOnNode( nodeGraph, iter, function, *library, libraries2 ) == false )
         {
             return false; // DependOnNode will have emitted an error
         }
@@ -137,7 +137,7 @@ LinkerNode::LinkerNode()
 
     // Assembly Resources
     Dependencies assemblyResources( 32 );
-    if ( !Function::GetNodeList( nodeGraph, iter, function, ".LinkerAssemblyResources", m_LinkerAssemblyResources, assemblyResources ) )
+    if ( !Function::GetNodeList( nodeGraph, iter, function, ".LinkerAssemblyResources", *m_LinkerAssemblyResources, assemblyResources ) )
     {
         return false; // GetNodeList will have emitted error
     }
@@ -147,7 +147,7 @@ LinkerNode::LinkerNode()
     if ( ( m_Flags & ( LinkerNode::LINK_FLAG_MSVC | LinkerNode::LINK_FLAG_GCC | LinkerNode::LINK_FLAG_SNC | LinkerNode::LINK_FLAG_ORBIS_LD | LinkerNode::LINK_FLAG_GREENHILLS_ELXR | LinkerNode::LINK_FLAG_CODEWARRIOR_LD ) ) != 0 )
     {
         const bool msvcStyle = GetFlag( LinkerNode::LINK_FLAG_MSVC );
-        if ( !GetOtherLibraries( nodeGraph, iter, function, m_LinkerOptions, otherLibraryNodes, msvcStyle ) )
+        if ( !GetOtherLibraries( nodeGraph, iter, function, *m_LinkerOptions, otherLibraryNodes, msvcStyle ) )
         {
             return false; // will have emitted error
         }
@@ -155,9 +155,9 @@ LinkerNode::LinkerNode()
 
     // .LinkerStampExe
     Dependencies linkerStampExe;
-    if ( m_LinkerStampExe.IsEmpty() == false )
+    if ( m_LinkerStampExe->IsEmpty() == false )
     {
-        if ( !Function::GetFileNode( nodeGraph, iter, function, m_LinkerStampExe, ".LinkerStampExe", linkerStampExe ) )
+        if ( !Function::GetFileNode( nodeGraph, iter, function, *m_LinkerStampExe, ".LinkerStampExe", linkerStampExe ) )
         {
             return false; // GetFileNode will have emitted an error
         }
@@ -222,7 +222,7 @@ LinkerNode::~LinkerNode()
     // use the exe launch dir as the working dir
     const char * workingDir = nullptr;
 
-    const char * environment = Node::GetEnvironmentString( m_Environment, m_EnvironmentString );
+    const char * environment = Node::GetEnvironmentString( *m_Environment, m_EnvironmentString );
 
     EmitCompilationMessage( fullArgs );
 
@@ -235,7 +235,7 @@ LinkerNode::~LinkerNode()
 
         // spawn the process
         Process p( FBuild::Get().GetAbortBuildPointer() );
-        const bool spawnOK = p.Spawn( m_Linker.Get(),
+        const bool spawnOK = p.Spawn( m_Linker->Get(),
                                       fullArgs.GetFinalArgs().Get(),
                                       workingDir,
                                       environment );
@@ -247,7 +247,7 @@ LinkerNode::~LinkerNode()
                 return BuildResult::eAborted;
             }
 
-            FLOG_ERROR( "Failed to spawn process '%s' for %s creation for '%s'", m_Linker.Get(), GetDLLOrExe(), GetName().Get() );
+            FLOG_ERROR( "Failed to spawn process '%s' for %s creation for '%s'", m_Linker->Get(), GetDLLOrExe(), GetName()->Get() );
             return BuildResult::eFailed;
         }
 
@@ -272,7 +272,7 @@ LinkerNode::~LinkerNode()
                 // Did the linker have an ICE (crash) (LNK1000)?
                 if ( result == 1000 )
                 {
-                    FLOG_WARN( "FBuild: Warning: Linker crashed (LNK1000), retrying '%s'", GetName().Get() );
+                    FLOG_WARN( "FBuild: Warning: Linker crashed (LNK1000), retrying '%s'", GetName()->Get() );
                     continue; // try again
                 }
 
@@ -281,7 +281,7 @@ LinkerNode::~LinkerNode()
                 // corrupt PDB file.
                 if ( result == 1136 )
                 {
-                    FLOG_WARN( "FBuild: Warning: Linker corrupted the PDB (LNK1136), retrying '%s'", GetName().Get() );
+                    FLOG_WARN( "FBuild: Warning: Linker corrupted the PDB (LNK1136), retrying '%s'", GetName()->Get() );
                     continue; // try again
                 }
 
@@ -289,7 +289,7 @@ LinkerNode::~LinkerNode()
                 // Unbounded pdb growth results in this has been seen with /dynamicdeopt with VS2022.
                 if ( result == 1140 )
                 {
-                    FLOG_WARN( "FBuild: Warning: Linker exceeded pdb size limit (LNK1140), retrying '%s'", GetName().Get() );
+                    FLOG_WARN( "FBuild: Warning: Linker exceeded pdb size limit (LNK1140), retrying '%s'", GetName()->Get() );
                     continue; // try again
                 }
 
@@ -297,7 +297,7 @@ LinkerNode::~LinkerNode()
                 // This has been seen with /dynamicdeopt with VS2022 and appears to be a bug
                 if ( result == 1158 )
                 {
-                    FLOG_WARN( "FBuild: Warning: Linker failed with (LNK1158), retrying '%s'", GetName().Get() );
+                    FLOG_WARN( "FBuild: Warning: Linker failed with (LNK1158), retrying '%s'", GetName()->Get() );
                     continue; // try again
                 }
 
@@ -306,7 +306,7 @@ LinkerNode::~LinkerNode()
                 // is a bug where the PDB size can grow a lot and this error will start to occur.
                 if ( result == 1201 )
                 {
-                    FLOG_WARN( "FBuild: Warning: Linker failed with (LNK1201), retrying '%s'", GetName().Get() );
+                    FLOG_WARN( "FBuild: Warning: Linker failed with (LNK1201), retrying '%s'", GetName()->Get() );
                     continue; // try again
                 }
 
@@ -317,7 +317,7 @@ LinkerNode::~LinkerNode()
                 // is running out of memory)
                 if ( result == 1318 )
                 {
-                    FLOG_WARN( "FBuild: Warning: Linker corrupted the PDB (LNK1318), retrying '%s'", GetName().Get() );
+                    FLOG_WARN( "FBuild: Warning: Linker corrupted the PDB (LNK1318), retrying '%s'", GetName()->Get() );
                     continue; // try again
                 }
             }
@@ -333,7 +333,7 @@ LinkerNode::~LinkerNode()
             }
 
             // some other (genuine) linker failure
-            FLOG_ERROR( "Failed to build %s. Error: %s Target: '%s'", GetDLLOrExe(), ERROR_STR( result ), GetName().Get() );
+            FLOG_ERROR( "Failed to build %s. Error: %s Target: '%s'", GetDLLOrExe(), ERROR_STR( result ), GetName()->Get() );
             return BuildResult::eFailed;
         }
         else
@@ -349,7 +349,7 @@ LinkerNode::~LinkerNode()
                 // (since compilation will fail anyway, and the output will be shown)
                 if ( GetFlag( LINK_FLAG_MSVC ) && !GetFlag( LINK_FLAG_WARNINGS_AS_ERRORS_MSVC ) )
                 {
-                    HandleWarningsMSVC( job, GetName(), memOut );
+                    HandleWarningsMSVC( job, *GetName(), memOut );
                 }
             }
             break; // success!
@@ -357,14 +357,14 @@ LinkerNode::~LinkerNode()
     }
 
     // post-link stamp step
-    if ( m_LinkerStampExe.IsEmpty() == false )
+    if ( m_LinkerStampExe->IsEmpty() == false )
     {
         const Node * linkerStampExe = m_StaticDependencies[ m_StaticDependencies.GetSize() - 1 ].GetNode();
         EmitStampMessage();
 
         Process stampProcess( FBuild::Get().GetAbortBuildPointer() );
-        const bool spawnOk = stampProcess.Spawn( linkerStampExe->GetName().Get(),
-                                                 m_LinkerStampExeArgs.Get(),
+        const bool spawnOk = stampProcess.Spawn( linkerStampExe->GetName()->Get(),
+                                                 m_LinkerStampExeArgs->Get(),
                                                  nullptr,     // working dir
                                                  nullptr );   // env
         if ( spawnOk == false )
@@ -374,7 +374,7 @@ LinkerNode::~LinkerNode()
                 return BuildResult::eAborted;
             }
 
-            FLOG_ERROR( "Failed to spawn process '%s' for '%s' stamping of '%s'", linkerStampExe->GetName().Get(), GetDLLOrExe(), GetName().Get() );
+            FLOG_ERROR( "Failed to spawn process '%s' for '%s' stamping of '%s'", linkerStampExe->GetName()->Get(), GetDLLOrExe(), GetName()->Get() );
             return BuildResult::eFailed;
         }
 
@@ -402,7 +402,7 @@ LinkerNode::~LinkerNode()
         // did the executable fail?
         if ( result != 0 )
         {
-            FLOG_ERROR( "Failed to stamp %s. Error: %s Target: '%s' StampExe: '%s'", GetDLLOrExe(), ERROR_STR( result ), GetName().Get(), m_LinkerStampExe.Get() );
+            FLOG_ERROR( "Failed to stamp %s. Error: %s Target: '%s' StampExe: '%s'", GetDLLOrExe(), ERROR_STR( result ), GetName()->Get(), m_LinkerStampExe->Get() );
             return BuildResult::eFailed;
         }
 
@@ -459,14 +459,14 @@ bool LinkerNode::DoPreLinkCleanup() const
     {
         // .ilk
         const char * lastDot = GetName().FindLast( '.' );
-        AStackString ilkName( GetName().Get(), lastDot ? lastDot : GetName().GetEnd() );
+        AStackString ilkName( GetName()->Get(), lastDot ? lastDot : GetName().GetEnd() );
         ilkName += ".ilk";
 
         // .pdb - TODO: Handle manually specified /PDB
-        AStackString pdbName( GetName().Get(), lastDot ? lastDot : GetName().GetEnd() );
+        AStackString pdbName( GetName()->Get(), lastDot ? lastDot : GetName().GetEnd() );
         pdbName += ".pdb";
 
-        return ( DoPreBuildFileDeletion( GetName() ) && // output file
+        return ( DoPreBuildFileDeletion( *GetName() ) && // output file
                  DoPreBuildFileDeletion( ilkName ) &&   // .ilk
                  DoPreBuildFileDeletion( pdbName ) );   // .pdb
     }
@@ -482,7 +482,7 @@ bool LinkerNode::BuildArgs( Args & fullArgs ) const
 
     // split into tokens
     StackArray<AString, 512> tokens;
-    m_LinkerOptions.Tokenize( tokens );
+    m_LinkerOptions->Tokenize( tokens );
 
     for ( const AString & token : tokens )
     {
@@ -514,12 +514,12 @@ bool LinkerNode::BuildArgs( Args & fullArgs ) const
             {
                 AStackString pre( token.Get(), found );
                 AStackString post( found + 2, token.GetEnd() );
-                StackArray<AString> inputs;
+                StackArray<SharedPtr<AString>> inputs;
                 GetAssemblyResourceFiles( inputs );
-                for ( const AString & input : inputs )
+                for ( const SharedPtr<AString> & input : inputs )
                 {
                     fullArgs += pre;
-                    fullArgs += input;
+                    fullArgs += *input;
                     fullArgs += post;
                     fullArgs.AddDelimiter();
                 }
@@ -567,7 +567,7 @@ bool LinkerNode::BuildArgs( Args & fullArgs ) const
     }
 
     // Handle all the special needs of args
-    if ( fullArgs.Finalize( m_Linker, GetName(), GetResponseFileMode() ) == false )
+    if ( fullArgs.Finalize( *m_Linker, *GetName(), GetResponseFileMode() ) == false )
     {
         return false; // Finalize will have emitted an error
     }
@@ -617,7 +617,7 @@ void LinkerNode::GetInputFiles( const AString & token, Args & fullArgs ) const
 void LinkerNode::GetInputFiles( Args & fullArgs, uint32_t startIndex, uint32_t endIndex, const AString & pre, const AString & post ) const
 {
     // Regular inputs are after linker and before AssemblyResources
-    StackArray<AString> inputs;
+    StackArray<SharedPtr<AString>> inputs;
     const Dependency * start = m_StaticDependencies.Begin() + startIndex;
     const Dependency * end = m_StaticDependencies.Begin() + endIndex;
     for ( const Dependency * i = start; i != end; ++i )
@@ -626,10 +626,10 @@ void LinkerNode::GetInputFiles( Args & fullArgs, uint32_t startIndex, uint32_t e
     }
 
     // Add the inputs
-    for ( const AString & input : inputs )
+    for ( const SharedPtr<AString> & input : inputs )
     {
         fullArgs += pre;
-        fullArgs += input;
+        fullArgs += *input;
         fullArgs += post;
         fullArgs.AddDelimiter();
     }
@@ -637,7 +637,7 @@ void LinkerNode::GetInputFiles( Args & fullArgs, uint32_t startIndex, uint32_t e
 
 // GetInputFiles
 //------------------------------------------------------------------------------
-void LinkerNode::GetInputFiles( Node * n, Array<AString> & outInputs ) const
+void LinkerNode::GetInputFiles( Node * n, Array<SharedPtr<AString>> & outInputs ) const
 {
     if ( n->GetType() == Node::LIBRARY_NODE )
     {
@@ -661,7 +661,7 @@ void LinkerNode::GetInputFiles( Node * n, Array<AString> & outInputs ) const
     {
         // for a DLL, link to the import library
         const DLLNode * dllNode = n->CastTo<DLLNode>();
-        dllNode->GetImportLibName( outInputs.EmplaceBack() );
+        dllNode->GetImportLibName( *outInputs.EmplaceBack() );
     }
     else if ( n->GetType() == Node::COPY_FILE_NODE )
     {
@@ -678,7 +678,7 @@ void LinkerNode::GetInputFiles( Node * n, Array<AString> & outInputs ) const
 
 // GetAssemblyResourceFiles
 //------------------------------------------------------------------------------
-void LinkerNode::GetAssemblyResourceFiles( Array<AString> & outInputs ) const
+void LinkerNode::GetAssemblyResourceFiles( Array<SharedPtr<AString>> & outInputs ) const
 {
     const Dependency * start = m_StaticDependencies.Begin() + m_AssemblyResourcesStartIndex;
     const Dependency * end = start + m_AssemblyResourcesNum;

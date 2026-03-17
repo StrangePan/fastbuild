@@ -505,7 +505,7 @@
 //------------------------------------------------------------------------------
 /*static*/ void Error::Error_1060_CantModifyFrozenVar( const BFFToken * iter, const Function * function, const BFFVariable * var )
 {
-    FormatError( iter, 1060u, function, "Can't modify frozen variable '%s'", var->GetName().Get() );
+    FormatError( iter, 1060u, function, "Can't modify frozen variable '%s'", var->GetName()->Get() );
 }
 
 // Error_1070_UnexpectedOperator
@@ -970,7 +970,7 @@ void Error::FormatError( const BFFToken * iter,
             line,
             column,
             errNum,
-            function ? function->GetName().Get() : "",
+            function ? function->GetName()->Get() : "",
             function ? "() - " : "",
             buffer.Get() );
 

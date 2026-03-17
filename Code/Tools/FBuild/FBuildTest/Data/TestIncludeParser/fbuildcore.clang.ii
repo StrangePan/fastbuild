@@ -5338,7 +5338,7 @@ const BFFVariable * BFFStackFrame::GetVariableRecurse( const AString & nameOnly,
      ( type == ( *i )->GetType() ) )
    {
 
-    if ( nameOnly == ( ( *i )->GetName().Get() + 1 ) )
+    if ( nameOnly == ( ( *i )->GetName()->Get() + 1 ) )
     {
      return *i;
     }
@@ -12117,7 +12117,7 @@ void Error::FormatError( const BFFIterator & iter,
  NodeGraph::CleanPath( fileName, fullPath );
 
 
- Tracing::OutputFormat( "%s(%u,%u): FASTBuild Error #%04u - %s%s%s\n", fullPath.Get(), line, column, errNum, function ? function->GetName().Get() : "", function ? "() - " : "", buffer.Get() );
+ Tracing::OutputFormat( "%s(%u,%u): FASTBuild Error #%04u - %s%s%s\n", fullPath.Get(), line, column, errNum, function ? function->GetName()->Get() : "", function ? "() - " : "", buffer.Get() );
 # 574 "/Users/ffulin/p4/Code/Tools/FBuild/FBuildCore/Error.cpp"
  BFFIterator lineEnd( iter );
  while ( !lineEnd.IsAtEnd() )
@@ -15242,7 +15242,7 @@ AliasNode::~AliasNode()
    if ( n->GetStamp() == 0 )
    {
 
-    do { FLog::Error( "Alias: %s\nFailed due to missing file: %s\n", GetName().Get(), n->GetName().Get() ); } while ( false ); ;
+    do { FLog::Error( "Alias: %s\nFailed due to missing file: %s\n", GetName()->Get(), n->GetName()->Get() ); } while ( false ); ;
     return Node::NODE_RESULT_FAILED;
    }
   }
@@ -15462,7 +15462,7 @@ CopyDirNode::~CopyDirNode()
    }
    else if ( n->GetType() != Node::COPY_NODE )
    {
-    do { FLog::Error( "Node '%s' is not a CopyNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+    do { FLog::Error( "Node '%s' is not a CopyNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
     return false;
    }
    else
@@ -15470,7 +15470,7 @@ CopyDirNode::~CopyDirNode()
     CopyNode * cn = n->CastTo< CopyNode >();
     if ( srcFileNode != cn->GetSourceNode() )
     {
-     do { FLog::Error( "Conflicting objects found during CopyDir:\n" " File A: %s\n" " File B: %s\n" " Both copy to: %s\n", srcFile.Get(), cn->GetSourceNode()->GetName().Get(), dstFile.Get() ); } while ( false ); ;
+     do { FLog::Error( "Conflicting objects found during CopyDir:\n" " File A: %s\n" " File B: %s\n" " Both copy to: %s\n", srcFile.Get(), cn->GetSourceNode()->GetName()->Get(), dstFile.Get() ); } while ( false ); ;
 
 
 
@@ -15572,15 +15572,15 @@ CopyNode::~CopyNode()
  EmitCopyMessage();
 
 
- if ( FileIO::FileCopy( m_SourceFile->GetName().Get(), m_Name.Get() ) == false )
+ if ( FileIO::FileCopy( m_SourceFile->GetName()->Get(), m_Name.Get() ) == false )
  {
-  do { FLog::Error( "Copy failed (error %i) '%s'", Env::GetLastErr(), GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Copy failed (error %i) '%s'", Env::GetLastErr(), GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
  if ( FileIO::SetReadOnly( m_Name.Get(), false ) == false )
  {
-  do { FLog::Error( "Copy read-only flag set failed (error %i) '%s'", Env::GetLastErr(), GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Copy read-only flag set failed (error %i) '%s'", Env::GetLastErr(), GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -15593,7 +15593,7 @@ CopyNode::~CopyNode()
  do { if ( !( m_Stamp ) ) { if ( AssertHandler::Failure( "m_Stamp", "/Users/ffulin/p4/Code/Tools/FBuild/FBuildCore/Graph/CopyNode.cpp", 66 ) ) { __builtin_trap();; } } } while ( false ); ;
  if ( FileIO::SetFileLastWriteTime( m_Name, m_Stamp ) == false )
  {
-  do { FLog::Error( "Copy set last write time failed (error %i) '%s'", Env::GetLastErr(), GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Copy set last write time failed (error %i) '%s'", Env::GetLastErr(), GetName()->Get() ); } while ( false ); ;
   m_Stamp = 0;
   return NODE_RESULT_FAILED;
  }
@@ -15824,7 +15824,7 @@ CSNode::~CSNode()
     }
     else if ( sn->IsAFile() == false )
     {
-     do { FLog::Error( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+     do { FLog::Error( "CSAssembly() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
      return false;
     }
 
@@ -15833,7 +15833,7 @@ CSNode::~CSNode()
    continue;
   }
 
-  do { FLog::Error( "'%s' is not a supported node type (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+  do { FLog::Error( "'%s' is not a supported node type (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
   return false;
  }
 
@@ -15871,7 +15871,7 @@ CSNode::~CSNode()
  if ( p.Spawn( m_CompilerPath.Get(), responseFileArgs.Get(),
       workingDir, environment ) == false )
  {
-  do { FLog::Error( "Failed to spawn process to build '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Failed to spawn process to build '%s'", GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -15897,7 +15897,7 @@ CSNode::~CSNode()
 
  if ( !FileIO::FileExists( m_Name.Get() ) )
  {
-  do { FLog::Error( "Object missing despite success for '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Object missing despite success for '%s'", GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -15907,7 +15907,7 @@ CSNode::~CSNode()
  return NODE_RESULT_OK;
 
 failed:
- do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName().Get() ); } while ( false ); ;
+ do { FLog::Error( "Failed to build Object (error %i) '%s'", result, GetName()->Get() ); } while ( false ); ;
 
  return NODE_RESULT_FAILED;
 }
@@ -16372,7 +16372,7 @@ void DLLNode::GetImportLibName( AString & importLibName ) const
 
  const char * lastDot = GetName().FindLast( '.' );
  lastDot = lastDot ? lastDot : GetName().GetEnd();
- importLibName.Assign( GetName().Get(), lastDot );
+ importLibName.Assign( GetName()->Get(), lastDot );
 
 
  importLibName += ".lib";
@@ -16466,21 +16466,21 @@ ExecNode::~ExecNode()
  const char * workingDir = m_WorkingDir.IsEmpty() ? (0) : m_WorkingDir.Get();
 
  AStackString<> fullArgs( m_Arguments );
- fullArgs.Replace( "%1", m_SourceFile->GetName().Get() );
- fullArgs.Replace( "%2", GetName().Get() );
+ fullArgs.Replace( "%1", m_SourceFile->GetName()->Get() );
+ fullArgs.Replace( "%2", GetName()->Get() );
 
  EmitCompilationMessage( fullArgs );
 
 
  Process p;
- bool spawnOK = p.Spawn( m_Executable->GetName().Get(),
+ bool spawnOK = p.Spawn( m_Executable->GetName()->Get(),
        fullArgs.Get(),
        workingDir,
        FBuild::Get().GetEnvironmentString() );
 
  if ( !spawnOK )
  {
-  do { FLog::Error( "Failed to spawn process for '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Failed to spawn process for '%s'", GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -16502,7 +16502,7 @@ ExecNode::~ExecNode()
   Node::DumpOutput( job, memOut.Get(), memOutSize );
   Node::DumpOutput( job, memErr.Get(), memErrSize );
 
-  do { FLog::Error( "Execution failed (error %i) '%s'", result, GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Execution failed (error %i) '%s'", result, GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -16570,7 +16570,7 @@ void ExecNode::EmitCompilationMessage( const AString & args ) const
  {
   AStackString< 1024 > verboseOutput;
   verboseOutput.Format( "%s %s\nWorkingDir: %s\nExpectedReturnCode: %i\n",
-         m_Executable->GetName().Get(),
+         m_Executable->GetName()->Get(),
          args.Get(),
          m_WorkingDir.Get(),
          m_ExpectedReturnCode );
@@ -16860,7 +16860,7 @@ LibraryNode::~LibraryNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
      return false;
     }
 
@@ -16904,7 +16904,7 @@ LibraryNode::~LibraryNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
      return false;
     }
 
@@ -16928,7 +16928,7 @@ LibraryNode::~LibraryNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
      return false;
     }
 
@@ -16957,7 +16957,7 @@ LibraryNode::~LibraryNode()
 
  if ( m_DynamicDependencies.GetSize() == 0 )
  {
-  do { FLog::Error( "No files found to build '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "No files found to build '%s'", GetName()->Get() ); } while ( false ); ;
   return false;
  }
 
@@ -16969,9 +16969,9 @@ LibraryNode::~LibraryNode()
             Node::BuildResult LibraryNode::DoBuild( Job * )
 {
 
- if ( FileIO::FileExists( GetName().Get() ) )
+ if ( FileIO::FileExists( GetName()->Get() ) )
  {
-  FileIO::FileDelete( GetName().Get() );
+  FileIO::FileDelete( GetName()->Get() );
  }
 
 
@@ -17020,7 +17020,7 @@ LibraryNode::~LibraryNode()
 
  if ( !spawnOK )
  {
-  do { FLog::Error( "Failed to spawn process for Library creation for '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Failed to spawn process for Library creation for '%s'", GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -17044,7 +17044,7 @@ LibraryNode::~LibraryNode()
 
  if ( result != 0 )
  {
-  do { FLog::Error( "Failed to build Library (error %i) '%s'", result, GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Failed to build Library (error %i) '%s'", result, GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -17231,7 +17231,7 @@ bool LibraryNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode, b
  }
  else if ( on->GetType() != Node::OBJECT_NODE )
  {
-  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName().Get(), on->GetTypeName() ); } while ( false ); ;
+  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName()->Get(), on->GetTypeName() ); } while ( false ); ;
   return false;
  }
  else
@@ -17239,7 +17239,7 @@ bool LibraryNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode, b
   ObjectNode * other = on->CastTo< ObjectNode >();
   if ( inputFile != other->GetSourceFile() )
   {
-   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName().Get(), other->GetSourceFile()->GetName().Get(), objFile.Get() ); } while ( false ); ;
+   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName()->Get(), other->GetSourceFile()->GetName()->Get(), objFile.Get() ); } while ( false ); ;
 
 
 
@@ -17471,7 +17471,7 @@ LinkerNode::~LinkerNode()
 
   if ( !spawnOK )
   {
-   do { FLog::Error( "Failed to spawn process for %s creation for '%s'", GetDLLOrExe(), GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "Failed to spawn process for %s creation for '%s'", GetDLLOrExe(), GetName()->Get() ); } while ( false ); ;
    return NODE_RESULT_FAILED;
   }
 
@@ -17492,7 +17492,7 @@ LinkerNode::~LinkerNode()
 
    if ( GetFlag( LINK_FLAG_MSVC ) && ( result == 1000 ) && ( attempt == 1 ) )
    {
-    do { FLog::Warning( "FBuild: Warning: Linker crashed (LNK1000), retrying '%s'", GetName().Get() ); } while ( false ); ;
+    do { FLog::Warning( "FBuild: Warning: Linker crashed (LNK1000), retrying '%s'", GetName()->Get() ); } while ( false ); ;
     continue;
    }
 
@@ -17500,7 +17500,7 @@ LinkerNode::~LinkerNode()
    if ( memErr.Get() ) { do { FLog::ErrorDirect( memErr.Get() ); } while ( false ); ; }
 
 
-   do { FLog::Error( "Failed to build %s (error %i) '%s'", GetDLLOrExe(), result, GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "Failed to build %s (error %i) '%s'", GetDLLOrExe(), result, GetName()->Get() ); } while ( false ); ;
    return NODE_RESULT_FAILED;
   }
   else
@@ -17515,13 +17515,13 @@ LinkerNode::~LinkerNode()
   EmitStampMessage();
 
   Process stampProcess;
-  bool spawnOk = stampProcess.Spawn( m_LinkerStampExe->GetName().Get(),
+  bool spawnOk = stampProcess.Spawn( m_LinkerStampExe->GetName()->Get(),
              m_LinkerStampExeArgs.Get(),
              (0),
              (0) );
   if ( spawnOk == false )
   {
-   do { FLog::Error( "Failed to spawn process '%s' for '%s' stamping of '%s'", m_LinkerStampExe->GetName().Get(), GetDLLOrExe(), GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "Failed to spawn process '%s' for '%s' stamping of '%s'", m_LinkerStampExe->GetName()->Get(), GetDLLOrExe(), GetName()->Get() ); } while ( false ); ;
    return NODE_RESULT_FAILED;
   }
 
@@ -17541,7 +17541,7 @@ LinkerNode::~LinkerNode()
   {
    if ( memOut.Get() ) { do { FLog::ErrorDirect( memOut.Get() ); } while ( false ); ; }
    if ( memErr.Get() ) { do { FLog::ErrorDirect( memErr.Get() ); } while ( false ); ; }
-   do { FLog::Error( "Failed to stamp %s '%s' (error %i - '%s')", GetDLLOrExe(), GetName().Get(), result, m_LinkerStampExe->GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "Failed to stamp %s '%s' (error %i - '%s')", GetDLLOrExe(), GetName()->Get(), result, m_LinkerStampExe->GetName()->Get() ); } while ( false ); ;
    return NODE_RESULT_FAILED;
   }
 
@@ -17583,16 +17583,16 @@ void LinkerNode::DoPreLinkCleanup() const
  if ( deleteFiles )
  {
 
-  FileIO::FileDelete( GetName().Get() );
+  FileIO::FileDelete( GetName()->Get() );
 
 
   const char * lastDot = GetName().FindLast( '.' );
-  AStackString<> ilkName( GetName().Get(), lastDot ? lastDot : GetName().GetEnd() );
+  AStackString<> ilkName( GetName()->Get(), lastDot ? lastDot : GetName().GetEnd() );
   ilkName += ".ilk";
   FileIO::FileDelete( ilkName.Get() );
 
 
-  AStackString<> pdbName( GetName().Get(), lastDot ? lastDot : GetName().GetEnd() );
+  AStackString<> pdbName( GetName()->Get(), lastDot ? lastDot : GetName().GetEnd() );
   pdbName += ".pdb";
   FileIO::FileDelete( pdbName.Get() );
  }
@@ -18127,7 +18127,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
 
   if ( GetType() != Node::FILE_NODE )
   {
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (first time)", GetName().Get() ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (first time)", GetName()->Get() ); } } while ( false ); ;
   }
   return true;
  }
@@ -18139,7 +18139,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( lastWriteTime == 0 )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (missing)", GetName().Get() ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (missing)", GetName()->Get() ); } } while ( false ); ;
    return true;
   }
 
@@ -18147,7 +18147,7 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   {
 
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (externally modified - stamp = %llu, disk = %llu)", GetName().Get(), m_Stamp, lastWriteTime ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (externally modified - stamp = %llu, disk = %llu)", GetName()->Get(), m_Stamp, lastWriteTime ); } } while ( false ); ;
    return true;
   }
  }
@@ -18189,14 +18189,14 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( n->GetStamp() == 0 )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName().Get(), n->GetName().Get() ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName()->Get(), n->GetName()->Get() ); } } while ( false ); ;
    return true;
   }
 
   if ( n->GetStamp() > m_Stamp )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName().Get(), n->GetName().Get(), m_Stamp, n->GetStamp() ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName()->Get(), n->GetName()->Get(), m_Stamp, n->GetStamp() ); } } while ( false ); ;
    return true;
   }
  }
@@ -18222,21 +18222,21 @@ bool Node::DetermineNeedToBuild( bool forceClean ) const
   if ( n->GetStamp() == 0 )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName().Get(), n->GetName().Get() ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep missing: '%s')", GetName()->Get(), n->GetName()->Get() ); } } while ( false ); ;
    return true;
   }
 
   if ( n->GetStamp() > m_Stamp )
   {
 
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName().Get(), n->GetName().Get(), m_Stamp, n->GetStamp() ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Need to build '%s' (dep is newer: '%s' this = %llu, dep = %llu)", GetName()->Get(), n->GetName()->Get(), m_Stamp, n->GetStamp() ); } } while ( false ); ;
    return true;
   }
  }
 
 
 
- do { if ( FLog::ShowInfo() ) { FLog::Info( "Up-To-Date '%s'", GetName().Get() ); } } while ( false ); ;
+ do { if ( FLog::ShowInfo() ) { FLog::Info( "Up-To-Date '%s'", GetName()->Get() ); } } while ( false ); ;
  return false;
 }
 
@@ -20212,7 +20212,7 @@ ObjectListNode::~ObjectListNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+     do { FLog::Error( "Library() .CompilerInputFile '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
      return false;
     }
 
@@ -20256,7 +20256,7 @@ ObjectListNode::~ObjectListNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+     do { FLog::Error( "Library() .CompilerInputUnity '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
      return false;
     }
 
@@ -20280,7 +20280,7 @@ ObjectListNode::~ObjectListNode()
     }
     else if ( n->IsAFile() == false )
     {
-     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName().Get(), n->GetTypeName() ); } while ( false ); ;
+     do { FLog::Error( "Library() Isolated '%s' is not a FileNode (type: %s)", n->GetName()->Get(), n->GetTypeName() ); } while ( false ); ;
      return false;
     }
 
@@ -20303,7 +20303,7 @@ ObjectListNode::~ObjectListNode()
 
  if ( m_DynamicDependencies.GetSize() == 0 )
  {
-  do { FLog::Error( "No files found to build '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "No files found to build '%s'", GetName()->Get() ); } while ( false ); ;
   return false;
  }
 
@@ -20417,7 +20417,7 @@ bool ObjectListNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode
  }
  else if ( on->GetType() != Node::OBJECT_NODE )
  {
-  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName().Get(), on->GetTypeName() ); } while ( false ); ;
+  do { FLog::Error( "Node '%s' is not an ObjectNode (type: %s)", on->GetName()->Get(), on->GetTypeName() ); } while ( false ); ;
   return false;
  }
  else
@@ -20425,7 +20425,7 @@ bool ObjectListNode::CreateDynamicObjectNode( Node * inputFile, bool isUnityNode
   ObjectNode * other = on->CastTo< ObjectNode >();
   if ( inputFile != other->GetSourceFile() )
   {
-   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName().Get(), other->GetSourceFile()->GetName().Get(), objFile.Get() ); } while ( false ); ;
+   do { FLog::Error( "Conflicting objects found:\n" " File A: %s\n" " File B: %s\n" " Both compile to: %s\n", inputFile->GetName()->Get(), other->GetSourceFile()->GetName()->Get(), objFile.Get() ); } while ( false ); ;
 
 
 
@@ -20742,11 +20742,11 @@ ObjectNode::~ObjectNode()
             Node::BuildResult ObjectNode::DoBuild( Job * job )
 {
 
- if ( FileIO::FileExists( GetName().Get() ) )
+ if ( FileIO::FileExists( GetName()->Get() ) )
  {
-  if ( FileIO::FileDelete( GetName().Get() ) == false )
+  if ( FileIO::FileDelete( GetName()->Get() ) == false )
   {
-   do { FLog::Error( "Failed to delete file before build '%s'", GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "Failed to delete file before build '%s'", GetName()->Get() ); } while ( false ); ;
    return NODE_RESULT_FAILED;
   }
  }
@@ -20758,7 +20758,7 @@ ObjectNode::~ObjectNode()
   {
    if ( FileIO::FileDelete( pchObj.Get() ) == false )
    {
-    do { FLog::Error( "Failed to delete file before build '%s'", GetName().Get() ); } while ( false ); ;
+    do { FLog::Error( "Failed to delete file before build '%s'", GetName()->Get() ); } while ( false ); ;
     return NODE_RESULT_FAILED;
    }
   }
@@ -20817,7 +20817,7 @@ ObjectNode::~ObjectNode()
   }
   else if ( fn->IsAFile() == false )
   {
-   do { FLog::Error( "'%s' is not a FileNode (type: %s)", fn->GetName().Get(), fn->GetTypeName() ); } while ( false ); ;
+   do { FLog::Error( "'%s' is not a FileNode (type: %s)", fn->GetName()->Get(), fn->GetTypeName() ); } while ( false ); ;
    return false;
   }
   m_DynamicDependencies.Append( Dependency( fn ) );
@@ -20970,7 +20970,7 @@ Node::BuildResult ObjectNode::DoBuildWithPreProcessor2( Job * job, bool useDeopt
 
 
   Node * sourceFile = GetSourceFile();
-  fullArgs.Replace( sourceFile->GetName().Get(), tmpFileName.Get() );
+  fullArgs.Replace( sourceFile->GetName()->Get(), tmpFileName.Get() );
  }
  else
  {
@@ -21047,7 +21047,7 @@ bool ObjectNode::ProcessIncludesMSCL( const char * output, uint32_t outputSize )
   bool result = parser.ParseMSCL_Output( output, outputSize );
   if ( result == false )
   {
-   do { FLog::Error( "Failed to process includes for '%s'", GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "Failed to process includes for '%s'", GetName()->Get() ); } while ( false ); ;
    return false;
   }
 
@@ -21081,7 +21081,7 @@ bool ObjectNode::ProcessIncludesWithPreProcessor( Job * job )
         : parser.ParseGCC_Preprocessed( output, outputSize );
   if ( result == false )
   {
-   do { FLog::Error( "Failed to process includes for '%s'", GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "Failed to process includes for '%s'", GetName()->Get() ); } while ( false ); ;
    return false;
   }
 
@@ -21512,7 +21512,7 @@ bool ObjectNode::RetrieveFromCache( Job * job )
    m_Stamp = FileIO::GetFileLastWriteTime( m_Name );
 
    do { if ( FLog::ShowInfo() ) { FLog::Info( "Cache hit: %u ms '%s'\n", uint32_t( t.GetElapsedMS() ), cacheFileName.Get() ); } } while ( false ); ;
-   do { FLog::Build( "Obj: %s <CACHE>\n", GetName().Get() ); } while ( false ); ;
+   do { FLog::Build( "Obj: %s <CACHE>\n", GetName()->Get() ); } while ( false ); ;
    SetStatFlag( Node::STATS_CACHE_HIT );
    return true;
   }
@@ -21918,13 +21918,13 @@ bool ObjectNode::WriteTmpFile( Job * job, AString & tmpFileName ) const
  WorkerThread::CreateTempFilePath( fileName.Get(), tmpFileName );
  if ( WorkerThread::CreateTempFile( tmpFileName, tmpFile ) == false )
  {
-  job->Error( "Failed to create temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName().Get(), Env::GetLastErr );
+  job->Error( "Failed to create temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName()->Get(), Env::GetLastErr );
   job->OnSystemError();
   return NODE_RESULT_FAILED;
  }
  if ( tmpFile.Write( dataToWrite, dataToWriteSize ) != dataToWriteSize )
  {
-  job->Error( "Failed to write to temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName().Get(), Env::GetLastErr );
+  job->Error( "Failed to write to temp file '%s' to build '%s' (error %u)", tmpFileName.Get(), GetName()->Get(), Env::GetLastErr );
   job->OnSystemError();
   return NODE_RESULT_FAILED;
  }
@@ -22121,7 +22121,7 @@ bool ObjectNode::ShouldUseDeoptimization() const
 
 
  FileStream fs;
- if ( fs.Open( GetSourceFile()->GetName().Get(), FileStream::READ_ONLY ) )
+ if ( fs.Open( GetSourceFile()->GetName()->Get(), FileStream::READ_ONLY ) )
  {
   const size_t bytesToRead = Math::Min< size_t >( 1024, (size_t)fs.GetFileSize() );
   char buffer[ 1025 ];
@@ -22202,14 +22202,14 @@ TestNode::~TestNode()
 
 
  Process p;
- bool spawnOK = p.Spawn( m_Executable->GetName().Get(),
+ bool spawnOK = p.Spawn( m_Executable->GetName()->Get(),
        m_Arguments.Get(),
        workingDir,
        FBuild::Get().GetEnvironmentString() );
 
  if ( !spawnOK )
  {
-  do { FLog::Error( "Failed to spawn process for '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Failed to spawn process for '%s'", GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -22232,15 +22232,15 @@ TestNode::~TestNode()
 
 
  FileStream fs;
- if ( fs.Open( GetName().Get(), FileStream::WRITE_ONLY ) == false )
+ if ( fs.Open( GetName()->Get(), FileStream::WRITE_ONLY ) == false )
  {
-  do { FLog::Error( "Failed to open test output file '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Failed to open test output file '%s'", GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
  if ( ( memOut.Get() && ( fs.Write( memOut.Get(), memOutSize ) != memOutSize ) ) ||
    ( memErr.Get() && ( fs.Write( memErr.Get(), memErrSize ) != memErrSize ) ) )
  {
-  do { FLog::Error( "Failed to write test output file '%s'", GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Failed to write test output file '%s'", GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
  fs.Close();
@@ -22248,7 +22248,7 @@ TestNode::~TestNode()
 
  if ( result != 0 )
  {
-  do { FLog::Error( "Test failed (error %i) '%s'", result, GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "Test failed (error %i) '%s'", result, GetName()->Get() ); } while ( false ); ;
   return NODE_RESULT_FAILED;
  }
 
@@ -22558,7 +22558,7 @@ UnityNode::~UnityNode()
   {
    if ( hasOutputMessage == false )
    {
-    do { FLog::Build( "Uni: %s\n", GetName().Get() ); } while ( false ); ;
+    do { FLog::Build( "Uni: %s\n", GetName()->Get() ); } while ( false ); ;
     hasOutputMessage = true;
    }
 
@@ -23697,7 +23697,7 @@ void FBuildStats::OutputSummary() const
   for ( size_t i=0; i<itemsToDisplay; ++i )
   {
    const Node * n = m_NodesByTime[ i ];
-   Tracing::OutputFormat( "%-9.3f %s\n", ( (float)n->GetProcessingTime() / 1000.0f ), n->GetName().Get() );
+   Tracing::OutputFormat( "%-9.3f %s\n", ( (float)n->GetProcessingTime() / 1000.0f ), n->GetName()->Get() );
   }
   Tracing::OutputFormat( "\n" );
  }
@@ -24265,7 +24265,7 @@ void Report::DoCacheStats( const FBuildStats & stats )
   for ( LibraryStats ** it = m_LibraryStats.Begin(); it != end; ++it )
   {
    const LibraryStats & ls = *( *it );
-   const char * libraryName = ls.library->GetName().Get();
+   const char * libraryName = ls.library->GetName()->Get();
 
 
    const uint32_t items = ls.objectCount;
@@ -24417,7 +24417,7 @@ void Report::DoCPUTimeByItem( const FBuildStats & stats )
   const Node * node = *it;
   float time = ( (float)node->GetProcessingTime() * 0.001f );
   const char * type = node->GetTypeName();
-  const char * name = node->GetName().Get();
+  const char * name = node->GetName()->Get();
 
 
   if ( numOutput == 10 )
@@ -24490,7 +24490,7 @@ void Report::DoCPUTimeByLibrary()
    case Node::CS_NODE: type = "C# DLL"; break;
    default: do { if ( !( false ) ) { if ( AssertHandler::Failure( "false", "/Users/ffulin/p4/Code/Tools/FBuild/FBuildCore/Helpers/Report.cpp", 629 ) ) { __builtin_trap();; } } } while ( false ); ; break;
   }
-  const char * name = ls.library->GetName().Get();
+  const char * name = ls.library->GetName()->Get();
   Write( ( numOutput == 10 ) ? "<tr></tr><tr><td style=\"width:80px;\">%2.3fs</td><td style=\"width:50px;\">%2.1f</td><td style=\"width:70px;\">%u</td><td style=\"width:50px;\">%s</td><td>%s</td></tr>\n"
            : "<tr><td>%2.3fs</td><td>%2.1f</td><td>%u</td><td>%s</td><td>%s</td></tr>\n",
           time, perc, objCount, type, name );
@@ -24533,7 +24533,7 @@ void Report::DoIncludes()
   incStatsMap.Flatten( incStats );
   incStats.SortDeref();
 
-  Write( "<h3>%s</h3>\n", library->GetName().Get() );
+  Write( "<h3>%s</h3>\n", library->GetName()->Get() );
   numLibsOutput++;
 
   if ( incStats.GetSize() == 0 )
@@ -24553,7 +24553,7 @@ void Report::DoIncludes()
   for ( size_t i=0; i<numIncludes; ++i )
   {
    const IncludeStats & s = *incStats[ i ];
-   const char * fileName = s.node->GetName().Get();
+   const char * fileName = s.node->GetName()->Get();
    const uint32_t included = s.count;
    const bool inPCH = s.inPCH;
 
@@ -26588,7 +26588,7 @@ void Client::Process( const ConnectionInfo * connection, const Protocol::MsgRequ
 
  AStackString<> address;
  TCPConnectionPool::GetAddressAsString( connection->GetRemoteAddress(), address );
- do { FLog::Build( "-> Obj: %s <REMOTE: %s>\n", job->GetNode()->GetName().Get(), address.Get() ); } while ( false ); ;
+ do { FLog::Build( "-> Obj: %s <REMOTE: %s>\n", job->GetNode()->GetName()->Get(), address.Get() ); } while ( false ); ;
 
  Protocol::MsgJob msg( toolId );
  msg.Send( connection, stream );
@@ -26737,7 +26737,7 @@ void Client::Process( const ConnectionInfo * connection, const Protocol::MsgJobR
 
    const size_t workerIndex = ( ss - m_ServerList.Begin() );
    const AString & workerName = m_WorkerList[ workerIndex ];
-   do { if ( FLog::ShowInfo() ) { FLog::Info( "Remote System Failure!\n" " - Deny listed Worker: %s\n" " - Node		         : %s\n" " - Job Error Count   : %u / %u\n", workerName.Get(), job->GetNode()->GetName().Get(), job->GetSystemErrorCount(), ( 3 ) ); } } while ( false ); ;
+   do { if ( FLog::ShowInfo() ) { FLog::Info( "Remote System Failure!\n" " - Deny listed Worker: %s\n" " - Node		         : %s\n" " - Job Error Count   : %u / %u\n", workerName.Get(), job->GetNode()->GetName()->Get(), job->GetSystemErrorCount(), ( 3 ) ); } } while ( false ); ;
 # 589 "/Users/ffulin/p4/Code/Tools/FBuild/FBuildCore/Protocol/Client.cpp"
    if ( job->GetSystemErrorCount() < ( 3 ) )
    {
@@ -28979,7 +28979,7 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success, bool wasARemoteJo
 
   node->SetLastBuildTime( timeTakenMS );
   node->SetStatFlag( Node::STATS_BUILT );
-  do { if ( FLog::ShowInfo() ) { FLog::Info( "-Build: %u ms\t%s", timeTakenMS, node->GetName().Get() ); } } while ( false ); ;
+  do { if ( FLog::ShowInfo() ) { FLog::Info( "-Build: %u ms\t%s", timeTakenMS, node->GetName()->Get() ); } } while ( false ); ;
  }
 
  if ( result == Node::NODE_RESULT_NEED_SECOND_BUILD_PASS )
@@ -28997,13 +28997,13 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success, bool wasARemoteJo
    else
    {
 
-    if ( FileIO::FileExists( node->GetName().Get() ) )
+    if ( FileIO::FileExists( node->GetName()->Get() ) )
     {
 
-     if ( FileIO::FileDelete( node->GetName().Get() ) == false )
+     if ( FileIO::FileDelete( node->GetName()->Get() ) == false )
      {
 
-      do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName().Get() ); } while ( false ); ;
+      do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName()->Get() ); } while ( false ); ;
      }
     }
    }
@@ -29017,9 +29017,9 @@ void JobQueue::FinishedProcessingJob( Job * job, bool success, bool wasARemoteJo
    if ( node->GetType() != Node::FILE_NODE )
    {
 
-    if ( !FileIO::FileExists( node->GetName().Get() ) )
+    if ( !FileIO::FileExists( node->GetName()->Get() ) )
     {
-     do { FLog::Error( "File missing despite success for '%s'", node->GetName().Get() ); } while ( false ); ;
+     do { FLog::Error( "File missing despite success for '%s'", node->GetName()->Get() ); } while ( false ); ;
      result = Node::NODE_RESULT_FAILED;
     }
    }
@@ -29320,13 +29320,13 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
  if ( result == Node::NODE_RESULT_FAILED )
  {
 
-  if ( FileIO::FileExists( node->GetName().Get() ) )
+  if ( FileIO::FileExists( node->GetName()->Get() ) )
   {
 
-   if ( FileIO::FileDelete( node->GetName().Get() ) == false )
+   if ( FileIO::FileDelete( node->GetName()->Get() ) == false )
    {
 
-    do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName().Get() ); } while ( false ); ;
+    do { FLog::Error( "Post failure deletion failed for '%s'", node->GetName()->Get() ); } while ( false ); ;
    }
   }
  }
@@ -29350,7 +29350,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
  if ( job->IsLocal() == false )
  {
 
-  FileIO::FileDelete( node->GetName().Get() );
+  FileIO::FileDelete( node->GetName()->Get() );
 
 
   if ( node->IsUsingPDB() )
@@ -29376,9 +29376,9 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 
 
  FileStream fs;
- if ( fs.Open( node->GetName().Get() ) == false )
+ if ( fs.Open( node->GetName()->Get() ) == false )
  {
-  do { FLog::Error( "File missing despite success: '%s'", node->GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "File missing despite success: '%s'", node->GetName()->Get() ); } while ( false ); ;
   return false;
  }
  uint32_t size = (uint32_t)fs.GetFileSize();
@@ -29416,7 +29416,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 
  if ( fs.Read( mem.Get() + sizeof( uint32_t ), size ) != size )
  {
-  do { FLog::Error( "File read error for '%s'", node->GetName().Get() ); } while ( false ); ;
+  do { FLog::Error( "File read error for '%s'", node->GetName()->Get() ); } while ( false ); ;
   return false;
  }
 
@@ -29428,7 +29428,7 @@ void JobQueueRemote::FinishedProcessingJob( Job * job, bool success )
 
   if ( fs2.Read( mem.Get() + sizeof( uint32_t ) + size + sizeof( uint32_t ), size2 ) != size2 )
   {
-   do { FLog::Error( "File read error for '%s'", node->GetName().Get() ); } while ( false ); ;
+   do { FLog::Error( "File read error for '%s'", node->GetName()->Get() ); } while ( false ); ;
    return false;
   }
  }

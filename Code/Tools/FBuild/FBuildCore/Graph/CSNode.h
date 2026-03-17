@@ -40,17 +40,17 @@ private:
     void GetExtraRefs( Args & fullArgs, const AString & pre, const AString & post ) const;
 
     // Exposed Properties
-    AString m_Compiler;
-    AString m_CompilerOptions;
-    AString m_CompilerOutput;
-    Array<AString> m_CompilerInputPath;
+    SharedPtr<AString> m_Compiler;
+    SharedPtr<AString> m_CompilerOptions;
+    SharedPtr<AString> m_CompilerOutput;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputPath;
     bool m_CompilerInputPathRecurse;
-    Array<AString> m_CompilerInputPattern;
-    Array<AString> m_CompilerInputExcludePath;
-    Array<AString> m_CompilerInputExcludedFiles;
-    Array<AString> m_CompilerInputExcludePattern;
-    Array<AString> m_CompilerInputFiles;
-    Array<AString> m_CompilerReferences;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputPattern;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputExcludePath;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputExcludedFiles;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputExcludePattern;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerInputFiles;
+    SharedPtr<Array<SharedPtr<AString>>> m_CompilerReferences;
     Array<Node *> m_PreBuildDependencyNames;
 
     // Internal State

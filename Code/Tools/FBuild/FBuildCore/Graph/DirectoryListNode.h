@@ -27,7 +27,7 @@ public:
 
     virtual bool IsAFile() const override { return false; }
 
-    virtual const AString & GetPrettyName() const override { return m_PrettyName.IsEmpty() ? m_Name : m_PrettyName; }
+    virtual const AString & GetPrettyName() const override { return m_PrettyName.IsEmpty() ? *m_Name : m_PrettyName; }
 
     static void FormatName( const AString & path,
                             const Array<AString> * patterns,

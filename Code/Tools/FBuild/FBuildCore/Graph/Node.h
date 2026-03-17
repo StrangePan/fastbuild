@@ -9,6 +9,7 @@
 
 // Core
 #include "Core/Containers/Array.h"
+#include "Core/Containers/SharedPtr.h"
 #include "Core/Reflection/ReflectionMacros.h"
 #include "Core/Reflection/Struct.h"
 #include "Core/Strings/AString.h"
@@ -194,9 +195,9 @@ public:
     void SetSecondaryTag() { m_SecondaryTag = s_SecondaryTag; }
     [[nodiscard]] bool HasSecondaryTag() const { return ( m_SecondaryTag == s_SecondaryTag ); }
 
-    const AString & GetName() const { return m_Name; }
+    const SharedPtr<AString> & GetName() const { return m_Name; }
 
-    virtual const AString & GetPrettyName() const { return GetName(); }
+    virtual const AString & GetPrettyName() const { return *GetName(); }
 
     bool IsHidden() const { return m_Hidden; }
     virtual uint8_t GetConcurrencyGroupIndex() const;
@@ -268,21 +269,21 @@ protected:
     bool InitializePreBuildDependencies( NodeGraph & nodeGraph,
                                          const BFFToken * iter,
                                          const Function * function,
-                                         const Array<AString> & preBuildDependencyNames );
+                                         const Array<SharedPtr<AString>> & preBuildDependencyNames );
     bool InitializeConcurrencyGroup( NodeGraph & nodeGraph,
                                      const BFFToken * iter,
                                      const Function * function,
                                      const AString & concurrencyGroupName,
                                      uint8_t & outConcurrencyGroupIndex );
 
-    static const char * GetEnvironmentString( const Array<AString> & envVars,
+    static const char * GetEnvironmentString( const Array<SharedPtr<AString>> & envVars,
                                               const char *& inoutCachedEnvString );
 
     void RecordStampFromBuiltFile();
 
     // Members are ordered to minimize wasted bytes due to padding.
     // Most frequently accessed members are favored for placement in the first cache line.
-    AString m_Name; // Full name. **Set by constructor**
+    SharedPtr<AString> m_Name; // Full name. **Set by constructor**
     State m_State = NOT_PROCESSED; // State in the current build
     Type m_Type; // Node type. **Set by constructor**
     mutable uint16_t m_StatsFlags = 0; // Stats recorded in the current build

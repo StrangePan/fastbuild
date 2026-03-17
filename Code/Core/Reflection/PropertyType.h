@@ -12,6 +12,7 @@ class AString;
 class ReflectionInfo;
 class Struct;
 template <class T> class Array;
+template <class T> class SharedPtr;
 
 // PropertyType
 //------------------------------------------------------------------------------
@@ -84,6 +85,11 @@ enum PropertyType : uint8_t
 }
 template <class T>
 [[nodiscard]] inline constexpr PropertyType GetPropertyType( const Array<T> * )
+{
+    return GetPropertyType( static_cast<T *>( nullptr ) );
+}
+template <class T>
+[[nodiscard]] inline constexpr PropertyType GetPropertyType( const SharedPtr<T> * )
 {
     return GetPropertyType( static_cast<T *>( nullptr ) );
 }

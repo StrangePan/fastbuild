@@ -58,12 +58,12 @@ private:
     ArgsResponseFileMode GetResponseFileMode() const;
 
     // Exposed Properties
-    AString m_Librarian;
-    AString m_LibrarianOptions;
-    AString m_LibrarianType;
-    AString m_LibrarianOutput;
-    Array<AString> m_LibrarianAdditionalInputs;
-    Array<AString> m_Environment;
+    SharedPtr<AString> m_Librarian;
+    SharedPtr<AString> m_LibrarianOptions;
+    SharedPtr<AString> m_LibrarianType;
+    SharedPtr<AString> m_LibrarianOutput;
+    SharedPtr<Array<SharedPtr<AString>>> m_LibrarianAdditionalInputs;
+    SharedPtr<Array<SharedPtr<AString>>> m_Environment;
     bool m_LibrarianAllowResponseFile;
     bool m_LibrarianForceResponseFile;
 

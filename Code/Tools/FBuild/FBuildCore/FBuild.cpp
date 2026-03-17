@@ -274,7 +274,7 @@ bool FBuild::GetTargets( const Array<AString> & targets, Dependencies & outDeps 
                 const size_t count = nearestNodes.GetSize();
                 for ( size_t j = 0; j < count; ++j )
                 {
-                    FLOG_WARN( "    %s", nearestNodes[ j ].m_Node->GetName().Get() );
+                    FLOG_WARN( "    %s", nearestNodes[ j ].m_Node->GetName()->Get() );
                 }
             }
 
@@ -803,7 +803,7 @@ void FBuild::DisplayTargetList( bool showHidden ) const
         }
         if ( displayName && ( !hidden || showHidden ) )
         {
-            OUTPUT( "\t%s\n", node->GetName().Get() );
+            OUTPUT( "\t%s\n", node->GetName()->Get() );
         }
     }
 }

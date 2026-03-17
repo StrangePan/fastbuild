@@ -601,7 +601,7 @@ void NodeGraph::SerializeToText( const Dependencies & deps, AString & outBuffer 
 /*static*/ void NodeGraph::SerializeToText( Node * node, uint32_t depth, AString & outBuffer )
 {
     // Print this even if it has been visited before so the edge is visible
-    outBuffer.AppendFormat( "%*s%s %s\n", depth * 4, "", node->GetTypeName(), node->GetName().Get() );
+    outBuffer.AppendFormat( "%*s%s %s\n", depth * 4, "", node->GetTypeName(), node->GetName()->Get() );
 
     // Don't descend into already visited nodes
     if ( node->GetBuildPassTag() == s_BuildPassTag )
@@ -1112,7 +1112,7 @@ void NodeGraph::BuildRecurse( Node * nodeToBuild, uint32_t cost )
             {
                 if ( FLog::ShowVerbose() )
                 {
-                    FLOG_BUILD_REASON( "Up-To-Date '%s'\n", nodeToBuild->GetName().Get() );
+                    FLOG_BUILD_REASON( "Up-To-Date '%s'\n", nodeToBuild->GetName()->Get() );
                 }
                 nodeToBuild->SetState( Node::UP_TO_DATE );
             }
@@ -1663,10 +1663,10 @@ void NodeGraph::FindNearestNodesInternal( const AString & fullPath, Array<NodeWi
             // Exclude the proxy node that can sometimes appear at the root
             if ( nodeInStack->GetType() != Node::PROXY_NODE )
             {
-                buffer.AppendFormat( " - %s%s\n", nodeInStack->GetName().Get(), ( nodeInStack == node ) ? " <--- HERE" : "" );
+                buffer.AppendFormat( " - %s%s\n", nodeInStack->GetName()->Get(), ( nodeInStack == node ) ? " <--- HERE" : "" );
             }
         }
-        FLOG_ERROR( "%s - %s <--- HERE\n", buffer.Get(), node->GetName().Get() );
+        FLOG_ERROR( "%s - %s <--- HERE\n", buffer.Get(), node->GetName()->Get() );
         return true;
     }
 

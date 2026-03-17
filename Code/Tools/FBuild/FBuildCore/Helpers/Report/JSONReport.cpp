@@ -295,7 +295,7 @@ void JSONReport::DoCacheStats( const FBuildStats & /*stats*/ )
         // items
         for ( const LibraryStats * ls : m_LibraryStats )
         {
-            const char * libraryName = ls->m_Library->GetName().Get();
+            const char * libraryName = ls->m_Library->GetName()->Get();
 
             // total items in library
             const uint32_t totalItemsCount = ls->m_ObjectCount;
@@ -430,7 +430,7 @@ void JSONReport::DoCPUTimeByLibrary()
             case Node::OBJECT_LIST_NODE: type = "ObjectList"; break;
             default: break;
         }
-        const char * name = ls->m_Library->GetName().Get();
+        const char * name = ls->m_Library->GetName()->Get();
 
         Write( "{" );
         Write( "\n\t\t\t" );
@@ -476,7 +476,7 @@ void JSONReport::DoCPUTimeByItem( const FBuildStats & stats )
     {
         const float time = ( (float)node->GetProcessingTime() * 0.001f ); // ms to s
         const char * type = node->GetTypeName();
-        const char * name = node->GetName().Get();
+        const char * name = node->GetName()->Get();
 
         if ( cacheEnabled )
         {
@@ -552,7 +552,7 @@ void JSONReport::DoIncludes()
         incStats.SortDeref();
 
         Write( "{\n\t\t\t" );
-        Write( "\"Library name\": \"%s\",", library->GetName().Get() );
+        Write( "\"Library name\": \"%s\",", library->GetName()->Get() );
         Write( "\n\t\t\t" );
         Write( "\"Includes\": [" );
 
@@ -579,7 +579,7 @@ void JSONReport::DoIncludes()
         for ( size_t i = 0; i < numIncludes; ++i )
         {
             const IncludeStats & s = *incStats[ i ];
-            const char * fileName = s.m_Node->GetName().Get();
+            const char * fileName = s.m_Node->GetName()->Get();
             const uint32_t included = s.m_Count;
             const bool inPCH = s.m_InPCH;
 

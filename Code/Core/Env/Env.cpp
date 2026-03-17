@@ -289,13 +289,13 @@ static bool IsStdOutRedirectedInternal()
 
 // AllocEnvironmentString
 //------------------------------------------------------------------------------
-/*static*/ const char * Env::AllocEnvironmentString( const Array<AString> & environment )
+/*static*/ const char * Env::AllocEnvironmentString( const Array<SharedPtr<AString>> & environment )
 {
     size_t len = 0;
     const size_t numEnvVars = environment.GetSize();
     for ( size_t i = 0; i < numEnvVars; ++i )
     {
-        len += environment[ i ].GetLength() + 1;
+        len += environment[ i ]->GetLength() + 1;
     }
     len += 1; // for double null
 
@@ -304,7 +304,7 @@ static bool IsStdOutRedirectedInternal()
     const char * environmentString = mem;
     for ( size_t i = 0; i < numEnvVars; ++i )
     {
-        const AString & envVar = environment[ i ];
+        const AString & envVar = *environment[ i ];
         AString::Copy( envVar.Get(), mem, envVar.GetLength() + 1 );
         mem += ( envVar.GetLength() + 1 );
     }

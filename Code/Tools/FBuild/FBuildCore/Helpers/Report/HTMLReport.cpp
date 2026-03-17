@@ -359,7 +359,7 @@ void HTMLReport::DoCacheStats( const FBuildStats & /*stats*/ )
         // items
         for ( const LibraryStats * ls : m_LibraryStats )
         {
-            const char * libraryName = ls->m_Library->GetName().Get();
+            const char * libraryName = ls->m_Library->GetName()->Get();
 
             // total items in library
             const uint32_t items = ls->m_ObjectCount;
@@ -514,7 +514,7 @@ void HTMLReport::DoCPUTimeByItem( const FBuildStats & stats )
     {
         const float time = ( (float)node->GetProcessingTime() * 0.001f ); // ms to s
         const char * type = node->GetTypeName();
-        const char * name = node->GetName().Get();
+        const char * name = node->GetName()->Get();
 
         // start collapsible section
         if ( numOutput == 10 )
@@ -604,7 +604,7 @@ void HTMLReport::DoCPUTimeByLibrary()
             case Node::OBJECT_LIST_NODE: type = "ObjectList"; break;
             default: break;
         }
-        const char * name = ls->m_Library->GetName().Get();
+        const char * name = ls->m_Library->GetName()->Get();
         Write( ( numOutput == 10 ) ? "<tr></tr><tr><td style=\"width:80px;\">%2.3fs</td><td style=\"width:50px;\">%2.1f</td><td style=\"width:70px;\">%u</td><td style=\"width:50px;\">%s</td><td>%s</td></tr>\n"
                                    : "<tr><td>%2.3fs</td><td>%2.1f</td><td>%u</td><td>%s</td><td>%s</td></tr>\n",
                (double)time,
@@ -651,7 +651,7 @@ void HTMLReport::DoIncludes()
         incStatsMap.Flatten( incStats );
         incStats.SortDeref();
 
-        Write( "<h3>%s</h3>\n", library->GetName().Get() );
+        Write( "<h3>%s</h3>\n", library->GetName()->Get() );
         numLibsOutput++;
 
         if ( incStats.GetSize() == 0 )
@@ -671,7 +671,7 @@ void HTMLReport::DoIncludes()
         for ( size_t i = 0; i < numIncludes; ++i )
         {
             const IncludeStats & s = *incStats[ i ];
-            const char * fileName = s.m_Node->GetName().Get();
+            const char * fileName = s.m_Node->GetName()->Get();
             const uint32_t included = s.m_Count;
             const bool inPCH = s.m_InPCH;
 

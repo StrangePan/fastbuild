@@ -361,7 +361,7 @@ BuildProfilerScope::BuildProfilerScope( Job & job, uint32_t threadId, const char
     {
         m_ThreadId = threadId;
         m_StepName = stepName;
-        m_TargetName = job.GetNode()->GetName().Get();
+        m_TargetName = job.GetNode()->GetName()->Get();
         m_StartTime = Timer::GetNow();
     }
 

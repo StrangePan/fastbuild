@@ -262,7 +262,7 @@ DirectoryListNode::~DirectoryListNode() = default;
     {
         AStackString buffer;
         buffer.AppendFormat( "Dir: '%s' (%zu files)\n",
-                             m_Name.Get(),
+                             m_Name->Get(),
                              m_Files.GetSize() );
         for ( const FileIO::FileInfo & file : m_Files )
         {
@@ -271,7 +271,7 @@ DirectoryListNode::~DirectoryListNode() = default;
         if ( m_IncludeDirs )
         {
             buffer.AppendFormat( "Dir: '%s' (%zu dirs)\n",
-                                 m_Name.Get(),
+                                 m_Name->Get(),
                                  m_Directories.GetSize() );
             for ( const AString & dir : m_Directories )
             {
@@ -293,7 +293,7 @@ DirectoryListNode::~DirectoryListNode() = default;
             for ( const FileIO::FileInfo & file : m_Files )
             {
                 // Include filenames, so additions and removals will change the hash
-                hashAccumulator.AddData( file.m_Name.Get(), file.m_Name.GetLength() );
+                hashAccumulator.AddData( file.m_Name.Get(), file.m_Name->GetLength() );
 
                 // Include read-only status if desired
                 if ( m_IncludeReadOnlyStatusInHash )

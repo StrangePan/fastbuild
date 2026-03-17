@@ -685,7 +685,7 @@ bool BFFParser::ParseUserFunctionCall( BFFTokenRange & iter, const BFFUserFuncti
     for ( size_t i = 0; i < numArgs; ++i )
     {
         const BFFToken * expectedArg = expectedArgs[ i ];
-        const SharedPtr<AString> & argName = SharedPtr<AString>::MakeShared( expectedArg->GetValueString() );
+        const SharedPtr<AString> argName( expectedArg->GetValueString() );
         const BFFToken * arg = arguments[ i ];
         if ( arg->IsString() )
         {
@@ -695,7 +695,7 @@ bool BFFParser::ParseUserFunctionCall( BFFTokenRange & iter, const BFFUserFuncti
             {
                 return false;
             }
-            BFFStackFrame::SetVarString( argName, *arg, SharedPtr<AString>::MakeShared( value ), &frame );
+            BFFStackFrame::SetVarString( argName, *arg, SharedPtr<AString>( value ), &frame );
         }
         else if ( arg->IsBoolean() )
         {
@@ -882,7 +882,7 @@ bool BFFParser::StoreVariableString( const AString & name,
                 finalValue.Replace( value.Get(), "" );
             }
 
-            BFFStackFrame::SetVarString( var->GetName(), *opToken, SharedPtr<AString>::MakeShared( finalValue ), frame );
+            BFFStackFrame::SetVarString( var->GetName(), *opToken, SharedPtr<AString>( finalValue ), frame );
             return true;
         }
         else if ( var->IsArrayOfStrings() || dstIsEmpty )
@@ -898,7 +898,7 @@ bool BFFParser::StoreVariableString( const AString & name,
                 {
                     stackFinalValues.Append( *originalValues );
                 }
-                stackFinalValues.EmplaceBack( SharedPtr<AString>::MakeShared( value ) );
+                stackFinalValues.EmplaceBack( SharedPtr<AString>( value ) );
                 finalValues.Emplace( stackFinalValues );
             }
             else if ( !dstIsEmpty )
@@ -961,7 +961,7 @@ bool BFFParser::StoreVariableString( const AString & name,
             {
                 sharedName.Emplace( name );
             }
-            BFFStackFrame::SetVarString( sharedName, *opToken, SharedPtr<AString>::MakeShared( value ), frame );
+            BFFStackFrame::SetVarString( sharedName, *opToken, SharedPtr<AString>( value ), frame );
             return true;
         }
         else if ( var->IsArrayOfStrings() || dstIsEmpty )
@@ -1078,7 +1078,7 @@ bool BFFParser::StoreVariableArray( const AString & name,
             }
 
             varType = BFFVariable::VAR_ARRAY_OF_STRINGS;
-            newValues.EmplaceBack( SharedPtr<AString>::MakeShared( elementValue ) );
+            newValues.EmplaceBack( SharedPtr<AString>( elementValue ) );
         }
         else if ( iter->IsVariable() )
         {
@@ -1242,7 +1242,7 @@ bool BFFParser::StoreVariableArray( const AString & name,
         }
         else
         {
-            BFFStackFrame::SetVarArrayOfStructs( sharedName, *opToken, SharedPtr<Array<BFFVariable>>::MakeShared( newStructValues ), frame );
+            BFFStackFrame::SetVarArrayOfStructs( sharedName, *opToken, SharedPtr<Array<BFFVariable>>( newStructValues ), frame );
         }
     }
     else
@@ -1270,7 +1270,7 @@ bool BFFParser::StoreVariableArray( const AString & name,
         }
         else
         {
-            BFFStackFrame::SetVarArrayOfStrings( sharedName, *opToken, SharedPtr<Array<SharedPtr<AString>>>::MakeShared( newValues ), frame );
+            BFFStackFrame::SetVarArrayOfStrings( sharedName, *opToken, SharedPtr<Array<SharedPtr<AString>>>( newValues ), frame );
         }
     }
 
@@ -1318,10 +1318,10 @@ bool BFFParser::StoreVariableStruct( const AString & name,
     }
 
     // get variables defined in the scope
-    SharedPtr<Array<BFFVariable>> structMembers = SharedPtr<Array<BFFVariable>>::MakeShared( Move( stackFrame.GetLocalVariables() ) );
+    SharedPtr<Array<BFFVariable>> structMembers = SharedPtr<Array<BFFVariable>>( Move( stackFrame.GetLocalVariables() ) );
 
     // Register this variable
-    BFFStackFrame::SetVarStruct( SharedPtr<AString>::MakeShared( name ), *operatorToken, structMembers, frame ? frame : stackFrame.GetParent() );
+    BFFStackFrame::SetVarStruct( SharedPtr<AString>( name ), *operatorToken, structMembers, frame ? frame : stackFrame.GetParent() );
 
     return true;
 }
@@ -1331,7 +1331,7 @@ bool BFFParser::StoreVariableStruct( const AString & name,
 bool BFFParser::StoreVariableBool( const AString & name, const BFFToken * token, bool value, BFFStackFrame * frame )
 {
     // Register this variable
-    BFFStackFrame::SetVarBool( SharedPtr<AString>::MakeShared( name ), *token, value, frame );
+    BFFStackFrame::SetVarBool( SharedPtr<AString>( name ), *token, value, frame );
 
     return true;
 }
@@ -1340,7 +1340,7 @@ bool BFFParser::StoreVariableBool( const AString & name, const BFFToken * token,
 //------------------------------------------------------------------------------
 bool BFFParser::StoreVariableInt( const AString & name, const BFFToken * token, int value, BFFStackFrame * frame )
 {
-    BFFStackFrame::SetVarInt( SharedPtr<AString>::MakeShared( name ), *token, value, frame );
+    BFFStackFrame::SetVarInt( SharedPtr<AString>( name ), *token, value, frame );
 
     return true;
 }
