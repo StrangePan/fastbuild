@@ -9,7 +9,7 @@
 // AStackString<>
 //------------------------------------------------------------------------------
 template <int RESERVED = 256>
-class AStackString : public AString
+class AStackString : public AMutableString
 {
 public:
     explicit AStackString();
@@ -17,6 +17,8 @@ public:
     explicit AStackString( AString && string );
     explicit AStackString( const AStackString & string );
     explicit AStackString( AStackString && string );
+    explicit AStackString( const AMutableString & string );
+    explicit AStackString( AMutableString && string );
     explicit AStackString( const char * string );
     explicit AStackString( const char * start, const char * end );
     ~AStackString() = default;
@@ -46,6 +48,16 @@ public:
         Assign( Move( string ) );
         return *this;
     }
+    AStackString<RESERVED> & operator=( const AMutableString & string )
+    {
+        Assign( string );
+        return *this;
+    }
+    AStackString<RESERVED> & operator=( AMutableString && string )
+    {
+        Assign( Move( string ) );
+        return *this;
+    }
 
 private:
     char m_Storage[ RESERVED + 1 ];
@@ -61,6 +73,7 @@ AStackString( const AStackString<> & ) -> AStackString<RESERVED>;
 //------------------------------------------------------------------------------
 template <int RESERVED>
 AStackString<RESERVED>::AStackString()
+    : AMutableString()
 {
     static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
     m_Contents = m_Storage;
@@ -68,10 +81,11 @@ AStackString<RESERVED>::AStackString()
     m_Storage[ 0 ] = '\0';
 }
 
-// CONSTRUCTOR
+// CONSTRUCTOR (const AString &)
 //------------------------------------------------------------------------------
 template <int RESERVED>
 AStackString<RESERVED>::AStackString( const AString & string )
+    : AMutableString()
 {
     static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
     m_Contents = m_Storage;
@@ -83,7 +97,7 @@ AStackString<RESERVED>::AStackString( const AString & string )
 //------------------------------------------------------------------------------
 template <int RESERVED>
 AStackString<RESERVED>::AStackString( AString && string )
-    : AString()
+    : AMutableString()
 {
     static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
     m_Contents = m_Storage;
@@ -91,11 +105,11 @@ AStackString<RESERVED>::AStackString( AString && string )
     Assign( Move( string ) );
 }
 
-// CONSTRUCTOR (const AString &)
+// CONSTRUCTOR (const AStackString &)
 //------------------------------------------------------------------------------
 template <int RESERVED>
 AStackString<RESERVED>::AStackString( const AStackString & string )
-    : AString()
+    : AMutableString()
 {
     static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
     m_Contents = m_Storage;
@@ -107,7 +121,31 @@ AStackString<RESERVED>::AStackString( const AStackString & string )
 //------------------------------------------------------------------------------
 template <int RESERVED>
 AStackString<RESERVED>::AStackString( AStackString && string )
-    : AString()
+    : AMutableString()
+{
+    static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
+    m_Contents = m_Storage;
+    SetReserved( RESERVED, false );
+    Assign( Move( string ) );
+}
+
+// CONSTRUCTOR (const AMutableString &)
+//------------------------------------------------------------------------------
+template <int RESERVED>
+AStackString<RESERVED>::AStackString( const AMutableString & string )
+    : AMutableString()
+{
+    static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
+    m_Contents = m_Storage;
+    SetReserved( RESERVED, false );
+    Assign( string );
+}
+
+// CONSTRUCTOR (AMutableString &&)
+//------------------------------------------------------------------------------
+template <int RESERVED>
+AStackString<RESERVED>::AStackString( AMutableString && string )
+    : AMutableString()
 {
     static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
     m_Contents = m_Storage;
@@ -119,6 +157,7 @@ AStackString<RESERVED>::AStackString( AStackString && string )
 //------------------------------------------------------------------------------
 template <int RESERVED>
 AStackString<RESERVED>::AStackString( const char * string )
+  : AMutableString()
 {
     static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
     m_Contents = m_Storage;
@@ -130,6 +169,7 @@ AStackString<RESERVED>::AStackString( const char * string )
 //------------------------------------------------------------------------------
 template <int RESERVED>
 AStackString<RESERVED>::AStackString( const char * start, const char * end )
+  : AMutableString()
 {
     static_assert( ( RESERVED % 2 ) == 0, "Capacity must be multiple of 2" );
     m_Contents = m_Storage;
