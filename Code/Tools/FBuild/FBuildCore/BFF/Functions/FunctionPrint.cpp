@@ -205,9 +205,9 @@ FunctionPrint::FunctionPrint()
     ++indent;
     FLOG_OUTPUT( "%s", indentStr.Get() );
 
-    for ( const BFFVariableScope::KeyValue & var : vars )
+    for ( const BFFVariable & var : vars )
     {
-        PrintVarRecurse( var.m_Value, indent );
+        PrintVarRecurse( var, indent );
     }
 }
 
